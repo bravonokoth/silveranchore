@@ -10,54 +10,32 @@ class RolePermissionSeeder extends Seeder
 {
     public function run()
     {
-        // Permissions
-        $permissions = [
-            'view products',
-            'manage cart',
-            'place orders',
-            'make payments',
-            'view own orders',
-            'manage addresses',
-            'receive notifications',
-            'manage products',
-            'manage orders',
-            'manage categories',
-            'manage inventory',
-            'manage media',
-            'manage banners',
-            'manage users',
+        // Define roles
+        $roles = [
+            'super-admin',
+            'admin',
+            'client',
         ];
 
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+        foreach ($roles as $roleName) {
+            Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
         }
 
-        // Roles
-        $client = Role::firstOrCreate(['name' => 'client']);
-        $admin = Role::firstOrCreate(['name' => 'admin']);
-        $superAdmin = Role::firstOrCreate(['name' => 'super_admin']);
+        // Example permissions (add your own)
+        $permissions = [
+            'view dashboard',
+            'manage users',
+            'manage roles',
+        ];
 
-        // Assign permissions to roles
-        $client->syncPermissions([
-            'view products',
-            'manage cart',
-            'place orders',
-            'make payments',
-            'view own orders',
-            'manage addresses',
-            'receive notifications',
-        ]);
+        foreach ($permissions as $permissionName) {
+            Permission::firstOrCreate(['name' => $permissionName, 'guard_name' => 'web']);
+        }
 
-        $admin->syncPermissions([
-            'view products',
-            'manage products',
-            'manage orders',
-            'manage categories',
-            'manage inventory',
-            'manage media',
-            'manage banners',
-        ]);
-
-        $superAdmin->syncPermissions($permissions); // Super-admin gets all permissions
+        // Optionally assign all permissions to super-admin
+        $superAdminRole = Role::where('name', 'super-admin')->first();
+        if ($superAdminRole) {
+            $superAdminRole->givePermissionTo(Permission::all());
+        }
     }
 }
