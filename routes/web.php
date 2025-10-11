@@ -6,10 +6,12 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CouponController;
@@ -20,7 +22,24 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\UserController;
 
-Route::get('/', fn() => view('welcome'))->name('home');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These routes
+| are loaded by the RouteServiceProvider and all of them will be assigned to the
+| "web" middleware group. Make something great!
+|
+*/
+
+// Home Route
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Static Page Routes
+Route::get('/about', [StaticPageController::class, 'about'])->name('about');
+Route::get('/contact', [StaticPageController::class, 'contact'])->name('contact');
+Route::post('/contact', [StaticPageController::class, 'contactSubmit'])->name('contact.submit');
 
 // Authentication Routes (Laravel Breeze)
 Route::middleware('auth')->group(function () {
@@ -35,10 +54,12 @@ Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('products.index');
     Route::get('{product}', [ProductController::class, 'show'])->name('products.show');
 });
+
 Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('{category}', [CategoryController::class, 'show'])->name('categories.show');
 });
+
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
     Route::post('/', [CartController::class, 'store'])->name('cart.store');
@@ -46,6 +67,7 @@ Route::prefix('cart')->group(function () {
     Route::delete('{id}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/', [CartController::class, 'clear'])->name('cart.clear');
 });
+
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/', [CheckoutController::class, 'store'])->name('checkout.store');
@@ -61,10 +83,12 @@ Route::middleware('auth')->group(function () {
         Route::put('{address}', [AddressController::class, 'update'])->name('addresses.update');
         Route::delete('{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
     });
+
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('orders.index');
         Route::get('{order}', [OrderController::class, 'show'])->name('orders.show');
     });
+
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
         Route::post('{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
@@ -73,6 +97,7 @@ Route::middleware('auth')->group(function () {
 
 // Order and Payment Routes
 Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
+
 Route::prefix('payment')->group(function () {
     Route::post('/', [PaymentController::class, 'initialize'])->name('payment.initialize')->middleware('auth');
     Route::get('callback', [PaymentController::class, 'callback'])->name('payment.callback');
