@@ -168,3 +168,22 @@
     gap: 1.5rem;
   }
 }
+:root {
+    --bg-card: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --border-color: #e5e7eb;
+    --input-bg: #f9fafb;
+    --accent-color: #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-card: #1f2937;
+        --text-primary: #f3f4f6;
+        --text-secondary: #d1d5db;
+        --border-color: #374151;
+        --input-bg: #374151;
+        --accent-color: #60a5fa;
+    }
+}

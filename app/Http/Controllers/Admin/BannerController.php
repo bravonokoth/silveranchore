@@ -16,12 +16,12 @@ class BannerController extends Controller
     public function index()
     {
         $banners = Banner::paginate(20);
-        return view('admin.banners.index', compact('banners'));
+        return view('admin.banner.index', compact('banners'));
     }
 
     public function create()
     {
-        return view('admin.banners.create');
+        return view('admin.banner.create');
     }
 
     public function store(Request $request)
@@ -36,6 +36,6 @@ class BannerController extends Controller
         $validated['image_path'] = $request->file('image_path')->store('banners', 'public');
         Banner::create($validated);
 
-        return redirect()->route('admin.banners.index')->with('success', 'Banner created successfully');
+        return redirect()->route('admin.banner.index')->with('success', 'Banner created successfully');
     }
 }
