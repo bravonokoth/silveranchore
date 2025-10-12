@@ -1,29 +1,25 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Inventory')
+
 @section('content')
-    <div class="max-w-6xl mx-auto p-6">
-        <h2 class="text-2xl font-bold mb-4">Inventory</h2>
-        <a href="{{ route('admin.inventories.create') }}" class="bg-blue-600 text-white py-2 px-4 rounded mb-4 inline-block">Add Inventory</a>
-        <table class="w-full bg-white rounded shadow">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-3 text-left">Product</th>
-                    <th class="p-3 text-left">Quantity</th>
-                    <th class="p-3 text-left">Type</th>
-                    <th class="p-3 text-left">Notes</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($inventories as $inventory)
-                    <tr>
-                        <td class="p-3">{{ $inventory->product->name }}</td>
-                        <td class="p-3">{{ $inventory->quantity }}</td>
-                        <td class="p-3">{{ $inventory->type }}</td>
-                        <td class="p-3">{{ $inventory->notes ?? 'N/A' }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        {{ $inventories->links() }}
-    </div>
+    @include('partials.index-table-template', [
+        'title' => 'Inventory',
+        'createRoute' => route('admin.inventories.create'),
+        'createLabel' => 'Add Inventory',
+        'searchRoute' => route('admin.inventories.search'),
+        'searchPlaceholder' => 'Search inventory...',
+        'items' => $inventories,
+        'columns' => [
+            ['label' => 'Product', 'key' => 'product', 'type' => 'relation', 'relation' => 'product', 'relation_key' => 'name'],
+            ['label' => 'Quantity', 'key' => 'quantity', 'type' => 'text'],
+            ['label' => 'Type', 'key' => 'type', 'type' => 'text'],
+            ['label' => 'Notes', 'key' => 'notes', 'type' => 'text']
+        ],
+        'actions' => [
+            ['type' => 'link', 'label' => 'Edit', 'route' => fn($item) => route('admin.inventories.edit', $item), 'class' => 'edit-btn', 'icon' => 'edit'],
+            ['type' => 'form', 'label' => 'Delete', 'route' => fn($item) => route('admin.inventories.destroy', $item), 'method' => 'DELETE', 'class' => 'delete-btn', 'icon' => 'trash-2']
+        ],
+        'pagination' => $inventories
+    ])
 @endsection

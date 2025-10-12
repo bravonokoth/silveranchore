@@ -82,6 +82,27 @@ class ProductController extends Controller
         return view('admin.products.show', compact('product'));
     }
 
+public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $products = Product::with(['category', 'media'])
+        ->where('name', 'like', "%{$query}%")
+        ->orWhere('sku', 'like', "%{$query}%")
+        ->orWhere('slug', 'like', "%{$query}%")
+        ->orWhereHas('category', function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%");
+        })
+        ->paginate(20);
+
+    return view('admin.products.index', [
+        'products' => $products,
+        'query' => $query,
+    ]);
+}
+
+
+
     public function edit(Product $product)
     {
         $categories = Category::select('id', 'name')->get();

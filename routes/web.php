@@ -115,6 +115,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin|super-admin'])->group(fu
     Route::resource('purchases', PurchaseController::class)->names('admin.purchases')->only(['index', 'create', 'store']);
     Route::resource('orders', AdminOrderController::class)->names('admin.orders')->only(['index', 'show', 'edit', 'update', 'destroy']);
     Route::post('orders/{order}/drop', [AdminOrderController::class, 'drop'])->name('admin.orders.drop');
+    Route::get('/admin/products/search', [ProductController::class, 'search'])
+        ->name('admin.products.search');
 });
 
 // Super-Admin Routes

@@ -7,8 +7,9 @@
     'sections' => [],
     'submitLabel' => 'Create',
     'submitIcon' => 'check-circle',
-    'values' => [], // New prop for pre-filled values (used in edit forms)
-    'isEdit' => false // New prop to indicate edit form (for @method('PUT'))
+    'values' => [],
+    'isEdit' => false,
+    'enctype' => true // Added to toggle multipart/form-data
 ])
 
 <link href="{{ asset('css/product-form.css') }}" rel="stylesheet">
@@ -29,7 +30,7 @@
     </div>
 
     <!-- Form -->
-    <form method="{{ $method }}" action="{{ $formAction }}" enctype="multipart/form-data" class="product-form">
+    <form method="{{ $method }}" action="{{ $formAction }}" {{ $enctype ? 'enctype=multipart/form-data' : '' }} class="product-form">
         @csrf
         @if ($isEdit)
             @method('PUT')

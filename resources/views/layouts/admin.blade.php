@@ -59,6 +59,10 @@
     </main>
   </div>
 
+<script>
+        lucide.createIcons();
+    </script>
+
   <script>
     feather.replace();
 

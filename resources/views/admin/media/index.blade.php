@@ -1,29 +1,25 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Media')
+
 @section('content')
-    <div class="max-w-6xl mx-auto p-6">
-        <h2 class="text-2xl font-bold mb-4">Media</h2>
-        <a href="{{ route('admin.media.create') }}" class="bg-blue-600 text-white py-2 px-4 rounded mb-4 inline-block">Upload Media</a>
-        <table class="w-full bg-white rounded shadow">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="p-3 text-left">Model</th>
-                    <th class="p-3 text-left">Type</th>
-                    <th class="p-3 text-left">Path</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($media as $item)
-                    <tr>
-                        <td class="p-3">{{ $item->model_type }} (ID: {{ $item->model_id }})</td>
-                        <td class="p-3">{{ $item->type }}</td>
-                        <td class="p-3">
-                            <img src="{{ asset('storage/' . $item->path) }}" alt="Media" class="h-16">
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        {{ $media->links() }}
-    </div>
+    @include('partials.index-table-template', [
+        'title' => 'Media',
+        'createRoute' => route('admin.media.create'),
+        'createLabel' => 'Upload Media',
+        'searchRoute' => route('admin.media.search'),
+        'searchPlaceholder' => 'Search media...',
+        'items' => $media,
+        'columns' => [
+            ['label' => 'Model', 'key' => 'model_type', 'type' => 'text'],
+            ['label' => 'Model ID', 'key' => 'model_id', 'type' => 'text'],
+            ['label' => 'Type', 'key' => 'type', 'type' => 'text'],
+            ['label' => 'Path', 'key' => 'path', 'type' => 'image']
+        ],
+        'actions' => [
+            ['type' => 'link', 'label' => 'Edit', 'route' => fn($item) => route('admin.media.edit', $item), 'class' => 'edit-btn', 'icon' => 'edit'],
+            ['type' => 'form', 'label' => 'Delete', 'route' => fn($item) => route('admin.media.destroy', $item), 'method' => 'DELETE', 'class' => 'delete-btn', 'icon' => 'trash-2']
+        ],
+        'pagination' => $media
+    ])
 @endsection
