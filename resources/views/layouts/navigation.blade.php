@@ -1,3 +1,4 @@
+<!-- resources/views/layouts/navigation.blade.php -->
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,6 +16,11 @@
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                         {{ __('Home') }}
                     </x-nav-link>
+                    @auth
+                        <x-nav-link :href="Auth::user()->hasRole(['super-admin', 'admin']) ? route('admin.dashboard') : route('dashboard')" :active="request()->routeIs('admin.dashboard', 'dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
+                    @endauth
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">
                         {{ __('Products') }}
                     </x-nav-link>
@@ -94,6 +100,11 @@
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 {{ __('Home') }}
             </x-responsive-nav-link>
+            @auth
+                <x-responsive-nav-link :href="Auth::user()->hasRole(['super-admin', 'admin']) ? route('admin.dashboard') : route('dashboard')" :active="request()->routeIs('admin.dashboard', 'dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+            @endauth
             <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.index')">
                 {{ __('Products') }}
             </x-responsive-nav-link>

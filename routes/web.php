@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AddressController;
@@ -26,11 +27,6 @@ use App\Http\Controllers\Admin\UserController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These routes
-| are loaded by the RouteServiceProvider and all of them will be assigned to the
-| "web" middleware group. Make something great!
-|
 */
 
 // Home Route
@@ -41,15 +37,18 @@ Route::get('/about', [StaticPageController::class, 'about'])->name('about');
 Route::get('/contact', [StaticPageController::class, 'contact'])->name('contact');
 Route::post('/contact', [StaticPageController::class, 'contactSubmit'])->name('contact.submit');
 
-// Authentication Routes (Laravel Breeze)
+// Authentication Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
+    // Client Dashboard
+    Route::get('/dashboard', fn () => view('dashboard'))->middleware('role:client')->name('dashboard');
+
+    // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Public Routes (Accessible to all, including guests)
+// Public Routes
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('products.index');
     Route::get('{product}', [ProductController::class, 'show'])->name('products.show');
@@ -104,8 +103,8 @@ Route::prefix('payment')->group(function () {
 });
 
 // Admin Routes
-Route::prefix('admin')->middleware(['auth', 'role:admin|super_admin'])->group(function () {
-    Route::get('dashboard', fn() => view('admin.dashboard'))->name('admin.dashboard');
+Route::prefix('admin')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
+    Route::get('/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
     Route::resource('banners', BannerController::class)->names('admin.banners');
     Route::resource('categories', AdminCategoryController::class)->names('admin.categories');
     Route::get('categories/search', [AdminCategoryController::class, 'search'])->name('admin.categories.search');
@@ -119,7 +118,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin|super_admin'])->group(fu
 });
 
 // Super-Admin Routes
-Route::prefix('admin')->middleware(['auth', 'role:super_admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::resource('users', UserController::class)->names('admin.users');
 });
 

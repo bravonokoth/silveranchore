@@ -4,11 +4,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Inventory;
-use App\Models\Product;
+use App\Models\Media;
 use Illuminate\Http\Request;
 
-class InventoryController extends Controller
+class MediaController extends Controller
 {
     public function __construct()
     {
@@ -17,30 +16,27 @@ class InventoryController extends Controller
 
     public function index()
     {
-        $inventories = Inventory::with('product')->paginate(20);
-        return view('admin.inventories.index', compact('inventories'));
+        $media = Media::paginate(20);
+        return view('admin.media.index', compact('media'));
     }
 
     public function create()
     {
-        $products = Product::select('id', 'name')->get();
-        return view('admin.inventories.create', compact('products'));
+        return view('admin.media.create');
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer',
-            'type' => 'required|in:adjustment,restock,sale',
-            'notes' => 'nullable|string',
+            'model_type' => 'required|in:App\Models\Product,App\Models\Category',
+            'model_id' => 'required|integer',
+            'path' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'type' => 'required|in:image,video',
         ]);
 
-        $inventory = Inventory::create($validated);
-        $product = Product::find($validated['product_id']);
-        $product->stock += $validated['quantity'];
-        $product->save();
+        $validated['path'] = $request->file('path')->store('media', 'public');
+        Media::create($validated);
 
-        return redirect()->route('admin.inventories.index')->with('success', 'Inventory updated successfully');
+        return redirect()->route('admin.media.index')->with('success', 'Media uploaded successfully');
     }
 }

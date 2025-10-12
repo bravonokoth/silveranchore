@@ -63,9 +63,6 @@
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer class="max-w-7xl mx-auto py-16 text-center text-sm text-black dark:text-white/70">
-            SilverAnchorE &copy; {{ date('Y') }}
-        </footer>
+       
     </div>
 @endsection
