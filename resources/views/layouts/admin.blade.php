@@ -1,147 +1,229 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en" class="light">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Silveranchore') }} - Admin</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    <link href="{{ asset('css/admin-dashboard.css') }}" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ $title ?? 'Admin Dashboard' }}</title>
+
+  <!-- Feather Icons -->
+  <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <style>
+    /* === GLOBAL RESET === */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+    body {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* === LIGHT THEME === */
+    body.light {
+      background: #f9fafb;
+      color: #1e293b;
+    }
+
+    body.light .sidebar { background: #111827; color: #d1d5db; }
+    body.light .navbar { background: #fff; border-bottom: 1px solid #e5e7eb; }
+    body.light .stat-card, body.light .action-card { background: #fff; color: #1e293b; }
+
+    /* === DARK THEME === */
+    body.dark {
+      background: #0f172a;
+      color: #e2e8f0;
+    }
+
+    body.dark .sidebar { background: #0f172a; color: #94a3b8; }
+    body.dark .navbar { background: #1e293b; border-bottom: 1px solid #334155; }
+    body.dark .stat-card, body.dark .action-card { background: #1e293b; color: #e2e8f0; }
+    body.dark .stat-icon.blue { background: #1d4ed8; color: #eff6ff; }
+    body.dark .stat-icon.green { background: #059669; color: #ecfdf5; }
+    body.dark .stat-icon.purple { background: #7c3aed; color: #f5f3ff; }
+    body.dark .stat-icon.orange { background: #ea580c; color: #fff7ed; }
+
+    /* === SIDEBAR === */
+    .sidebar {
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      padding-top: 1rem;
+      transition: all 0.3s;
+    }
+
+    .sidebar .logo {
+      text-align: center;
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-links { flex: 1; display: flex; flex-direction: column; }
+
+    .nav-links a {
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      font-size: 0.95rem;
+      transition: 0.3s;
+      color: inherit;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    /* === MAIN AREA === */
+    .main { flex: 1; display: flex; flex-direction: column; height: 100%; }
+
+    /* === NAVBAR === */
+    .navbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      transition: all 0.3s;
+    }
+
+    .navbar h1 {
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .navbar .right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .navbar .right button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      transition: 0.3s;
+      color: inherit;
+    }
+
+    .navbar .right button:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile img { width: 38px; height: 38px; border-radius: 50%; }
+
+    .profile .info p { font-size: 0.9rem; font-weight: 600; }
+    .profile .info span { font-size: 0.75rem; opacity: 0.7; }
+
+    /* === CONTENT === */
+    .content {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      transition: background 0.3s;
+    }
+
+    /* === DARK MODE TOGGLE === */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: none;
+      border: 1px solid #cbd5e1;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    body.dark .theme-toggle {
+      border: 1px solid #475569;
+    }
+  </style>
 </head>
-<body>
-     Sidebar 
-    <aside class="admin-sidebar">
-         Profile Section 
-        <div class="sidebar-profile">
-            <div class="profile-avatar">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-            </div>
-            <div class="profile-name">{{ auth()->user()->name }}</div>
-            <div class="profile-role">
-                @if(auth()->user()->hasRole('super_admin'))
-                    Super Admin
-                @else
-                    Administrator
-                @endif
-            </div>
+
+<body class="light">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">SilverAnchor</div>
+
+    <nav class="nav-links">
+      <a href="{{ route('admin.dashboard') }}" class="active"><i data-feather="home"></i>&nbsp; Dashboard</a>
+      <a href="{{ route('admin.products.index') }}"><i data-feather="box"></i>&nbsp; Products</a>
+      <a href="{{ route('admin.categories.index') }}"><i data-feather="tag"></i>&nbsp; Categories</a>
+      <a href="{{ route('admin.orders.index') }}"><i data-feather="shopping-cart"></i>&nbsp; Orders</a>
+      <a href="{{ route('admin.inventories.index') }}"><i data-feather="bar-chart-2"></i>&nbsp; Inventory</a>
+      <a href="{{ route('admin.coupons.index') }}"><i data-feather="gift"></i>&nbsp; Coupons</a>
+      <a href="{{ route('admin.banners.index') }}"><i data-feather="image"></i>&nbsp; Banners</a>
+      <a href="{{ route('admin.media.index') }}"><i data-feather="camera"></i>&nbsp; Media</a>
+      <a href="{{ route('admin.purchases.index') }}"><i data-feather="shopping-bag"></i>&nbsp; Purchases</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="navbar">
+      <h1>@yield('page-title', 'Dashboard')</h1>
+
+      <div class="right">
+        <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+          <i data-feather="moon"></i>
+        </button>
+
+        <button><i data-feather="bell"></i></button>
+        <button><i data-feather="settings"></i></button>
+
+        <div class="profile">
+          <img src="https://i.pravatar.cc/40" alt="Profile" />
+          <div class="info">
+            <p>{{ auth()->user()->name ?? 'Admin User' }}</p>
+            <span>{{ auth()->user()->role ?? 'Administrator' }}</span>
+          </div>
         </div>
+      </div>
+    </header>
 
-         Navigation Menu 
-        <nav class="sidebar-nav">
-            <div class="nav-section-title">Main Menu</div>
-            
-            <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                Dashboard
-            </a>
-
-            <div class="nav-section-title">Management</div>
-
-            <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                </svg>
-                Products
-            </a>
-
-            <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                </svg>
-                Categories
-            </a>
-
-            <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                Orders
-            </a>
-
-            <a href="{{ route('admin.inventories.index') }}" class="nav-link {{ request()->routeIs('admin.inventories.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                </svg>
-                Inventory
-            </a>
-
-            <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
-                </svg>
-                Coupons
-            </a>
-
-            <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                Banners
-            </a>
-
-            <a href="{{ route('admin.media.index') }}" class="nav-link {{ request()->routeIs('admin.media.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-                </svg>
-                Media
-            </a>
-
-            <a href="{{ route('admin.purchases.index') }}" class="nav-link {{ request()->routeIs('admin.purchases.*') ? 'active' : '' }}">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
-                Purchases
-            </a>
-
-            @if (auth()->user()->hasRole('super_admin'))
-                <div class="nav-section-title">System</div>
-                
-                <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
-                    Users
-                </a>
-            @endif
-        </nav>
-
-         Logout Section 
-        <div class="logout-section">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    Logout
-                </button>
-            </form>
-        </div>
-    </aside>
-
-     Main Content 
-    <main class="admin-main">
-         Header 
-        <header class="admin-header">
-            <h1 style="font-size: 1.5rem; font-weight: 700; color: #1e293b;">
-                @yield('page-title', 'Dashboard')
-            </h1>
-            <div style="color: #64748b; font-size: 0.875rem;">
-                {{ now()->format('l, F j, Y') }}
-            </div>
-        </header>
-
-         Content 
-        <div class="admin-content">
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @yield('content')
-        </div>
+    <main class="content">
+      @yield('content')
     </main>
+  </div>
+
+  <script>
+    feather.replace();
+
+    // === DARK MODE TOGGLE ===
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    const storedTheme = localStorage.getItem('theme');
+
+    if (storedTheme === 'dark') {
+      body.classList.add('dark');
+      body.classList.remove('light');
+      themeToggle.innerHTML = feather.icons.sun.toSvg();
+    }
+
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      body.classList.toggle('light');
+      const isDark = body.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      themeToggle.innerHTML = isDark ? feather.icons.sun.toSvg() : feather.icons.moon.toSvg();
+    });
+  </script>
 </body>
 </html>
