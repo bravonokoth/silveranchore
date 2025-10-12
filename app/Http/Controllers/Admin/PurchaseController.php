@@ -43,4 +43,23 @@ class PurchaseController extends Controller
 
         return redirect()->route('admin.purchases.index')->with('success', 'Purchase recorded successfully');
     }
+
+    public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $purchases = Purchase::with('product')
+        ->where('supplier', 'like', "%{$query}%")
+        ->orWhere('cost', 'like', "%{$query}%")
+        ->orWhere('purchase_date', 'like', "%{$query}%")
+        ->orWhereHas('product', function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('product_code', 'like', "%{$query}%");
+        })
+        ->paginate(20)
+        ->appends(['query' => $query]);
+
+    return view('admin.purchases.index', compact('purchases'));
+}
+
 }

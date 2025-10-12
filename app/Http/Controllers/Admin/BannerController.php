@@ -24,6 +24,19 @@ class BannerController extends Controller
         return view('admin.banner.create');
     }
 
+    public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $banners = Banner::where('title', 'like', "%{$query}%")
+        ->orWhere('link', 'like', "%{$query}%")
+        ->paginate(20)
+        ->appends(['query' => $query]);
+
+    return view('admin.banner.index', compact('banners'));
+}
+
+
     public function store(Request $request)
     {
         $validated = $request->validate([

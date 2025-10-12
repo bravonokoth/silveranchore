@@ -28,6 +28,24 @@ class OrderController extends Controller
         return view('admin.orders.show', compact('order'));
     }
 
+    public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $orders = Order::with('user')
+        ->where('id', 'like', "%{$query}%")
+        ->orWhereHas('user', function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('email', 'like', "%{$query}%");
+        })
+        ->orWhere('status', 'like', "%{$query}%")
+        ->orWhere('total', 'like', "%{$query}%")
+        ->paginate(20);
+
+    return view('admin.orders.index', compact('orders'));
+}
+
+
     public function edit(Order $order)
     {
         return view('admin.orders.edit', compact('order'));

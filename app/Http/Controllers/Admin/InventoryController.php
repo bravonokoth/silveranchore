@@ -43,4 +43,23 @@ class InventoryController extends Controller
 
         return redirect()->route('admin.inventories.index')->with('success', 'Inventory updated successfully');
     }
+
+    public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $inventories = Inventory::with('product')
+        ->where('type', 'like', "%{$query}%")
+        ->orWhere('quantity', 'like', "%{$query}%")
+        ->orWhereHas('product', function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%")
+              ->orWhere('product_code', 'like', "%{$query}%");
+        })
+        ->orWhere('notes', 'like', "%{$query}%")
+        ->paginate(20)
+        ->appends(['query' => $query]);
+
+    return view('admin.inventories.index', compact('inventories'));
+}
+
 }

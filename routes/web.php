@@ -105,23 +105,59 @@ Route::prefix('payment')->group(function () {
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'role:admin|super-admin'])->group(function () {
     Route::get('/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
+    
+    
     Route::resource('banners', BannerController::class)->names('admin.banners');
+    Route::get('banners/search', [BannerController::class, 'search'])
+    ->name('admin.banner.search');
+
+    
+    
     Route::resource('categories', AdminCategoryController::class)->names('admin.categories');
+    
+    
     Route::get('categories/search', [AdminCategoryController::class, 'search'])->name('admin.categories.search');
+    
+    
     Route::resource('coupons', CouponController::class)->names('admin.coupons')->only(['index', 'create', 'store']);
+    Route::get('coupons/search', [CouponController::class, 'search'])
+    ->name('admin.coupons.search');
+
+
     Route::resource('inventories', InventoryController::class)->names('admin.inventories')->only(['index', 'create', 'store']);
+    Route::get('inventories/search', [InventoryController::class, 'search'])
+    ->name('admin.inventories.search');
+
     Route::resource('media', MediaController::class)->names('admin.media')->only(['index', 'create', 'store']);
+    Route::get('media/search', [MediaController::class, 'search'])
+    ->name('admin.media.search');
+
+    
     Route::resource('products', AdminProductController::class)->names('admin.products');
-    Route::resource('purchases', PurchaseController::class)->names('admin.purchases')->only(['index', 'create', 'store']);
-    Route::resource('orders', AdminOrderController::class)->names('admin.orders')->only(['index', 'show', 'edit', 'update', 'destroy']);
-    Route::post('orders/{order}/drop', [AdminOrderController::class, 'drop'])->name('admin.orders.drop');
     Route::get('/admin/products/search', [ProductController::class, 'search'])
         ->name('admin.products.search');
+    
+    Route::resource('purchases', PurchaseController::class)->names('admin.purchases')->only(['index', 'create', 'store']);
+    Route::get('purchases/search', [PurchaseController::class, 'search'])
+    ->name('admin.purchases.search');
+
+    
+    Route::resource('orders', AdminOrderController::class)->names('admin.orders')->only(['index', 'show', 'edit', 'update', 'destroy']);
+    Route::post('orders/{order}/drop', [AdminOrderController::class, 'drop'])->name('admin.orders.drop');
+    Route::get('/admin/orders/search', [OrderController::class, 'search'])
+        ->name('admin.orders.search');
+
+
+  
+   
 });
 
 // Super-Admin Routes
 Route::prefix('admin')->middleware(['auth', 'role:super-admin'])->group(function () {
     Route::resource('users', UserController::class)->names('admin.users');
+    Route::get('users/search', [UserController::class, 'search'])
+    ->name('admin.users.search');
+
 });
 
 // WebSocket Test Route

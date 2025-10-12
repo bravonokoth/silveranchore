@@ -7,7 +7,7 @@
         'title' => 'Banners',
         'createRoute' => route('admin.banners.create'),
         'createLabel' => 'Create Banner',
-        'searchRoute' => route('admin.banners.search'),
+        'searchRoute' => route('admin.banner.search'),
         'searchPlaceholder' => 'Search banners...',
         'items' => $banners,
         'columns' => [

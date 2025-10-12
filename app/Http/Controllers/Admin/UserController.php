@@ -42,5 +42,22 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User created successfully');
     }
 
+public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $users = User::with('roles')
+        ->where('name', 'like', "%{$query}%")
+        ->orWhere('email', 'like', "%{$query}%")
+        ->orWhereHas('roles', function ($q) use ($query) {
+            $q->where('name', 'like', "%{$query}%");
+        })
+        ->paginate(20)
+        ->appends(['query' => $query]);
+
+    return view('admin.users.index', compact('users'));
+}
+
+
     // Add edit, update, destroy methods as needed
 }

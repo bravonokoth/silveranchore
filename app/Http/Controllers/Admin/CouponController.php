@@ -24,6 +24,20 @@ class CouponController extends Controller
         return view('admin.coupons.create');
     }
 
+    public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $coupons = Coupon::where('code', 'like', "%{$query}%")
+        ->orWhere('discount', 'like', "%{$query}%")
+        ->orWhere('expires_at', 'like', "%{$query}%")
+        ->paginate(20)
+        ->appends(['query' => $query]);
+
+    return view('admin.coupons.index', compact('coupons'));
+}
+
+
     public function store(Request $request)
     {
         $validated = $request->validate([

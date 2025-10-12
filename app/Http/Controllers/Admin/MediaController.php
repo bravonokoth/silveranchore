@@ -39,4 +39,18 @@ class MediaController extends Controller
 
         return redirect()->route('admin.media.index')->with('success', 'Media uploaded successfully');
     }
+
+    public function search(Request $request)
+{
+    $query = $request->input('query');
+
+    $media = Media::where('model_type', 'like', "%{$query}%")
+        ->orWhere('type', 'like', "%{$query}%")
+        ->orWhere('path', 'like', "%{$query}%")
+        ->paginate(20)
+        ->appends(['query' => $query]);
+
+    return view('admin.media.index', compact('media'));
+}
+
 }

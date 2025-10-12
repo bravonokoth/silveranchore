@@ -16,25 +16,24 @@
     <!-- Header -->
     <div class="sticky-header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h2 class="text-2xl font-semibold text-gray-800 flex items-center gap-3">
-                <i data-lucide="list" class="w-5 h-5 text-blue-600"></i>
-                {{ $title }}
-            </h2>
+            <h2 class="text-2xl font-semibold text-gray-800">{{ $title }}</h2>
             <div class="flex items-center gap-3">
-                @if ($searchRoute)
+                @if ($searchRoute || $createRoute)
                     <form action="{{ $searchRoute }}" method="GET" class="search-form">
                         <div class="search-container">
-                            <i data-lucide="search" class="w-5 h-5 text-gray-500"></i>
-                            <input type="text" name="search" placeholder="{{ $searchPlaceholder }}" class="search-input" value="{{ request('search') }}">
-                            <button type="submit" class="search-btn">Search</button>
+                            @if ($searchRoute)
+                                <i data-feather="search" class="w-5 h-5 text-gray-500"></i>
+                                <input type="text" name="search" placeholder="{{ $searchPlaceholder }}" class="search-input" value="{{ request('search') }}">
+                                <button type="submit" class="search-btn">Search</button>
+                            @endif
+                            @if ($createRoute)
+                                <a href="{{ $createRoute }}" class="action-btn create-btn">
+                                    <i data-feather="plus-circle" class="w-5 h-5 mr-2"></i>
+                                    {{ $createLabel }}
+                                </a>
+                            @endif
                         </div>
                     </form>
-                @endif
-                @if ($createRoute)
-                    <a href="{{ $createRoute }}" class="action-btn create-btn">
-                        <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>
-                        {{ $createLabel }}
-                    </a>
                 @endif
             </div>
         </div>
@@ -79,14 +78,14 @@
                                     @foreach ($actions as $action)
                                         @if ($action['type'] === 'link')
                                             <a href="{{ $action['route']($item) }}" class="action-icon {{ $action['class'] }}" title="{{ $action['label'] }}">
-                                                <i data-lucide="{{ $action['icon'] }}" class="w-5 h-5"></i>
+                                                <i data-feather="{{ $action['icon'] }}" class="w-5 h-5"></i>
                                             </a>
                                         @elseif ($action['type'] === 'form')
                                             <form action="{{ $action['route']($item) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure?')">
                                                 @csrf
                                                 @method($action['method'])
                                                 <button type="submit" class="action-icon {{ $action['class'] }}" title="{{ $action['label'] }}">
-                                                    <i data-lucide="{{ $action['icon'] }}" class="w-5 h-5"></i>
+                                                    <i data-feather="{{ $action['icon'] }}" class="w-5 h-5"></i>
                                                 </button>
                                             </form>
                                         @endif
@@ -98,7 +97,7 @@
                 @empty
                     <tr>
                         <td colspan="{{ count($columns) + (!empty($actions) ? 1 : 0) }}" class="empty-state">
-                            <i data-lucide="alert-circle" class="w-8 h-8 text-gray-500"></i>
+                            <i data-feather="alert-circle" class="w-8 h-8 text-gray-500"></i>
                             <p>No {{ strtolower($title) }} found.</p>
                         </td>
                     </tr>
