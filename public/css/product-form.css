@@ -1,0 +1,170 @@
+/* === Product Form Styling (Theme-Aware) === */
+
+.product-form-page {
+  width: 90%;
+  max-width: 100%; /* Full-width card */
+  margin: 0;
+  padding: 2rem;
+  background-color: var(--bg-card);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Sticky Header */
+.product-form-page .sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg-card);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease;
+}
+
+/* Form Sections */
+.product-form .form-section {
+  margin-bottom: 2.5rem;
+}
+
+.product-form .section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Grid Layout */
+.product-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem; /* Increased spacing for cleanliness */
+}
+
+/* Form Group */
+.product-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-form .form-group.col-span-full {
+  grid-column: 1 / -1;
+}
+
+/* Labels */
+.form-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+/* Inputs */
+.form-input {
+  width: 90%;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background-color: var(--input-bg);
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Textarea */
+.form-input[rows] {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* File Input */
+.form-input[type="file"] {
+  padding: 0.5rem;
+}
+
+.form-input[type="file"]::file-selector-button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--accent-color);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.form-input[type="file"]::file-selector-button:hover {
+  background: #2563eb;
+}
+
+/* Errors */
+.form-error {
+  font-size: 0.85rem;
+  color: #ef4444;
+  margin-top: 0.5rem;
+}
+
+/* Checkboxes */
+.form-checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+/* Action Buttons (Submit and Back) */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(to right, var(--accent-color), #2563eb);
+  border: none;
+  border-radius: 1rem; /* Curved design */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-decoration: none; /* No underlines */
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: linear-gradient(to right, #2563eb, #1e40af);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .product-form-page {
+    padding: 1.5rem;
+  }
+
+  .product-form .form-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
