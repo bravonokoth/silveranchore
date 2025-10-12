@@ -6,6 +6,7 @@
     <title>{{ $title ?? 'Admin Dashboard' }}</title>
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
     <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 <body class="admin-layout light">
     <!-- SIDEBAR -->
@@ -13,8 +14,8 @@
         <div class="logo">SilverAnchor</div>
         <nav class="nav-links">
             <a href="{{ route('admin.dashboard') }}" class="nav-link active"><i data-feather="home"></i><span>Dashboard</span></a>
-            <a href="{{ route('admin.products.index') }}" class="nav-link"><i data-feather="box"></i><span>Products</span></a>
             <a href="{{ route('admin.categories.index') }}" class="nav-link"><i data-feather="tag"></i><span>Categories</span></a>
+            <a href="{{ route('admin.products.index') }}" class="nav-link"><i data-feather="box"></i><span>Products</span></a>
             <a href="{{ route('admin.orders.index') }}" class="nav-link"><i data-feather="shopping-cart"></i><span>Orders</span></a>
             <a href="{{ route('admin.inventories.index') }}" class="nav-link"><i data-feather="bar-chart-2"></i><span>Inventory</span></a>
             <a href="{{ route('admin.coupons.index') }}" class="nav-link"><i data-feather="gift"></i><span>Coupons</span></a>
@@ -37,13 +38,33 @@
                 <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
                     <i data-feather="moon"></i>
                 </button>
-                <button class="icon-btn"><i data-feather="bell"></i></button>
                 <button class="icon-btn"><i data-feather="settings"></i></button>
-                <div class="profile">
-                    <img src="https://i.pravatar.cc/40" alt="Profile" />
-                    <div class="info">
-                        <p>{{ auth()->user()->name ?? 'Admin User' }}</p>
-                        <span>{{ auth()->user()->role ?? 'Administrator' }}</span>
+                <div x-data="{ open: false }" class="profile-dropdown">
+                    <button @click="open = !open" class="profile">
+                        <img src="https://i.pravatar.cc/40" alt="Profile" />
+                        <div class="info">
+                            <p>{{ auth()->user()->name ?? 'Admin User' }}</p>
+                            <span>{{ auth()->user()->role ?? 'Administrator' }}</span>
+                        </div>
+                        <i data-feather="chevron-down" class="chevron"></i>
+                    </button>
+                    <div x-show="open" @click.outside="open = false" class="dropdown-menu">
+                        <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                            <i data-feather="user" class="dropdown-icon"></i>
+                            {{ __('Profile') }}
+                        </a>
+                        <a href="{{ route('notifications.index') }}" class="dropdown-item">
+                            <i data-feather="bell" class="dropdown-icon"></i>
+                            {{ __('Notifications') }}
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a href="{{ route('logout') }}" class="dropdown-item"
+                               onclick="event.preventDefault(); this.closest('form').submit();">
+                                <i data-feather="log-out" class="dropdown-icon"></i>
+                                {{ __('Log Out') }}
+                            </a>
+                        </form>
                     </div>
                 </div>
             </div>
