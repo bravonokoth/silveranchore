@@ -35,7 +35,13 @@ class RegisteredUserController extends Controller
 
         $user->assignRole('client');
 
+
+        // Notify admins and super-admins
+        $admins = User::role(['admin', 'super-admin'])->get();
+        Notification::send($admins, new NewUserRegisteredNotification($user));
+
         event(new Registered($user));
+        
 
         Auth::login($user);
 
