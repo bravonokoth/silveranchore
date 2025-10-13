@@ -23,58 +23,52 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+   public function store(Request $request): RedirectResponse
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
+
+    try {
+        // Create new user
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        try {
-            // Create new user
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+        // Assign default role
+        $user->assignRole('client');
 
-            // Assign default role
-            $user->assignRole('client');
+        // Fire Laravel’s built-in Registered event (sends verification email)
+        event(new Registered($user));
 
-            // Fetch all admins and super-admins
-            $admins = User::role(['admin', 'super-admin'])->get();
-            Log::info('Admins found: ' . $admins->count() . ' [' . $admins->pluck('email')->implode(', ') . ']');
+        // Notify admins
+        $admins = User::role(['admin', 'super-admin'])->get();
+        if ($admins->isNotEmpty()) {
+            Notification::send($admins, new NewUserRegisteredNotification($user));
 
-            if ($admins->isNotEmpty()) {
-                // Send notification to all admins
-                Notification::send($admins, new NewUserRegisteredNotification($user));
-
-                // Broadcast notification to all admins in real time
-                foreach ($admins as $admin) {
-                    event(new NotificationSent(
-                        "New user {$user->name} ({$user->email}) has registered.",
-                        $admin->email,
-                        $admin->id
-                    ));
-                }
-
-                Log::info('NewUserRegisteredNotification sent to: ' . $admins->pluck('email')->implode(', '));
-            } else {
-                Log::warning('No admins or super-admins found for NewUserRegisteredNotification');
+            foreach ($admins as $admin) {
+                event(new NotificationSent(
+                    "New user {$user->name} ({$user->email}) has registered.",
+                    $admin->email,
+                    $admin->id
+                ));
             }
-
-            // Fire Laravel's built-in Registered event
-            event(new Registered($user));
-
-            // Log in the new user
-            Auth::login($user);
-
-            return redirect()->intended(route('dashboard', absolute: false))
-                ->with('success', 'Registration successful! Welcome aboard.');
-        } catch (\Exception $e) {
-            Log::error('Error during user registration: ' . $e->getMessage());
-            throw $e;
         }
+
+        // ❌ Don’t log them in yet (forces email verification)
+        // Auth::login($user);
+
+        return redirect()->route('verification.notice')
+            ->with('status', 'verification-link-sent');
+
+    } catch (\Exception $e) {
+        Log::error('Error during user registration: ' . $e->getMessage());
+        throw $e;
     }
+}
+
 }
