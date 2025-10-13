@@ -88,9 +88,9 @@ Route::middleware('auth')->group(function () {
         Route::get('{order}', [OrderController::class, 'show'])->name('orders.show');
     });
 
-    Route::prefix('notifications')->group(function () {
+      Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
-        Route::post('{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::patch('{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     });
 });
 

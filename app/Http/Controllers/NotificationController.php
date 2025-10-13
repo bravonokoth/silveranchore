@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Notifications\Events\BroadcastNotificationCreated;
 
 class NotificationController extends Controller
 {
@@ -20,6 +22,8 @@ class NotificationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        Log::info('Notifications fetched for user ' . $user->id . ': ' . $notifications->count());
+
         return view('notifications.index', compact('notifications'));
     }
 
@@ -28,13 +32,13 @@ class NotificationController extends Controller
         $this->authorize('update', $notification);
 
         $notification->update(['read_at' => now()]);
+        Log::info('Notification marked as read: ' . $notification->id);
 
-        // Broadcast the updated notification status
-        event(new \Illuminate\Notifications\Events\BroadcastNotificationCreated(
+        event(new BroadcastNotificationCreated(
             $notification->id,
             'App\\Models\\User',
             $notification->user_id,
-            ['read_at' => $notification->read_at]
+            ['read_at' => $notification->read_at->toDateTimeString()]
         ));
 
         return redirect()->route('notifications.index')->with('success', 'Notification marked as read');
