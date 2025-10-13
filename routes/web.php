@@ -40,7 +40,7 @@ Route::post('/contact', [StaticPageController::class, 'contactSubmit'])->name('c
 // Authentication Routes
 Route::middleware('auth')->group(function () {
     // Client Dashboard
-    Route::get('/dashboard', fn () => view('dashboard'))->middleware('role:client')->name('dashboard');
+    Route::get('/dashboard', fn () => view('dashboard'))->middleware(['role:client', 'verified'])->name('dashboard');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

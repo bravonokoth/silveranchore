@@ -1,11 +1,9 @@
-
 <?php
-
-
 
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -27,13 +25,22 @@ class NotificationSent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return $this->userId
-            ? new PrivateChannel('user.' . $this->userId)
-            : new Channel('guest.' . $this->email);
+        // Send to private admin channel
+        return new PrivateChannel('admin.notifications');
     }
 
     public function broadcastAs()
     {
         return 'notification.sent';
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'message' => $this->message,
+            'email'   => $this->email,
+            'userId'  => $this->userId,
+            'time'    => now()->toDateTimeString(),
+        ];
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Broadcasting\PrivateChannel;
 
 class NewUserRegisteredNotification extends Notification implements ShouldBroadcast
 {
@@ -28,28 +29,33 @@ class NewUserRegisteredNotification extends Notification implements ShouldBroadc
 
     public function toArray(object $notifiable): array
     {
-        $data = [
-            'user_id' => $this->user->id,
-            'user_name' => $this->user->name,
-            'email' => $this->user->email,
-            'message' => 'New user ' . $this->user->name . ' (' . $this->user->email . ') has registered.',
+        return [
+            'user_id'    => $this->user->id,
+            'user_name'  => $this->user->name,
+            'email'      => $this->user->email,
+            'message'    => 'New user ' . $this->user->name . ' (' . $this->user->email . ') has registered.',
             'created_at' => now()->toDateTimeString(),
         ];
-        Log::info('NewUserRegisteredNotification toArray for notifiable: ' . $notifiable->id, $data);
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        $data = $this->toArray($notifiable);
+        Log::info('NewUserRegisteredNotification stored for admin: ' . $notifiable->id, $data);
         return $data;
     }
 
     public function toBroadcast(object $notifiable): BroadcastMessage
     {
-        $data = [
-            'id' => $this->id,
-            'user_id' => $this->user->id,
-            'user_name' => $this->user->name,
-            'email' => $this->user->email,
-            'message' => 'New user ' . $this->user->name . ' (' . $this->user->email . ') has registered.',
-            'created_at' => now()->toDateTimeString(),
-        ];
-        Log::info('NewUserRegisteredNotification toBroadcast for notifiable: ' . $notifiable->id, $data);
+        $data = $this->toArray($notifiable);
+        Log::info('NewUserRegisteredNotification broadcasted to admin channel.', $data);
         return new BroadcastMessage($data);
+    }
+
+    public function broadcastOn(): array
+    {
+        return [
+            new PrivateChannel('admin.notifications')
+        ];
     }
 }

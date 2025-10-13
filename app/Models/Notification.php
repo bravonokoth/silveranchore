@@ -3,21 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\DatabaseNotification;
 
-class Notification extends Model
+class Notification extends DatabaseNotification
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'type', 'data', 'read_at'];
+    protected $fillable = [
+        'id',
+        'type',
+        'notifiable_type',
+        'notifiable_id',
+        'data',
+        'read_at',
+    ];
 
     protected $casts = [
         'data' => 'array',
         'read_at' => 'datetime',
     ];
 
-    public function user()
+    // No user() relationship — handled polymorphically by notifiable()
+    public function notifiable()
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 }

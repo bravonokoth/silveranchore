@@ -31,13 +31,13 @@ class UserSeeder extends Seeder
         $admin->assignRole('admin');
 
         // Client
-        $client = User::firstOrCreate(
-            ['email' => 'client@example.com'],
-            [
-                'name' => 'Client User',
-                'password' => Hash::make('password123'),
-            ]
-        );
-        $client->assignRole('client');
+        //$client = User::firstOrCreate(
+          //  ['email' => 'client@example.com'],
+           // [
+             //   'name' => 'Client User',
+               // 'password' => Hash::make('password123'),
+            //]
+        //);
+        //$client->assignRole('client');
     }
 }

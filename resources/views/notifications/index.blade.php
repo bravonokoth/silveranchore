@@ -49,7 +49,7 @@
                                     </td>
                                     <td class="px-4 py-2">
                                         <form x-show="!notifications['{{ $notification->id }}']?.read_at" 
-                                              action="{{ route('notifications.markAsRead', $notification) }}" 
+                                              action="{{ route('notifications.read', $notification) }}" 
                                               method="POST" 
                                               class="inline-block">
                                             @csrf
@@ -110,21 +110,23 @@
                 showModal: false,
                 selectedNotification: null,
                 init() {
-                    Pusher.logToConsole = true; // Debugging
+                    console.log('Initializing Pusher for user: {{ auth()->id() }}');
+                    Pusher.logToConsole = true;
                     const pusher = new Pusher('{{ env('REVERB_APP_KEY') }}', {
-                        wsHost: '{{ env('REVERB_HOST', '127.0.0.1') }}',
+                        wsHost: '{{ env('REVERB_HOST', 'localhost') }}',
                         wsPort: {{ env('REVERB_PORT', 8080) }},
                         wssPort: {{ env('REVERB_PORT', 8080) }},
                         forceTLS: {{ env('REVERB_SCHEME', 'http') === 'https' ? 'true' : 'false' }},
                         enabledTransports: ['ws', 'wss'],
                     });
 
-                    const channel = pusher.subscribe('private-notifications.{{ auth()->id() }}');
+                    const channel = pusher.subscribe('notifications.{{ auth()->id() }}');
                     channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (data) => {
+                        console.log('Broadcast received:', data);
                         if (data.id && !this.notifications[data.id]) {
                             this.notifications[data.id] = {
                                 id: data.id,
-                                data: data.data,
+                                data: data.data || data,
                                 created_at: data.created_at,
                                 read_at: null,
                             };

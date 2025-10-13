@@ -18,11 +18,13 @@ class NotificationController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $notifications = Notification::where('user_id', $user->id)
+
+        // Correct polymorphic relationship query
+        $notifications = $user->notifications()
             ->orderBy('created_at', 'desc')
             ->get();
 
-        Log::info('Notifications fetched for user ' . $user->id . ': ' . $notifications->count());
+        Log::info("Notifications fetched for user {$user->id}: {$notifications->count()} found");
 
         return view('notifications.index', compact('notifications'));
     }
@@ -32,15 +34,14 @@ class NotificationController extends Controller
         $this->authorize('update', $notification);
 
         $notification->update(['read_at' => now()]);
-        Log::info('Notification marked as read: ' . $notification->id);
 
-        event(new BroadcastNotificationCreated(
-            $notification->id,
-            'App\\Models\\User',
-            $notification->user_id,
-            ['read_at' => $notification->read_at->toDateTimeString()]
-        ));
+        Log::info("Notification {$notification->id} marked as read by user {$notification->notifiable_id}");
 
-        return redirect()->route('notifications.index')->with('success', 'Notification marked as read');
+        // Fire broadcast event properly (no user_id here)
+        event(new BroadcastNotificationCreated($notification));
+
+        return redirect()
+            ->route('notifications.index')
+            ->with('success', 'Notification marked as read');
     }
 }
