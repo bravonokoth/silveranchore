@@ -15,21 +15,21 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 </head>
-<body class="font-sans antialiased"> <!-- CHANGED: Removed {{ Session::has('dark_mode') && Session::get('dark_mode') ? 'dark' : '' }} to prevent dark class -->
-    <div class="flex flex-col min-h-screen bg-gray-100"> <!-- CHANGED: Removed dark:bg-black to ensure light background -->
+<body class="font-sans antialiased">
+    <div class="flex flex-col min-h-screen bg-gray-100"> <!-- Retained: Ensures full viewport height and light background -->
         @include('layouts.navigation')
         @isset($header)
-            <header class="bg-white shadow dark:bg-zinc-900">
+            <header class="bg-white shadow"> <!-- CHANGED: Removed dark:bg-zinc-900 for light theme consistency -->
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
         @endisset
-        <main class="flex-grow">
+        <main class="flex-grow"> <!-- Retained: Expands to fill space, pushing footer down -->
             @yield('content')
         </main>
         <!-- Global Footer -->
-        <section class="footer">
+        <section class="footer"> <!-- Retained: No changes to content, position fixed via CSS -->
             <div class="footer-row">
                 <div class="footer-col">
                     <h4>Info</h4>
