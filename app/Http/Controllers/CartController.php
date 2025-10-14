@@ -39,7 +39,7 @@ class CartController extends Controller
 
             $product = Product::find($validated['product_id']);
             if (!$product || $product->stock < $validated['quantity']) {
-                return redirect()->route('cart.index')->with('error', 'Insufficient stock for product: ' . ($product ? $product->name : 'Unknown'));
+                return redirect()->back()->with('error', 'Insufficient stock for product: ' . ($product ? $product->name : 'Unknown'));
             }
 
             CartItem::updateOrCreate(
@@ -51,7 +51,7 @@ class CartController extends Controller
                 ['quantity' => $validated['quantity']]
             );
 
-            return redirect()->route('cart.index')->with('success', 'Item added to cart');
+            return redirect()->back()->with('success', 'Item added to cart');
         } catch (\Exception $e) {
             Log::error('Cart store error', [
                 'error' => $e->getMessage(),
@@ -59,7 +59,7 @@ class CartController extends Controller
                 'session_id' => $sessionId,
                 'product_id' => $validated['product_id'] ?? null,
             ]);
-            return redirect()->route('cart.index')->with('error', 'Failed to add item to cart');
+            return redirect()->back()->with('error', 'Failed to add item to cart');
         }
     }
 

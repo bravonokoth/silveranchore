@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'The Liquor Cabinet') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://fonts.bunny.net/css?family=open-sans:300,400,500,600,700&display=swap" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 </head>
-<body class="font-sans antialiased">
-    <div class="flex flex-col min-h-screen bg-gray-100 dark:bg-black">
-        @include('layouts/navigation')
+<body class="font-sans antialiased"> <!-- CHANGED: Removed {{ Session::has('dark_mode') && Session::get('dark_mode') ? 'dark' : '' }} to prevent dark class -->
+    <div class="flex flex-col min-h-screen bg-gray-100"> <!-- CHANGED: Removed dark:bg-black to ensure light background -->
+        @include('layouts.navigation')
         @isset($header)
             <header class="bg-white shadow dark:bg-zinc-900">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -79,5 +83,30 @@
             </div>
         </section>
     </div>
+    <script>
+        $(document).ready(function () {
+            $('.js-slick-carousel').slick({
+                slidesToShow: 4,
+                slidesToScroll: 3,
+                infinite: true,
+                dots: true,
+                appendDots: '.u-slick__pagination',
+                responsive: [
+                    {
+                        breakpoint: 992,
+                        settings: { slidesToShow: 3 }
+                    },
+                    {
+                        breakpoint: 720,
+                        settings: { slidesToShow: 2 }
+                    },
+                    {
+                        breakpoint: 480,
+                        settings: { slidesToShow: 1 }
+                    }
+                ]
+            });
+        });
+    </script>
 </body>
 </html>

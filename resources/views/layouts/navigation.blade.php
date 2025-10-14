@@ -1,4 +1,3 @@
-<!-- resources/views/layouts/navigation.blade.php -->
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,9 +32,6 @@
                     <x-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
                         {{ __('Contact') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
-                        {{ __('Cart') }}
-                    </x-nav-link>
                     @auth
                         <x-nav-link :href="route('addresses.index')" :active="request()->routeIs('addresses.index')">
                             {{ __('Addresses') }}
@@ -47,37 +43,37 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
+            <!-- Settings Dropdown and Cart -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
+                    <i class="fas fa-shopping-cart"></i>
+                </x-nav-link>
                 @auth
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                <div>{{ Auth::user()->name }}</div>
-                                <div class="ms-1">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Profile') }}
-                            </x-dropdown-link>
+                    <div x-data="{ dropdownOpen: false }" class="relative">
+                        <button @click="dropdownOpen = !dropdownOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            <div>{{ Auth::user()->name }}</div>
+                            <div class="ms-1">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </button>
+                        <div x-show="dropdownOpen" @click.outside="dropdownOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault(); this.closest('form').submit();">
-                                    {{ __('Log Out') }}
-                                </x-dropdown-link>
+                                <a href="{{ route('logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="event.preventDefault(); this.closest('form').submit();">Log Out</a>
                             </form>
-                        </x-slot>
-                    </x-dropdown>
+                        </div>
+                    </div>
                 @else
-                    <div>
-                        <a href="{{ route('login') }}" class="text-sm text-gray-700 underline">Login</a>
-                        <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 underline">Register</a>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('login') }}" class="text-sm text-gray-700">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </a>
+                        <a href="{{ route('register') }}" class="text-sm text-gray-700">
+                            <i class="fas fa-user-plus"></i>
+                        </a>
                     </div>
                 @endauth
             </div>
@@ -118,7 +114,7 @@
                 {{ __('Contact') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
-                {{ __('Cart') }}
+                <i class="fas fa-shopping-cart"></i>
             </x-responsive-nav-link>
             @auth
                 <x-responsive-nav-link :href="route('addresses.index')" :active="request()->routeIs('addresses.index')">
@@ -152,8 +148,12 @@
             </div>
         @else
             <div class="pt-4 pb-1 border-t border-gray-200 px-4">
-                <a href="{{ route('login') }}" class="block text-sm text-gray-700 underline">Login</a>
-                <a href="{{ route('register') }}" class="block text-sm text-gray-700 underline mt-1">Register</a>
+                <a href="{{ route('login') }}" class="block text-sm text-gray-700">
+                    <i class="fas fa-sign-in-alt"></i>
+                </a>
+                <a href="{{ route('register') }}" class="block text-sm text-gray-700 mt-1">
+                    <i class="fas fa-user-plus"></i>
+                </a>
             </div>
         @endauth
     </div>
