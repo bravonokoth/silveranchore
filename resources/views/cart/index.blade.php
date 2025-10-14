@@ -1,66 +1,115 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-7xl mx-auto p-6">
-        <h2 class="text-2xl font-bold mb-4">Your Cart</h2>
-        @if (session('success'))
-            <div class="bg-green-100 text-green-800 p-4 rounded mb-4">{{ session('success') }}</div>
-        @endif
-        @if (session('error'))
-            <div class="bg-red-100 text-red-800 p-4 rounded mb-4">{{ session('error') }}</div>
-        @endif
-        @if ($cartItems->isEmpty())
-            <p class="text-gray-600">Your cart is empty.</p>
-            <a href="{{ route('products.index') }}" class="text-blue-600 hover:underline">Continue Shopping</a>
-        @else
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="p-3 text-left">Product</th>
-                            <th class="p-3 text-left">Price</th>
-                            <th class="p-3 text-left">Quantity</th>
-                            <th class="p-3 text-left">Total</th>
-                            <th class="p-3 text-left">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($cartItems as $item)
-                            @if ($item->product)
-                                <tr>
-                                    <td class="p-3">
-                                        <div class="flex items-center">
-                                            <img src="{{ $item->product->media->where('type', 'image')->first() ? asset('storage/' . $item->product->media->where('type', 'image')->first()->path) : 'https://via.placeholder.com/150' }}" alt="{{ $item->product->name }}" class="h-16 w-16 object-cover mr-4 rounded">
-                                            <span>{{ $item->product->name }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="p-3">KSh {{ number_format($item->product->price, 2) }}</td>
-                                    <td class="p-3">
-                                        <form action="{{ route('cart.update', $item) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ $item->product->stock }}" class="w-20 border-gray-300 rounded-md shadow-sm">
-                                            <button type="submit" class="text-blue-600 hover:underline">Update</button>
-                                        </form>
-                                    </td>
-                                    <td class="p-3">KSh {{ number_format($item->product->price * $item->quantity, 2) }}</td>
-                                    <td class="p-3">
-                                        <form action="{{ route('cart.destroy', $item) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:underline" onclick="return confirm('Remove this item?')">Remove</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
-                    </tbody>
-                </table>
+    <div class="cart-wrapper">
+        <div class="cart-container">
+            <div class="cart-header">
+                <h2>Your Cart</h2>
             </div>
-            <div class="mt-6 flex justify-between items-center">
-                <p class="text-xl font-bold">Total: KSh {{ number_format($total, 2) }}</p>
-                <a href="{{ route('checkout.index') }}" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Proceed to Checkout</a>
-            </div>
-        @endif
+
+            @if (session('success'))
+                <div class="cart-message success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="cart-message error">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if ($cartItems->isEmpty())
+                <div class="empty-cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#c0a062" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 30px;">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <p>Your cart is empty.</p>
+                    <a href="{{ route('products.index') }}" class="continue-shopping">Continue Shopping</a>
+                </div>
+            @else
+                <div class="cart-table-wrapper">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($cartItems as $item)
+                                @if ($item->product)
+                                    <tr>
+                                        <td>
+                                            <div class="product-info">
+                                                <img 
+                                                    src="{{ $item->product->media->where('type', 'image')->first() ? asset('storage/' . $item->product->media->where('type', 'image')->first()->path) : 'https://via.placeholder.com/150' }}" 
+                                                    alt="{{ $item->product->name }}" 
+                                                    class="product-image"
+                                                >
+                                                <span class="product-name">{{ $item->product->name }}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="product-price">KSh {{ number_format($item->product->price, 2) }}</span>
+                                        </td>
+                                        <td>
+                                            <form action="{{ route('cart.update', $item) }}" method="POST" class="quantity-form">
+                                                @csrf
+                                                @method('PUT')
+                                                <input 
+                                                    type="number" 
+                                                    name="quantity" 
+                                                    value="{{ $item->quantity }}" 
+                                                    min="1" 
+                                                    max="{{ $item->product->stock }}" 
+                                                    class="quantity-input"
+                                                >
+                                                <button type="submit" class="update-btn">Update</button>
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <span class="product-total">KSh {{ number_format($item->product->price * $item->quantity, 2) }}</span>
+                                        </td>
+                                        <td>
+                                            <form action="{{ route('cart.destroy', $item) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button 
+                                                    type="submit" 
+                                                    class="remove-btn" 
+                                                    onclick="return confirm('Remove this item from cart?')"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="cart-summary">
+                    <p class="cart-total">Total: <span>KSh {{ number_format($total, 2) }}</span></p>
+                    <a href="{{ route('checkout.index') }}" class="checkout-btn">Proceed to Checkout</a>
+                </div>
+            @endif
+        </div>
     </div>
 @endsection
