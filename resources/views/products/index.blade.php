@@ -11,7 +11,7 @@
 @endif
 
 <section class="products max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Our Products</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Our Products</h2>
     <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
          data-slides-show="4"
          data-slides-scroll="3"
@@ -27,81 +27,24 @@
            "breakpoint": 480,
            "settings": { "slidesToShow": 1 }
          }]'>
-        @php
-            $products = $products->isEmpty() ? collect([
-                (object)[
-                    'id' => 1,
-                    'name' => 'Premium Whiskey',
-                    'price' => 49.99,
-                    'original_price' => 59.99,
-                    'category_id' => 1,
-                    'category' => (object)['name' => 'Whiskey'],
-                    'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => 'new',
-                    'rating' => 4,
-                    'review_count' => 25,
-                    'stock' => 10
-                ],
-                (object)[
-                    'id' => 2,
-                    'name' => 'Classic Vodka',
-                    'price' => 29.99,
-                    'original_price' => null,
-                    'category_id' => 2,
-                    'category' => (object)['name' => 'Vodka'],
-                    'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => null,
-                    'rating' => 3,
-                    'review_count' => 10,
-                    'stock' => 20
-                ],
-                (object)[
-                    'id' => 3,
-                    'name' => 'Artisan Gin',
-                    'price' => 39.99,
-                    'original_price' => 45.99,
-                    'category_id' => 3,
-                    'category' => (object)['name' => 'Gin'],
-                    'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => 'sold_out',
-                    'rating' => 5,
-                    'review_count' => 15,
-                    'stock' => 0
-                ],
-                (object)[
-                    'id' => 4,
-                    'name' => 'Aged Rum',
-                    'price' => 59.99,
-                    'original_price' => null,
-                    'category_id' => 4,
-                    'category' => (object)['name' => 'Rum'],
-                    'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => 'new',
-                    'rating' => 4,
-                    'review_count' => 20,
-                    'stock' => 15
-                ],
-            ]) : $products;
-        @endphp
+        
+        {{-- ✅ NO @php BLOCK - USE REAL DATA FROM CONTROLLER --}}
         @foreach ($products as $product)
             <div class="js-slide">
                 <!-- Product -->
                 <div class="card text-center w-100">
                     <div class="position-relative">
-                       
                         <img class="card-img-top" 
-                             src="{{ $product->media->first()->url ?? asset('images/placeholder.jpg') }}" 
+                             src="{{ $product->media->first()?->url ?? asset('images/placeholder.jpg') }}" 
                              alt="{{ $product->name }}">
 
-                        @if ($product->status === 'new')
-                            <div class="position-absolute top-0 left-0 pt-3 pl-3">
-                                <span class="badge badge-success badge-pill">New arrival</span>
-                            </div>
-                        @elseif ($product->status === 'sold_out')
+                        {{-- ✅ USE REAL STOCK STATUS --}}
+                        @if ($product->stock == 0)
                             <div class="position-absolute top-0 left-0 pt-3 pl-3">
                                 <span class="badge badge-danger badge-pill">Sold out</span>
                             </div>
                         @endif
+
                         <div class="position-absolute top-0 right-0 pt-3 pr-3">
                             <button type="button" class="btn btn-sm btn-icon btn-outline-secondary rounded-circle" data-toggle="tooltip" data-placement="top" title="Save for later">
                                 <span class="fas fa-heart btn-icon__inner"></span>
@@ -113,7 +56,7 @@
                         <div class="mb-2">
                             <a class="d-inline-block text-secondary small font-weight-medium mb-1" 
                                href="{{ route('categories.show', $product->category_id) }}">
-                                {{ $product->category ? $product->category->name : 'Uncategorized' }}
+                                {{ $product->category?->name ?? 'Uncategorized' }}
                             </a>
                             <h3 class="font-size-1 font-weight-normal">
                                 <a class="text-secondary" href="{{ route('products.show', $product->id) }}">
@@ -122,9 +65,9 @@
                             </h3>
                             <div class="d-block font-size-1">
                                 <span class="font-weight-medium">${{ number_format($product->price, 2) }}</span>
-                                @if ($product->original_price && $product->original_price > $product->price)
+                                @if ($product->discount_price && $product->discount_price < $product->price)
                                     <span class="text-secondary ml-1">
-                                        <del>${{ number_format($product->original_price, 2) }}</del>
+                                        <del>${{ number_format($product->price, 2) }}</del>
                                     </span>
                                 @endif
                             </div>
@@ -132,51 +75,38 @@
                     </div>
 
                     <div class="card-footer border-0 pt-0 pb-4 px-4">
+                        {{-- ✅ REAL RATINGS (default 0) --}}
                         <div class="mb-3">
                             <a class="d-inline-flex align-items-center small" href="#">
                                 <div class="text-warning mr-2">
                                     @for ($i = 1; $i <= 5; $i++)
-                                        <small class="{{ $i <= $product->rating ? 'fas fa-star' : 'far fa-star text-muted' }}"></small>
+                                        <small class="{{ $i <= ($product->rating ?? 0) ? 'fas fa-star' : 'far fa-star text-muted' }}"></small>
                                     @endfor
                                 </div>
                                 <span class="text-secondary">{{ $product->review_count ?? 0 }}</span>
                             </a>
                         </div>
                         
-                      
-                        <div class="btn-group d-flex gap-2 justify-content-center" role="group">
-                            {{-- 1. Add to Cart --}}
-                            <form action="{{ route('cart.store') }}" method="POST" class="d-inline">
-                                @csrf
-                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" 
-                                        class="btn btn-sm btn-outline-primary btn-sm-wide {{ $product->stock == 0 ? 'disabled' : '' }}">
-                                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
-                                </button>
-                            </form>
-                            
-                            {{-- 2. View Details --}}
-                            <a href="{{ route('products.show', $product->id) }}" 
-                               class="btn btn-sm btn-outline-info btn-sm-wide">
-                                <i class="fas fa-eye me-1"></i>View Details
-                            </a>
-                            
-                            {{-- 3. Quick Checkout --}}
-                            <a href="{{ route('checkout.quick', $product->id) }}" 
-                               class="btn btn-sm btn-success btn-sm-wide {{ $product->stock == 0 ? 'disabled' : '' }}">
-                                <i class="fas fa-credit-card me-1"></i>${{ number_format($product->price, 2) }}
-                            </a>
-                        </div>
+                        {{-- ✅ REAL CART BUTTON --}}
+                        <form action="{{ route('cart.store') }}" method="POST" class="d-inline">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" 
+                                    class="btn btn-sm btn-outline-primary btn-sm-wide btn-pill transition-3d-hover {{ $product->stock == 0 ? 'disabled' : '' }}">
+                                <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                            </button>
+                        </form>
                     </div>
                 </div>
-                <!-- End Product -->
             </div>
         @endforeach
     </div>
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
+    
+    {{-- ✅ PAGINATION --}}
+    <div class="mt-8">
+        {{ $products->links() }}
+    </div>
 </section>
-
-<x-features-section />
-
 @endsection

@@ -43,8 +43,8 @@ class ProductController extends Controller
             'sku' => 'required|string|unique:products',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:255',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
+            'is_active' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -111,21 +111,21 @@ public function search(Request $request)
 
     public function update(Request $request, Product $product)
     {
-        $validated = $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|unique:products,slug,' . $product->id,
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
-            'discount_price' => 'nullable|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'sku' => 'required|string|unique:products,sku,' . $product->id,
-            'seo_title' => 'nullable|string|max:255',
-            'seo_description' => 'nullable|string|max:255',
-            'is_active' => 'boolean',
-            'is_featured' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+      $validated = $request->validate([
+        'category_id' => 'required|exists:categories,id',
+        'name' => 'required|string|max:255',
+        'slug' => 'required|string|unique:products,slug,' . $product->id,
+        'description' => 'nullable|string',
+        'price' => 'required|numeric|min:0',
+        'discount_price' => 'nullable|numeric|min:0',
+        'stock' => 'required|integer|min:0',
+        'sku' => 'required|string|unique:products,sku,' . $product->id,
+        'seo_title' => 'nullable|string|max:255',
+        'seo_description' => 'nullable|string|max:255',
+        'is_active' => 'nullable|boolean',      // ✅ FIXED!
+        'is_featured' => 'nullable|boolean',    // ✅ FIXED!
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
         $product->update([
             'category_id' => $validated['category_id'],

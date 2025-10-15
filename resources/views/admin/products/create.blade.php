@@ -93,24 +93,24 @@
                     ]
                 ]
             ],
-            [
-                'title' => 'Status',
-                'fields' => [
-                    [
-                        'type' => 'checkbox-group',
-                        'checkboxes' => [
-                            [
-                                'name' => 'is_active',
-                                'label' => 'Active'
-                            ],
-                            [
-                                'name' => 'is_featured',
-                                'label' => 'Featured Product'
-                            ]
-                        ]
-                    ]
+        [
+    'title' => 'Status',
+    'fields' => [
+        [
+            'type' => 'checkbox-group',
+            'checkboxes' => [
+                [
+                    'name' => 'is_active',
+                    'label' => 'Active'
+                ],
+                [
+                    'name' => 'is_featured',
+                    'label' => 'Featured Product'
                 ]
             ]
+        ]
+    ]
+]
         ],
         'submitLabel' => 'Create Product'
     ])

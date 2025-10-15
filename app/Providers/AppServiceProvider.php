@@ -2,23 +2,24 @@
 
 namespace App\Providers;
 
-use App\Models\Notification;
-use App\Policies\NotificationPolicy;
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
-class AuthServiceProvider extends ServiceProvider
+class AppServiceProvider extends ServiceProvider
 {
     /**
-     * The policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
+     * Register any application services.
      */
+    public function register(): void
+    {
+        //
+    }
+
     protected $policies = [
-        Notification::class => NotificationPolicy::class,
-    ];
+    Notification::class => NotificationPolicy::class,
+];
 
     /**
-     * Register any authentication / authorization services.
+     * Bootstrap any application services.
      */
     public function boot(): void
     {

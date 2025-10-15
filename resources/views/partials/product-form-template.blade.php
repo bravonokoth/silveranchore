@@ -9,7 +9,7 @@
     'submitIcon' => 'check-circle',
     'values' => [],
     'isEdit' => false,
-    'enctype' => true // Added to toggle multipart/form-data
+    'enctype' => true
 ])
 
 <link href="{{ asset('css/product-form.css') }}" rel="stylesheet">
@@ -50,8 +50,14 @@
                             @if ($field['type'] === 'checkbox-group')
                                 <div class="flex items-center gap-6">
                                     @foreach ($field['checkboxes'] as $checkbox)
+                                        {{-- HIDDEN FIELD FIX --}}
+                                        <input type="hidden" name="{{ $checkbox['name'] }}" value="0">
                                         <label class="flex items-center gap-3 cursor-pointer">
-                                            <input type="checkbox" name="{{ $checkbox['name'] }}" class="form-checkbox" {{ isset($values[$checkbox['name']]) && $values[$checkbox['name']] ? 'checked' : '' }}>
+                                            <input type="checkbox" 
+                                                   name="{{ $checkbox['name'] }}" 
+                                                   value="1" 
+                                                   class="form-checkbox" 
+                                                   {{ old($checkbox['name'], $checkbox['name'] == 'is_active' ? 1 : 0) ? 'checked' : '' }}>
                                             <span class="text-sm font-medium text-gray-700">{{ $checkbox['label'] }}</span>
                                         </label>
                                         @error($checkbox['name'])
@@ -64,13 +70,27 @@
                                 @if ($field['type'] === 'select')
                                     <select name="{{ $field['name'] }}" class="form-input" {{ $field['required'] ?? false ? 'required' : '' }}>
                                         @foreach ($field['options'] ?? [] as $option)
-                                            <option value="{{ $option['value'] }}" {{ isset($values[$field['name']]) && $values[$field['name']] == $option['value'] ? 'selected' : '' }}>{{ $option['label'] }}</option>
+                                            <option value="{{ $option['value'] }}" 
+                                                    {{ old($field['name'], $values[$field['name']] ?? '') == $option['value'] ? 'selected' : '' }}>
+                                                {{ $option['label'] }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 @elseif ($field['type'] === 'textarea')
-                                    <textarea name="{{ $field['name'] }}" rows="{{ $field['rows'] ?? 4 }}" class="form-input" placeholder="{{ $field['placeholder'] ?? '' }}">{{ $values[$field['name']] ?? '' }}</textarea>
+                                    <textarea name="{{ $field['name'] }}" 
+                                              rows="{{ $field['rows'] ?? 4 }}" 
+                                              class="form-input" 
+                                              placeholder="{{ $field['placeholder'] ?? '' }}">
+                                        {{ old($field['name'], $values[$field['name']] ?? '') }}
+                                    </textarea>
                                 @else
-                                    <input type="{{ $field['type'] }}" name="{{ $field['name'] }}" class="form-input" placeholder="{{ $field['placeholder'] ?? '' }}" {{ $field['required'] ?? false ? 'required' : '' }} {{ isset($field['step']) ? "step=\"{$field['step']}\"" : '' }} {{ $field['type'] !== 'file' && isset($values[$field['name']]) ? "value=\"{$values[$field['name']]}\"" : '' }}>
+                                    <input type="{{ $field['type'] }}" 
+                                           name="{{ $field['name'] }}" 
+                                           class="form-input" 
+                                           placeholder="{{ $field['placeholder'] ?? '' }}" 
+                                           {{ $field['required'] ?? false ? 'required' : '' }} 
+                                           {{ isset($field['step']) ? "step=\"{$field['step']}\"" : '' }} 
+                                           {{ $field['type'] !== 'file' ? "value=\"" . old($field['name'], $values[$field['name']] ?? '') . "\"" : '' }}>
                                 @endif
                                 @error($field['name'])
                                     <p class="form-error">{{ $message }}</p>
