@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
-        $query = Category::withCount('products'); // ✅ Already correct!
+        $query = Category::with(['media', 'products'])  
+            ->withCount('products');  // ✅ Product count
 
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -21,6 +22,7 @@ class CategoryController extends Controller
             $query->where('parent_id', $request->parent_id);
         }
 
+        
         $categories = $query->get();
 
         return view('categories.index', compact('categories'));

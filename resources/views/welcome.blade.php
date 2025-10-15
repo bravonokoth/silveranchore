@@ -44,15 +44,21 @@
            "settings": { "slidesToShow": 1 }
          }]'>
         
-        {{-- ✅ NO FAKE DATA - USE REAL CATEGORIES --}}
-        @foreach ($categories as $category)
-            <div class="js-slide">
-                <div class="category-card">
-                    <h3 class="text-lg font-semibold text-gray-800">{{ $category->name }}</h3>
-                    <a href="{{ route('categories.show', $category->id) }}" class="text-gold hover:underline">View Products</a>
-                </div>
+      @foreach ($categories as $category)
+    <div class="js-slide">
+        <div class="category-card text-center">
+            <div class="category-image mb-3">
+               <img src="{{ $category->media()->first() ? asset('storage/' . $category->media()->first()->path) : asset('images/category-placeholder.jpg') }}" 
+     alt="{{ $category->name }}" 
+     class="w-full h-32 object-cover rounded-lg">
             </div>
-        @endforeach
+            <h3 class="text-lg font-semibold text-gray-800">{{ $category->name }}</h3>
+            <p class="text-sm text-gray-600 mb-2">{{ $category->products()->count() }} Products</p>
+            <a href="{{ route('categories.show', $category->id) }}" class="text-gold hover:underline">View Products</a>
+        </div>
+    </div>
+@endforeach
+
     </div>
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
@@ -92,10 +98,10 @@
                 <div class="js-slide">
                     <div class="card text-center w-100">
                         <div class="position-relative">
-                            <img class="card-img-top" 
-                                 src="{{ $product->media->first()?->url ?? asset('images/placeholder.jpg') }}" 
-                                 alt="{{ $product->name }}"
-                                 style="height: 250px; object-fit: cover;">
+                    <img class="card-img-top" 
+                                    src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
+                                    alt="{{ $product->name }}"
+                                    style="height: 250px; object-fit: cover;">
                             
                             @if ($product->stock == 0)
                                 <div class="position-absolute top-0 left-0 pt-3 pl-3">

@@ -28,24 +28,18 @@
            "breakpoint": 480,
            "settings": { "slidesToShow": 1 }
          }]'>
-        @php
-            $categories = $categories->isEmpty() ? collect([
-                (object)['id' => 1, 'name' => 'Whiskey', 'image' => asset('images/whiskey.jpg')],
-                (object)['id' => 2, 'name' => 'Vodka', 'image' => asset('images/vodka.jpg')],
-                (object)['id' => 3, 'name' => 'Gin', 'image' => asset('images/gin.jpg')],
-                (object)['id' => 4, 'name' => 'Rum', 'image' => asset('images/rum.jpg')],
-            ]) : $categories;
-        @endphp
+        
+        
         @foreach ($categories as $category)
             <div class="js-slide">
                 <div class="category-card text-center">
                     <div class="category-image mb-3">
-                        {{-- ✅ FIXED: Use 'image' column, NOT getFirstMediaUrl --}}
-                        <img src="{{ $category->image ? asset('storage/' . $category->image) : asset('images/placeholder.jpg') }}" 
-                             alt="{{ $category->name }}" class="w-full h-32 object-cover rounded-lg">
+                        <img src="{{ asset('storage/' . ($category->media->first()?->path ?? 'images/category-placeholder.jpg')) }}" 
+                             alt="{{ $category->name }}" 
+                             class="w-full h-32 object-cover rounded-lg">
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800">{{ $category->name }}</h3>
-                    <p class="text-sm text-gray-600 mb-2">{{ $category->products_count ?? 0 }} Products</p>
+                    <p class="text-sm text-gray-600 mb-2">{{ $category->products_count ?? $category->products()->count() }} Products</p>
                     <a href="{{ route('categories.show', $category->id) }}" class="text-gold hover:underline">View Products</a>
                 </div>
             </div>
@@ -55,5 +49,4 @@
 </section>
 
 <x-features-section />
-
 @endsection

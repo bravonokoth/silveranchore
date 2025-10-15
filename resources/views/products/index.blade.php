@@ -34,9 +34,9 @@
                 <!-- Product -->
                 <div class="card text-center w-100">
                     <div class="position-relative">
-                        <img class="card-img-top" 
-                             src="{{ $product->media->first()?->url ?? asset('images/placeholder.jpg') }}" 
-                             alt="{{ $product->name }}">
+                       <img class="card-img-top" 
+                            src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
+                            alt="{{ $product->name }}">
 
                         {{-- ✅ USE REAL STOCK STATUS --}}
                         @if ($product->stock == 0)

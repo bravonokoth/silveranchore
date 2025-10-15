@@ -14,20 +14,19 @@ class HomeController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+public function index()
     {
-        // Fetch a random active banner
         $banner = Banner::where('is_active', true)->inRandomOrder()->first();
 
-        // Fetch up to 8 featured products with their media
         $featuredProducts = Product::where('is_featured', true)
             ->where('is_active', true)
             ->with('media')
             ->take(8)
             ->get();
 
-        // Fetch all categories
-        $categories = Category::all();
+       
+        $categories = Category::with('media') 
+            ->get();
 
         return view('welcome', compact('banner', 'featuredProducts', 'categories'));
     }
