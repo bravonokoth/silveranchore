@@ -73,4 +73,7 @@
             <a href="{{ route('contact') }}" class="cta-button">Contact Us</a>
         </div>
     </div>
+
+<x-features-section />
+
 @endsection

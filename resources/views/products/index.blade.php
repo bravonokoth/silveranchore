@@ -11,7 +11,7 @@
 @endif
 
 <section class="products max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Our Products</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Our Products</h2>
     <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
          data-slides-show="4"
          data-slides-scroll="3"
@@ -88,7 +88,10 @@
                 <!-- Product -->
                 <div class="card text-center w-100">
                     <div class="position-relative">
-                        <img class="card-img-top" src="{{ $product->media->first() ? ($product->media->first()->url ?? $product->media->first()->getUrl()) : asset('images/placeholder.jpg') }}" alt="{{ $product->name }}">
+                       
+                        <img class="card-img-top" 
+                             src="{{ $product->media->first()->url ?? asset('images/placeholder.jpg') }}" 
+                             alt="{{ $product->name }}">
 
                         @if ($product->status === 'new')
                             <div class="position-absolute top-0 left-0 pt-3 pl-3">
@@ -108,14 +111,21 @@
 
                     <div class="card-body pt-4 px-4 pb-0">
                         <div class="mb-2">
-                            <a class="d-inline-block text-secondary small font-weight-medium mb-1" href="{{ route('categories.show', $product->category_id) }}">{{ $product->category ? $product->category->name : 'Uncategorized' }}</a>
+                            <a class="d-inline-block text-secondary small font-weight-medium mb-1" 
+                               href="{{ route('categories.show', $product->category_id) }}">
+                                {{ $product->category ? $product->category->name : 'Uncategorized' }}
+                            </a>
                             <h3 class="font-size-1 font-weight-normal">
-                                <a class="text-secondary" href="{{ route('products.show', $product->id) }}">{{ $product->name }}</a>
+                                <a class="text-secondary" href="{{ route('products.show', $product->id) }}">
+                                    {{ $product->name }}
+                                </a>
                             </h3>
                             <div class="d-block font-size-1">
                                 <span class="font-weight-medium">${{ number_format($product->price, 2) }}</span>
                                 @if ($product->original_price && $product->original_price > $product->price)
-                                    <span class="text-secondary ml-1"><del>${{ number_format($product->original_price, 2) }}</del></span>
+                                    <span class="text-secondary ml-1">
+                                        <del>${{ number_format($product->original_price, 2) }}</del>
+                                    </span>
                                 @endif
                             </div>
                         </div>
@@ -132,12 +142,32 @@
                                 <span class="text-secondary">{{ $product->review_count ?? 0 }}</span>
                             </a>
                         </div>
-                        <form action="{{ route('cart.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn btn-sm btn-outline-primary btn-sm-wide btn-pill transition-3d-hover {{ $product->status === 'sold_out' ? 'disabled' : '' }}">Add to Cart</button>
-                        </form>
+                        
+                      
+                        <div class="btn-group d-flex gap-2 justify-content-center" role="group">
+                            {{-- 1. Add to Cart --}}
+                            <form action="{{ route('cart.store') }}" method="POST" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" 
+                                        class="btn btn-sm btn-outline-primary btn-sm-wide {{ $product->stock == 0 ? 'disabled' : '' }}">
+                                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                                </button>
+                            </form>
+                            
+                            {{-- 2. View Details --}}
+                            <a href="{{ route('products.show', $product->id) }}" 
+                               class="btn btn-sm btn-outline-info btn-sm-wide">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            
+                            {{-- 3. Quick Checkout --}}
+                            <a href="{{ route('checkout.quick', $product->id) }}" 
+                               class="btn btn-sm btn-success btn-sm-wide {{ $product->stock == 0 ? 'disabled' : '' }}">
+                                <i class="fas fa-credit-card me-1"></i>${{ number_format($product->price, 2) }}
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <!-- End Product -->
@@ -146,4 +176,7 @@
     </div>
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
+
+<x-features-section />
+
 @endsection

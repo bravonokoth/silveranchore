@@ -54,21 +54,6 @@
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
 
-<!-- Stats Section -->
-<section class="stats-section">
-    <div class="stats-content">
-        <div class="stat-item">
-            <h3 class="text-3xl font-bold text-gray-800">{{ $categories->count() }}+</h3>
-            <p class="text-gray-600">Categories</p>
-        </div>
-        <div class="stat-item">
-            <h3 class="text-3xl font-bold text-gray-800">500+</h3>
-            <p class="text-gray-600">Premium Products</p>
-        </div>
-        <div class="stat-item">
-            <h3 class="text-3xl font-bold text-gray-800">10K+</h3>
-            <p class="text-gray-600">Happy Customers</p>
-        </div>
-    </div>
-</section>
+<x-features-section />
+
 @endsection
