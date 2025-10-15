@@ -27,7 +27,7 @@
 
 <!-- Category Section -->
 <section class="max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Our Categories</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Our Categories</h2>
     <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
          data-slides-show="4"
          data-slides-scroll="3"
@@ -54,7 +54,7 @@
         @foreach ($categories as $category)
             <div class="js-slide">
                 <div class="category-card">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">{{ $category->name }}</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">{{ $category->name }}</h3>
                     <a href="{{ route('categories.show', $category->id) }}" class="text-gold hover:underline">View Products</a>
                 </div>
             </div>
@@ -63,9 +63,9 @@
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
 
-<!-- Product Section -->
+<!-- Product Section (WITH NEW BUTTONS) -->
 <section class="products max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Featured Products</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Featured Products</h2>
     <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
          data-slides-show="4"
          data-slides-scroll="3"
@@ -84,66 +84,36 @@
         @php
             $featuredProducts = $featuredProducts->isEmpty() ? collect([
                 (object)[
-                    'id' => 1,
-                    'name' => 'Premium Whiskey',
-                    'price' => 49.99,
-                    'original_price' => 59.99,
-                    'category_id' => 1,
-                    'category' => (object)['name' => 'Whiskey'],
+                    'id' => 1, 'name' => 'Premium Whiskey', 'price' => 49.99, 'original_price' => 59.99,
+                    'category_id' => 1, 'category' => (object)['name' => 'Whiskey'],
                     'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => 'new',
-                    'rating' => 4,
-                    'review_count' => 25,
-                    'stock' => 10
+                    'status' => 'new', 'rating' => 4, 'review_count' => 25, 'stock' => 10
                 ],
                 (object)[
-                    'id' => 2,
-                    'name' => 'Classic Vodka',
-                    'price' => 29.99,
-                    'original_price' => null,
-                    'category_id' => 2,
-                    'category' => (object)['name' => 'Vodka'],
+                    'id' => 2, 'name' => 'Classic Vodka', 'price' => 29.99, 'original_price' => null,
+                    'category_id' => 2, 'category' => (object)['name' => 'Vodka'],
                     'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => null,
-                    'rating' => 3,
-                    'review_count' => 10,
-                    'stock' => 20
+                    'status' => null, 'rating' => 3, 'review_count' => 10, 'stock' => 20
                 ],
                 (object)[
-                    'id' => 3,
-                    'name' => 'Artisan Gin',
-                    'price' => 39.99,
-                    'original_price' => 45.99,
-                    'category_id' => 3,
-                    'category' => (object)['name' => 'Gin'],
+                    'id' => 3, 'name' => 'Artisan Gin', 'price' => 39.99, 'original_price' => 45.99,
+                    'category_id' => 3, 'category' => (object)['name' => 'Gin'],
                     'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => 'sold_out',
-                    'rating' => 5,
-                    'review_count' => 15,
-                    'stock' => 0
+                    'status' => 'sold_out', 'rating' => 5, 'review_count' => 15, 'stock' => 0
                 ],
                 (object)[
-                    'id' => 4,
-                    'name' => 'Aged Rum',
-                    'price' => 59.99,
-                    'original_price' => null,
-                    'category_id' => 4,
-                    'category' => (object)['name' => 'Rum'],
+                    'id' => 4, 'name' => 'Aged Rum', 'price' => 59.99, 'original_price' => null,
+                    'category_id' => 4, 'category' => (object)['name' => 'Rum'],
                     'media' => collect([(object)['url' => asset('images/placeholder.jpg')]]),
-                    'status' => 'new',
-                    'rating' => 4,
-                    'review_count' => 20,
-                    'stock' => 15
+                    'status' => 'new', 'rating' => 4, 'review_count' => 20, 'stock' => 15
                 ],
             ]) : $featuredProducts;
         @endphp
         @foreach ($featuredProducts as $product)
             <div class="js-slide">
-                <!-- Product -->
                 <div class="card text-center w-100">
                     <div class="position-relative">
-                        <img class="card-img-top" src="{{ $product->media->first() ? ($product->media->first()->url ?? $product->media->first()->getUrl()) : asset('images/placeholder.jpg') }}" alt="{{ $product->name }}">
-
+                        <img class="card-img-top" src="{{ $product->media->first() ? $product->media->first()->url : asset('images/placeholder.jpg') }}" alt="{{ $product->name }}">
                         @if ($product->status === 'new')
                             <div class="position-absolute top-0 left-0 pt-3 pl-3">
                                 <span class="badge badge-success badge-pill">New arrival</span>
@@ -162,7 +132,7 @@
 
                     <div class="card-body pt-4 px-4 pb-0">
                         <div class="mb-2">
-                            <a class="d-inline-block text-secondary small font-weight-medium mb-1" href="{{ route('categories.show', $product->category_id) }}">{{ $product->category ? $product->category->name : 'Uncategorized' }}</a>
+                            <a class="d-inline-block text-secondary small font-weight-medium mb-1" href="{{ route('categories.show', $product->category_id) }}">{{ $product->category->name }}</a>
                             <h3 class="font-size-1 font-weight-normal">
                                 <a class="text-secondary" href="{{ route('products.show', $product->id) }}">{{ $product->name }}</a>
                             </h3>
@@ -186,18 +156,52 @@
                                 <span class="text-secondary">{{ $product->review_count ?? 0 }}</span>
                             </a>
                         </div>
-                        <form action="{{ route('cart.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="btn btn-sm btn-outline-primary btn-sm-wide btn-pill transition-3d-hover {{ $product->status === 'sold_out' ? 'disabled' : '' }}">Add to Cart</button>
-                        </form>
+                        
+                        {{-- NEW: THREE BUTTONS --}}
+                        <div class="btn-group d-flex gap-2 justify-content-center" role="group">
+                            {{-- 1. Add to Cart --}}
+                            <form action="{{ route('cart.store') }}" method="POST" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn btn-sm btn-outline-primary btn-sm-wide {{ $product->stock == 0 ? 'disabled' : '' }}">
+                                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                                </button>
+                            </form>
+                            
+                            {{-- 2. NEW: View Details --}}
+                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-outline-info btn-sm-wide">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                            
+                            {{-- 3. NEW: Quick Checkout --}}
+                            <a href="{{ route('checkout.quick', $product->id) }}" class="btn btn-sm btn-success btn-sm-wide {{ $product->stock == 0 ? 'disabled' : '' }}">
+                                <i class="fas fa-credit-card me-1"></i>${{ number_format($product->price, 2) }}
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <!-- End Product -->
             </div>
         @endforeach
     </div>
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="stats-content">
+        <div class="stat-item">
+            <h3 class="text-3xl font-bold text-gray-800">500+</h3>
+            <p class="text-gray-600">Premium Products</p>
+        </div>
+        <div class="stat-item">
+            <h3 class="text-3xl font-bold text-gray-800">10K+</h3>
+            <p class="text-gray-600">Happy Customers</p>
+        </div>
+        <div class="stat-item">
+            <h3 class="text-3xl font-bold text-gray-800">20+</h3>
+            <p class="text-gray-600">Years in Business</p>
+        </div>
+    </div>
 </section>
 @endsection

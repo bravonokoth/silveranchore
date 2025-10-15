@@ -22,7 +22,7 @@
                         </div>
                         <div class="info-content">
                             <h3>Visit Us</h3>
-                            <p>123 Kimathi Street<br>Nairobi, Kenya</p>
+                            <p>Quickmart Rongai<br>Nairobi, Kenya</p>
                         </div>
                     </div>
 

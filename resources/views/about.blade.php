@@ -8,23 +8,23 @@
             </div>
             <div class="text-content">
                 <h2>A Legacy of Taste</h2>
-                <p>SilverAnchorE is your trusted online destination for <span class="highlight">premium spirits and fine wines</span> in Kenya. Our passion for exceptional beverages runs deep, bringing you carefully curated selections from around the world.</p>
-                <p>We believe every bottle tells a story—from the distilleries nestled in Scottish highlands to the sun-drenched vineyards of Tuscany. Our carefully curated selection represents journeys across continents and decades of craftsmanship.</p>
-                <p>Founded in 2025, we aim to bring the best products to your doorstep, whether you're in Nairobi or beyond. Here, you won't find just products on shelves—you'll discover a team genuinely excited to share knowledge and recommend the perfect pairing for your celebration.</p>
+                <p>Silveranchore Liqour store is your trusted online destination for <span class="highlight">premium Gin, Vodka, Beer, Spirits and fine Wines</span> in Rongai, Nairobi. Our passion for exceptional beverages runs deep, bringing you carefully curated selections worldwide.</p>
+                <p>We believe every bottle tells a story—from the distilleries nestled in Scottish highlands to the sun-drenched vineyards of Tuscany. Our carefully curated selection represents journeys across the country and decades of craftsmanship.</p>
+                <p>Founded in 2019, we aim to bring the best products to your doorstep, if you're in Nairobi. Here, you won't find just products on shelves—you'll discover a team genuinely excited to share knowledge and recommend the perfect pairing for your celebration.</p>
             </div>
         </div>
 
         <div class="stats-section">
             <div class="stat-item">
-                <span class="stat-number">2,400+</span>
-                <span class="stat-label">Unique Bottles</span>
+                <span class="stat-number">400+</span>
+                <span class="stat-label">Unique Bottles and Flavour</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">37</span>
-                <span class="stat-label">Countries Represented</span>
+                <span class="stat-number">5*</span>
+                <span class="stat-label">Best Customer Service</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">15K+</span>
+                <span class="stat-number">10K+</span>
                 <span class="stat-label">Happy Customers</span>
             </div>
         </div>
@@ -32,9 +32,9 @@
         <div class="content-grid reverse">
             <div class="text-content">
                 <h2>Beyond Retail</h2>
-                <p>We're more than a store—we're your partners in celebration, contemplation, and discovery. Whether you're a seasoned connoisseur seeking that elusive vintage or someone taking their first steps into the world of craft spirits, we're here to guide you.</p>
+                <p>We're more than a liquor store—we're your partners in celebration, contemplation, parties, and discovery. Whether you're a seasoned whiskey seeking that elusive vintage or someone taking their first steps into the world of craft spirits and wine, we're here to guide you.</p>
                 <p>Our team continuously educates themselves to bring you not just products, but experiences. Every recommendation comes from genuine tasting experience. Every bottle in our collection has been chosen with intention and care.</p>
-                <p>Our mission is to make shopping convenient and enjoyable for everyone, with exceptional customer service and fast, reliable delivery across Kenya.</p>
+                <p>Our mission is to make shopping convenient and enjoyable for everyone, with exceptional customer service and fast, reliable delivery across Nairobi.</p>
             </div>
             <div class="image-container">
                 <img src="https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=800&h=1000&fit=crop" alt="Craft cocktails and spirits">

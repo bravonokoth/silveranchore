@@ -69,6 +69,7 @@ Route::prefix('cart')->group(function () {
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/quick/{product}', [CartController::class, 'quickCheckout'])->name('checkout.quick'); // ✅ NEW!
 });
 
 // 📦 Order Creation (Guest or Auth)

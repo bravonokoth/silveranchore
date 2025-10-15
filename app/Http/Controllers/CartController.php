@@ -2,30 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CartItem;
+use App\Models\CartItem; // ✅ CORRECT: CartItem model
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
-    public function index()
-    {
-        $user = auth()->user();
-        $sessionId = Session::getId();
-
-        $cartItems = $user
-            ? CartItem::where('user_id', $user->id)->with(['product.media'])->get()
-            : CartItem::where('session_id', $sessionId)->with(['product.media'])->get();
-
-        $total = $cartItems->sum(function ($item) {
-            return $item->product ? $item->product->price * $item->quantity : 0;
-        });
-
-        return view('cart.index', compact('cartItems', 'total'));
-    }
-
     public function store(Request $request)
     {
         try {
@@ -34,22 +18,35 @@ class CartController extends Controller
                 'quantity' => 'required|integer|min:1',
             ]);
 
-            $user = auth()->user();
-            $sessionId = Session::getId();
+            $sessionId = session()->getId();
+            $user = Auth::user(); // ✅ FIXED: Defined $user
 
-            $product = Product::find($validated['product_id']);
-            if (!$product || $product->stock < $validated['quantity']) {
-                return redirect()->back()->with('error', 'Insufficient stock for product: ' . ($product ? $product->name : 'Unknown'));
+            $product = Product::findOrFail($validated['product_id']);
+            if ($product->stock < $validated['quantity']) {
+                return redirect()->back()->with('error', 'Insufficient stock');
             }
 
-            CartItem::updateOrCreate(
-                [
+            // ✅ FIXED: CartItem model
+            $cartItem = CartItem::where('product_id', $validated['product_id'])
+                ->where(function ($query) use ($user, $sessionId) {
+                    if ($user) {
+                        $query->where('user_id', $user->id);
+                    } else {
+                        $query->where('session_id', $sessionId);
+                    }
+                })->first();
+
+            if ($cartItem) {
+                $cartItem->quantity += $validated['quantity'];
+                $cartItem->save();
+            } else {
+                CartItem::create([ // ✅ FIXED: CartItem::create
                     'user_id' => $user ? $user->id : null,
-                    'session_id' => $user ? null : $sessionId,
+                    'session_id' => $sessionId,
                     'product_id' => $validated['product_id'],
-                ],
-                ['quantity' => $validated['quantity']]
-            );
+                    'quantity' => $validated['quantity'],
+                ]);
+            }
 
             return redirect()->back()->with('success', 'Item added to cart');
         } catch (\Exception $e) {
@@ -63,6 +60,45 @@ class CartController extends Controller
         }
     }
 
+    // ✅ NEW: quickCheckout method (uses CartItem)
+    public function quickCheckout($productId)
+    {
+        try {
+            $product = Product::findOrFail($productId);
+            if ($product->stock < 1) {
+                return redirect()->back()->with('error', 'Product out of stock');
+            }
+
+            $sessionId = session()->getId();
+            $user = Auth::user();
+
+            // Clear cart and add only this product
+            CartItem::where(function ($query) use ($user, $sessionId) { // ✅ FIXED: CartItem
+                if ($user) {
+                    $query->where('user_id', $user->id);
+                } else {
+                    $query->where('session_id', $sessionId);
+                }
+            })->delete();
+
+            CartItem::create([ // ✅ FIXED: CartItem::create
+                'user_id' => $user ? $user->id : null,
+                'session_id' => $sessionId,
+                'product_id' => $productId,
+                'quantity' => 1,
+            ]);
+
+            return redirect()->route('checkout.index')->with('success', "Quick checkout: {$product->name} added!");
+        } catch (\Exception $e) {
+            Log::error('Quick checkout error', [
+                'error' => $e->getMessage(),
+                'user_id' => $user ? $user->id : null,
+                'product_id' => $productId,
+            ]);
+            return redirect()->back()->with('error', 'Quick checkout failed');
+        }
+    }
+
     public function update(Request $request, $id)
     {
         try {
@@ -70,71 +106,36 @@ class CartController extends Controller
                 'quantity' => 'required|integer|min:1',
             ]);
 
-            $user = auth()->user();
-            $sessionId = Session::getId();
+            $user = Auth::user();
+            $sessionId = session()->getId();
 
+            // ✅ FIXED: CartItem model
             $cartItem = CartItem::where('id', $id)
-                ->where($user ? 'user_id' : 'session_id', $user ? $user->id : $sessionId)
-                ->firstOrFail();
+                ->where(function ($query) use ($user, $sessionId) {
+                    if ($user) {
+                        $query->where('user_id', $user->id);
+                    } else {
+                        $query->where('session_id', $sessionId);
+                    }
+                })->firstOrFail();
 
-            if (!$cartItem->product) {
-                $cartItem->delete();
-                return redirect()->route('cart.index')->with('error', 'Cart item removed due to missing product');
+            $product = Product::findOrFail($cartItem->product_id);
+            if ($product->stock < $validated['quantity']) {
+                return redirect()->back()->with('error', 'Insufficient stock');
             }
 
-            if ($cartItem->product->stock < $validated['quantity']) {
-                return redirect()->route('cart.index')->with('error', 'Insufficient stock for product: ' . $cartItem->product->name);
-            }
+            $cartItem->quantity = $validated['quantity'];
+            $cartItem->save();
 
-            $cartItem->update(['quantity' => $validated['quantity']]);
-
-            return redirect()->route('cart.index')->with('success', 'Cart item updated');
+            return redirect()->back()->with('success', 'Cart updated');
         } catch (\Exception $e) {
             Log::error('Cart update error', [
                 'error' => $e->getMessage(),
-                'cart_item_id' => $id,
-            ]);
-            return redirect()->route('cart.index')->with('error', 'Failed to update cart item');
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $user = auth()->user();
-            $sessionId = Session::getId();
-
-            $cartItem = CartItem::where('id', $id)
-                ->where($user ? 'user_id' : 'session_id', $user ? $user->id : $sessionId)
-                ->firstOrFail();
-            $cartItem->delete();
-
-            return redirect()->route('cart.index')->with('success', 'Cart item removed');
-        } catch (\Exception $e) {
-            Log::error('Cart destroy error', [
-                'error' => $e->getMessage(),
-                'cart_item_id' => $id,
-            ]);
-            return redirect()->route('cart.index')->with('error', 'Failed to remove cart item');
-        }
-    }
-
-    public function clear()
-    {
-        try {
-            $user = auth()->user();
-            $sessionId = Session::getId();
-
-            CartItem::where($user ? 'user_id' : 'session_id', $user ? $user->id : $sessionId)->delete();
-
-            return redirect()->route('cart.index')->with('success', 'Cart cleared');
-        } catch (\Exception $e) {
-            Log::error('Cart clear error', [
-                'error' => $e->getMessage(),
                 'user_id' => $user ? $user->id : null,
                 'session_id' => $sessionId,
+                'cart_id' => $id,
             ]);
-            return redirect()->route('cart.index')->with('error', 'Failed to clear cart');
+            return redirect()->back()->with('error', 'Failed to update cart');
         }
     }
 }

@@ -1449,6 +1449,23 @@ body.dark section.max-w-7xl .js-slick-carousel .category-card a {
     padding: 24px;
 }
 
+.category-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+}
+
+.category-image img {
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
 .product-info {
     display: flex;
     align-items: center;
@@ -2053,4 +2070,29 @@ body.dark section.max-w-7xl .js-slick-carousel .category-card a {
     .billing-section {
         padding: 20px 15px;
     }
+}
+
+/* Product Buttons */
+.btn-group .btn {
+    flex: 1;
+    min-width: 90px;
+}
+
+.btn-sm-wide {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.btn-outline-info {
+    color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.btn-outline-info:hover {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.gap-2 {
+    gap: 0.5rem;
 }
