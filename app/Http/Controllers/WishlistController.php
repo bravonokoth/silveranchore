@@ -13,14 +13,14 @@ class WishlistController extends Controller
         $userId = auth()->id() ?? session('wishlist_user_id', 'guest_' . uniqid());
         session(['wishlist_user_id' => $userId]);
         
-        Wishlist::firstOrCreate([
+        $wishlist = Wishlist::firstOrCreate([
             'user_id' => $userId,
             'product_id' => $request->product_id,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Added to wishlist!',
+            'message' => $wishlist->wasRecentlyCreated ? 'Added to wishlist!' : 'Already in wishlist!',
             'in_wishlist' => true
         ]);
     }
@@ -29,10 +29,7 @@ class WishlistController extends Controller
     {
         $userId = auth()->id() ?? session('wishlist_user_id');
         
-        Wishlist::where([
-            'user_id' => $userId,
-            'product_id' => $productId
-        ])->delete();
+        Wishlist::where(['user_id' => $userId, 'product_id' => $productId])->delete();
 
         return response()->json([
             'success' => true,

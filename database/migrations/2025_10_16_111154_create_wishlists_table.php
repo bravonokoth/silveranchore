@@ -7,15 +7,19 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('wishlists', function (Blueprint $table) {
-            $table->string('user_id')->change();
+        Schema::create('wishlists', function (Blueprint $table) {
+            $table->id();
+            $table->string('user_id'); // 👈 STRING for guests
+            $table->unsignedBigInteger('product_id');
+            $table->timestamps();
+            
+            $table->unique(['user_id', 'product_id']);
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
 
     public function down()
     {
-        Schema::table('wishlists', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->change();
-        });
+        Schema::dropIfExists('wishlists');
     }
 };

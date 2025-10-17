@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Category extends Model
+class Category extends Model implements HasMedia
 {
-    use HasFactory;
+    use InteractsWithMedia;
 
     protected $fillable = ['name', 'slug', 'description', 'image', 'parent_id'];
 
@@ -24,12 +25,6 @@ class Category extends Model
     public function children()
     {
         return $this->hasMany(Category::class, 'parent_id');
-    }
-
-    // 🔥 MEDIA RELATIONSHIP!
-    public function media()
-    {
-        return $this->morphMany(Media::class, 'model');
     }
 
     public function getProductsCountAttribute()

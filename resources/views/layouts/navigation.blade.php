@@ -43,44 +43,119 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown and Cart -->
+            <!-- Right Side: Icons and Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
-                    <i class="fas fa-shopping-cart"></i>
-                </x-nav-link>
+                <!-- Navigation Icons -->
+                <div class="nav-icons">
+                    <!-- Wishlist Icon -->
+                    <a href="{{ route('wishlist.index') }}" class="nav-icon-link" title="Wishlist">
+                        <i class="fas fa-heart"></i>
+                        @auth
+                            @php
+                                $wishlistCount = Auth::user()->wishlistItems()->count();
+                            @endphp
+                            @if($wishlistCount > 0)
+                                <span class="nav-badge">{{ $wishlistCount }}</span>
+                            @endif
+                        @endauth
+                    </a>
+                    
+                    <!-- Cart Icon -->
+                    <a href="{{ route('cart.index') }}" class="nav-icon-link" title="Shopping Cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        @php
+                            $cartCount = 0;
+                            if(session()->has('cart')) {
+                                foreach(session('cart') as $item) {
+                                    $cartCount += $item['quantity'] ?? 1;
+                                }
+                            }
+                        @endphp
+                        @if($cartCount > 0)
+                            <span class="nav-badge">{{ $cartCount }}</span>
+                        @endif
+                    </a>
+                </div>
+
                 @auth
-                    <div x-data="{ dropdownOpen: false }" class="relative">
-                        <button @click="dropdownOpen = !dropdownOpen" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                    <!-- User Dropdown (Logged In) -->
+                    <div x-data="{ dropdownOpen: false }" class="user-dropdown">
+                        <button @click="dropdownOpen = !dropdownOpen" class="user-dropdown-trigger">
+                            <span>{{ Auth::user()->name }}</span>
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
                         </button>
-                        <div x-show="dropdownOpen" @click.outside="dropdownOpen = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
-                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                        <div x-show="dropdownOpen" 
+                             @click.outside="dropdownOpen = false"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 transform scale-95"
+                             x-transition:enter-end="opacity-100 transform scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 transform scale-100"
+                             x-transition:leave-end="opacity-0 transform scale-95"
+                             class="user-dropdown-menu"
+                             style="display: none;"
+                             x-cloak>
+                            <a href="{{ route('profile.edit') }}">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </a>
+                            <a href="{{ route('orders.index') }}">
+                                <i class="fas fa-box"></i>
+                                <span>My Orders</span>
+                            </a>
+                            <a href="{{ route('addresses.index') }}">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>Addresses</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <a href="{{ route('logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="event.preventDefault(); this.closest('form').submit();">Log Out</a>
+                                <button type="submit">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Log Out</span>
+                                </button>
                             </form>
                         </div>
                     </div>
                 @else
-                    <div class="flex items-center gap-2">
-                        <a href="{{ route('login') }}" class="text-sm text-gray-700">
-                            <i class="fas fa-sign-in-alt"></i>
-                        </a>
-                        <a href="{{ route('register') }}" class="text-sm text-gray-700">
-                            <i class="fas fa-user-plus"></i>
-                        </a>
+                    <!-- Auth Dropdown (Not Logged In) -->
+                    <div x-data="{ authDropdownOpen: false }" class="user-dropdown">
+                        <button @click="authDropdownOpen = !authDropdownOpen" class="user-dropdown-trigger">
+                            <i class="fas fa-user"></i>
+                            <span>Account</span>
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div x-show="authDropdownOpen" 
+                             @click.outside="authDropdownOpen = false"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 transform scale-95"
+                             x-transition:enter-end="opacity-100 transform scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 transform scale-100"
+                             x-transition:leave-end="opacity-0 transform scale-95"
+                             class="user-dropdown-menu"
+                             style="display: none;"
+                             x-cloak>
+                            <a href="{{ route('login') }}">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Login</span>
+                            </a>
+                            <a href="{{ route('register') }}">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Register</span>
+                            </a>
+                        </div>
                     </div>
                 @endauth
             </div>
 
-            <!-- Hamburger -->
+            <!-- Hamburger (Mobile) -->
             <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="hamburger">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -90,9 +165,39 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
+    <!-- Responsive Navigation Menu (Mobile) -->
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden mobile-menu">
+        <!-- Mobile Icons -->
+        <div class="mobile-icons">
+            <a href="{{ route('wishlist.index') }}" class="nav-icon-link" title="Wishlist">
+                <i class="fas fa-heart"></i>
+                @auth
+                    @php
+                        $wishlistCount = Auth::user()->wishlistItems()->count();
+                    @endphp
+                    @if($wishlistCount > 0)
+                        <span class="nav-badge">{{ $wishlistCount }}</span>
+                    @endif
+                @endauth
+            </a>
+            <a href="{{ route('cart.index') }}" class="nav-icon-link" title="Shopping Cart">
+                <i class="fas fa-shopping-cart"></i>
+                @php
+                    $cartCount = 0;
+                    if(session()->has('cart')) {
+                        foreach(session('cart') as $item) {
+                            $cartCount += $item['quantity'] ?? 1;
+                        }
+                    }
+                @endphp
+                @if($cartCount > 0)
+                    <span class="nav-badge">{{ $cartCount }}</span>
+                @endif
+            </a>
+        </div>
+
+        <!-- Mobile Navigation Links -->
+        <div class="mobile-nav-links">
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 {{ __('Home') }}
             </x-responsive-nav-link>
@@ -113,9 +218,6 @@
             <x-responsive-nav-link :href="route('contact')" :active="request()->routeIs('contact')">
                 {{ __('Contact') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('cart.index')" :active="request()->routeIs('cart.index')">
-                <i class="fas fa-shopping-cart"></i>
-            </x-responsive-nav-link>
             @auth
                 <x-responsive-nav-link :href="route('addresses.index')" :active="request()->routeIs('addresses.index')">
                     {{ __('Addresses') }}
@@ -126,7 +228,7 @@
             @endauth
         </div>
 
-        <!-- Responsive Settings Options -->
+        <!-- Mobile Auth Section -->
         @auth
             <div class="pt-4 pb-1 border-t border-gray-200">
                 <div class="px-4">
@@ -147,14 +249,23 @@
                 </div>
             </div>
         @else
-            <div class="pt-4 pb-1 border-t border-gray-200 px-4">
-                <a href="{{ route('login') }}" class="block text-sm text-gray-700">
+            <!-- Mobile Auth Buttons -->
+            <div class="mobile-auth-buttons">
+                <a href="{{ route('login') }}" class="mobile-nav-link">
                     <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
                 </a>
-                <a href="{{ route('register') }}" class="block text-sm text-gray-700 mt-1">
+                <a href="{{ route('register') }}" class="mobile-nav-link">
                     <i class="fas fa-user-plus"></i>
+                    <span>Register</span>
                 </a>
             </div>
         @endauth
     </div>
 </nav>
+
+<style>
+[x-cloak] {
+    display: none !important;
+}
+</style>
