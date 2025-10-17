@@ -94,6 +94,8 @@ class OrderController extends Controller
             return $item->product->price * $item->quantity;
         });
 
+        \Log::info('Calculated Total: KSh ' . $calculatedTotal);
+
         if (abs($calculatedTotal - $request->total) > 0.01) {
             return redirect()->route('checkout.index')->with('error', 'Total mismatch');
         }
@@ -104,9 +106,10 @@ class OrderController extends Controller
             }
         }
 
+        \Log::info('🔥 STARTING TRANSACTION');
         DB::beginTransaction();
         try {
-            // 1. Handle shipping address ✅ FIXED WITH DEBUG!
+            // 1. Handle shipping address ✅ FIXED WITH FULL DEBUG!
             $shippingAddress = null;
             if ($user && $request->address_id) {
                 $shippingAddress = Address::where('id', $request->address_id)
@@ -148,6 +151,7 @@ class OrderController extends Controller
             }
 
             // 3. Create order
+            \Log::info('🔥 Creating Order...');
             $order = Order::create([
                 'user_id' => $user?->id,
                 'session_id' => $user ? null : $sessionId,
@@ -157,9 +161,9 @@ class OrderController extends Controller
                 'shipping_address_id' => $shippingAddress->id,
                 'billing_address_id' => $billingAddress->id,
             ]);
-            \Log::info('✅ Order Created: ' . $order->id);
+            \Log::info('✅ Order Created: #' . $order->id);
 
-            // Save order items & reduce stock
+            // 4. Save order items & reduce stock
             foreach ($cartItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -171,7 +175,11 @@ class OrderController extends Controller
             }
             \Log::info('✅ Order Items & Stock Updated');
 
-            // Initialize Paystack payment ✅ GUEST WORKS!
+            // 5. Initialize Paystack payment ✅ GUEST WORKS!
+            \Log::info('🔥 INITIALIZING PAYSTACK...');
+            \Log::info('Paystack Email: ' . ($user?->email ?? $validated['shipping_address']['email']));
+            \Log::info('Paystack Amount: KSh ' . $calculatedTotal);
+            
             $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
                 ->post('https://api.paystack.co/transaction/initialize', [
                     'email' => $user?->email ?? $validated['shipping_address']['email'],
@@ -180,15 +188,17 @@ class OrderController extends Controller
                     'callback_url' => route('payment.callback'),
                 ]);
 
+            \Log::info('Paystack Status: ' . $response->status());
             $data = $response->json();
+            \Log::info('Paystack Response: ', $data);
 
             if (!$response->successful() || !isset($data['data']['authorization_url'])) {
                 \Log::error('❌ Paystack Failed: ' . json_encode($data));
                 DB::rollBack();
-                return redirect()->route('checkout.index')->with('error', 'Payment initialization failed');
+                return redirect()->route('checkout.index')->with('error', 'Payment initialization failed: ' . ($data['message'] ?? 'Unknown error'));
             }
 
-            // Clear cart ✅ GUEST SESSION!
+            // 6. Clear cart ✅ GUEST SESSION!
             $user
                 ? CartItem::where('user_id', $user->id)->delete()
                 : CartItem::where('session_id', $sessionId)->delete();
@@ -209,9 +219,10 @@ class OrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('❌ ORDER FAILED: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
-            return redirect()->route('checkout.index')->with('error', 'Order creation failed: ' . $e->getMessage());
+            \Log::error('💥 EXACT ERROR: ' . $e->getMessage());
+            \Log::error('💥 LINE NUMBER: ' . $e->getLine());
+            \Log::error('💥 FILE: ' . $e->getFile());
+            return redirect()->route('checkout.index')->with('error', 'ERROR: ' . $e->getMessage());
         }
     }
 }

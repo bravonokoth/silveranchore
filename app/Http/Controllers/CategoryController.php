@@ -28,12 +28,14 @@ class CategoryController extends Controller
         return view('categories.index', compact('categories'));
     }
 
-    public function show(Category $category)
-    {
-        $category->load(['products' => function ($query) {
-            $query->with('media')->where('is_active', true);
-        }]);
+   public function show(Category $category)
+{
+    $products = $category->products()
+        ->where('is_active', true)
+        ->with('media')
+        ->paginate(12); // ✅ adds pagination
 
-        return view('categories.show', compact('category'));
-    }
+    return view('categories.show', compact('category', 'products'));
+}
+
 }
