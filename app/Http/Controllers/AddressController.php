@@ -28,8 +28,7 @@ class AddressController extends Controller
     {
         $validated = $request->validate([
             'type' => 'required|in:shipping,billing',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',           // ✅ SINGLE NAME!
             'email' => 'required|email|max:255',
             'phone_number' => 'required|string|max:20',
             'line1' => 'required|string|max:255',
@@ -61,8 +60,7 @@ class AddressController extends Controller
 
         $validated = $request->validate([
             'type' => 'required|in:shipping,billing',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',           // ✅ SINGLE NAME!
             'email' => 'required|email|max:255',
             'phone_number' => 'required|string|max:20',
             'line1' => 'required|string|max:255',

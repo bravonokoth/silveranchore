@@ -10,28 +10,27 @@ return new class extends Migration
 {
     public function up(): void
     {
-       Schema::create('orders', function (Blueprint $table) {
-    $table->id();
+        Schema::create('orders', function (Blueprint $table) {
+            $table->id();
+            
+            // Allow NULL so SET NULL works
+            $table->foreignId('user_id')
+                  ->nullable()
+                  ->constrained()
+                  ->nullOnDelete();
 
-    // Allow NULL so SET NULL works
-    $table->foreignId('user_id')
-          ->nullable()
-          ->constrained()
-          ->nullOnDelete(); // Laravel 8+ shortcut for ->onDelete('set null')
-
-    $table->string('session_id')->nullable()->index();
-
-    $table->decimal('total', 10, 2);
-    $table->string('status')->default('pending'); // pending, confirmed, shipped, delivered
-    $table->timestamps();
-});
-
-
+            $table->string('session_id')->nullable()->index();
+            $table->string('email')->nullable(); // ✅ ADDED
+            $table->unsignedBigInteger('shipping_address_id')->nullable()->index(); // ✅ ADDED
+            $table->unsignedBigInteger('billing_address_id')->nullable()->index();  // ✅ ADDED
+            $table->decimal('total', 10, 2);
+            $table->string('status')->default('pending');
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
-        
         Schema::dropIfExists('orders');
     }
 };

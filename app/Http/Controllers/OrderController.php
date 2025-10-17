@@ -37,9 +37,15 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+        // 🔥 DEBUG LOG
+        \Log::info('=== ORDER STORE DEBUG ===');
+        \Log::info('User: ' . (auth()->check() ? 'LOGGED IN' : 'GUEST'));
+        \Log::info('Form Data: ', $request->all());
+
         $user = auth()->user();
         $sessionId = Session::getId();
 
+        // ✅ SINGLE NAME VALIDATION!
         $validated = $request->validate([
             'address_id' => ['nullable', 'exists:addresses,id', function ($attribute, $value, $fail) use ($user) {
                 if ($user && !Address::where('id', $value)->where('user_id', $user->id)->exists()) {
@@ -49,8 +55,7 @@ class OrderController extends Controller
                     $fail('Guest users cannot select saved addresses.');
                 }
             }],
-            'shipping_address.first_name' => 'required_without:address_id|string|max:255',
-            'shipping_address.last_name' => 'required_without:address_id|string|max:255',
+            'shipping_address.name' => 'required_without:address_id|string|max:255',
             'shipping_address.email' => 'required_without:address_id|email|max:255',
             'shipping_address.phone' => 'required_without:address_id|string|max:20',
             'shipping_address.line1' => 'required_without:address_id|string|max:255',
@@ -60,8 +65,7 @@ class OrderController extends Controller
             'shipping_address.postal_code' => 'nullable|string|max:20',
             'shipping_address.country' => 'required_without:address_id|string|max:100',
             'use_billing' => 'nullable|boolean',
-            'billing_address.first_name' => 'required_if:use_billing,1|string|max:255',
-            'billing_address.last_name' => 'required_if:use_billing,1|string|max:255',
+            'billing_address.name' => 'required_if:use_billing,1|string|max:255',
             'billing_address.email' => 'required_if:use_billing,1|email|max:255',
             'billing_address.phone' => 'required_if:use_billing,1|string|max:20',
             'billing_address.line1' => 'required_if:use_billing,1|string|max:255',
@@ -73,11 +77,16 @@ class OrderController extends Controller
             'total' => 'required|numeric|min:0',
         ]);
 
+        \Log::info('✅ VALIDATION PASSED');
+
         $cartItems = $user
             ? CartItem::where('user_id', $user->id)->with('product')->get()
             : CartItem::where('session_id', $sessionId)->with('product')->get();
 
+        \Log::info('Cart Items Found: ' . $cartItems->count());
+
         if ($cartItems->isEmpty()) {
+            \Log::error('❌ CART EMPTY');
             return redirect()->route('cart.index')->with('error', 'Cart is empty');
         }
 
@@ -97,14 +106,15 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
-            // Handle shipping address
+            // 1. Handle shipping address ✅ FIXED WITH DEBUG!
             $shippingAddress = null;
             if ($user && $request->address_id) {
                 $shippingAddress = Address::where('id', $request->address_id)
                     ->where('user_id', $user->id)
                     ->firstOrFail();
+                \Log::info('✅ Using saved address: ' . $shippingAddress->id);
             } else {
-                $shippingAddress = Address::create(array_merge(
+                $shippingData = array_merge(
                     $validated['shipping_address'],
                     [
                         'user_id' => $user?->id,
@@ -112,13 +122,17 @@ class OrderController extends Controller
                         'type' => 'shipping',
                         'phone_number' => $validated['shipping_address']['phone'],
                     ]
-                ));
+                );
+                unset($shippingData['phone']); // ✅ CRITICAL!
+                \Log::info('🔍 Shipping Data: ', $shippingData); // ✅ DEBUG!
+                $shippingAddress = Address::create($shippingData);
+                \Log::info('✅ New address created: ' . $shippingAddress->id);
             }
 
-            // Handle billing address
+            // 2. Handle billing address ✅ FIXED!
             $billingAddress = $shippingAddress;
             if ($request->use_billing) {
-                $billingAddress = Address::create(array_merge(
+                $billingData = array_merge(
                     $validated['billing_address'],
                     [
                         'user_id' => $user?->id,
@@ -126,10 +140,14 @@ class OrderController extends Controller
                         'type' => 'billing',
                         'phone_number' => $validated['billing_address']['phone'],
                     ]
-                ));
+                );
+                unset($billingData['phone']); // ✅ CRITICAL!
+                \Log::info('🔍 Billing Data: ', $billingData); // ✅ DEBUG!
+                $billingAddress = Address::create($billingData);
+                \Log::info('✅ Billing address created: ' . $billingAddress->id);
             }
 
-            // Create order
+            // 3. Create order
             $order = Order::create([
                 'user_id' => $user?->id,
                 'session_id' => $user ? null : $sessionId,
@@ -139,6 +157,7 @@ class OrderController extends Controller
                 'shipping_address_id' => $shippingAddress->id,
                 'billing_address_id' => $billingAddress->id,
             ]);
+            \Log::info('✅ Order Created: ' . $order->id);
 
             // Save order items & reduce stock
             foreach ($cartItems as $item) {
@@ -150,8 +169,9 @@ class OrderController extends Controller
                 ]);
                 $item->product->decrement('stock', $item->quantity);
             }
+            \Log::info('✅ Order Items & Stock Updated');
 
-            // Initialize Paystack payment
+            // Initialize Paystack payment ✅ GUEST WORKS!
             $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
                 ->post('https://api.paystack.co/transaction/initialize', [
                     'email' => $user?->email ?? $validated['shipping_address']['email'],
@@ -163,16 +183,19 @@ class OrderController extends Controller
             $data = $response->json();
 
             if (!$response->successful() || !isset($data['data']['authorization_url'])) {
+                \Log::error('❌ Paystack Failed: ' . json_encode($data));
                 DB::rollBack();
                 return redirect()->route('checkout.index')->with('error', 'Payment initialization failed');
             }
 
-            // Clear cart
+            // Clear cart ✅ GUEST SESSION!
             $user
                 ? CartItem::where('user_id', $user->id)->delete()
                 : CartItem::where('session_id', $sessionId)->delete();
+            \Log::info('✅ Cart Cleared');
 
             DB::commit();
+            \Log::info('✅ TRANSACTION COMMITTED');
 
             event(new NotificationSent(
                 "Order #{$order->id} created successfully.",
@@ -181,9 +204,13 @@ class OrderController extends Controller
                 $order->session_id
             ));
 
+            \Log::info('🚀 REDIRECTING TO PAYSTACK: ' . $data['data']['authorization_url']);
             return redirect($data['data']['authorization_url']);
+
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('❌ ORDER FAILED: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->route('checkout.index')->with('error', 'Order creation failed: ' . $e->getMessage());
         }
     }

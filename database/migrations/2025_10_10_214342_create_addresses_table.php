@@ -13,8 +13,7 @@ return new class extends Migration {
             $table->string('session_id')->nullable(); // guest checkout
 
             // Contact details
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('name');                    // ✅ SINGLE NAME!
             $table->string('phone_number')->nullable();
             $table->string('email')->nullable();
 
@@ -29,26 +28,10 @@ return new class extends Migration {
 
             $table->timestamps();
         });
-
-        Schema::table('orders', function (Blueprint $table) {
-            $table->foreignId('shipping_address_id')
-                  ->nullable()
-                  ->constrained('addresses')
-                  ->nullOnDelete();
-            $table->foreignId('billing_address_id')
-                  ->nullable()
-                  ->constrained('addresses')
-                  ->nullOnDelete();
-        });
     }
 
     public function down()
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('shipping_address_id');
-            $table->dropConstrainedForeignId('billing_address_id');
-        });
-
         Schema::dropIfExists('addresses');
     }
 };

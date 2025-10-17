@@ -46,7 +46,7 @@
                 </div>
             @else
                 <div class="checkout-grid">
-                    <!-- Order Summary -->
+                    <!-- Order Summary (UNCHANGED) -->
                     <div class="order-summary-section">
                         <h3>Order Summary</h3>
                         <div class="order-items">
@@ -99,7 +99,7 @@
                                             <option value="">Enter a new address</option>
                                             @foreach ($addresses as $address)
                                                 <option value="{{ $address->id }}">
-                                                    {{ $address->first_name }} {{ $address->last_name }} - {{ $address->line1 }}, {{ $address->city }}
+                                                    {{ $address->name }} - {{ $address->line1 }}, {{ $address->city }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -110,36 +110,20 @@
                                 @endif
                             @endauth
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="shipping_address.first_name" class="form-label">First Name *</label>
-                                    <input 
-                                        type="text" 
-                                        name="shipping_address[first_name]" 
-                                        id="shipping_address.first_name" 
-                                        class="form-input @error('shipping_address.first_name') input-error @enderror" 
-                                        value="{{ old('shipping_address.first_name') }}" 
-                                        required
-                                    >
-                                    @error('shipping_address.first_name')
-                                        <span class="error-message">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="shipping_address.last_name" class="form-label">Last Name *</label>
-                                    <input 
-                                        type="text" 
-                                        name="shipping_address[last_name]" 
-                                        id="shipping_address.last_name" 
-                                        class="form-input @error('shipping_address.last_name') input-error @enderror" 
-                                        value="{{ old('shipping_address.last_name') }}" 
-                                        required
-                                    >
-                                    @error('shipping_address.last_name')
-                                        <span class="error-message">{{ $message }}</span>
-                                    @enderror
-                                </div>
+                            <!-- ✅ SINGLE NAME FIELD! -->
+                            <div class="form-group full-width">
+                                <label for="shipping_address.name" class="form-label">Full Name *</label>
+                                <input 
+                                    type="text" 
+                                    name="shipping_address[name]" 
+                                    id="shipping_address.name" 
+                                    class="form-input @error('shipping_address.name') input-error @enderror" 
+                                    value="{{ old('shipping_address.name') }}" 
+                                    required
+                                >
+                                @error('shipping_address.name')
+                                    <span class="error-message">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <div class="form-row">
@@ -264,15 +248,10 @@
                             <div id="billing-address" class="billing-section hidden">
                                 <h3>Billing Address</h3>
                                 
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="billing_address.first_name" class="form-label">First Name</label>
-                                        <input type="text" name="billing_address[first_name]" id="billing_address.first_name" class="form-input" value="{{ old('billing_address.first_name') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="billing_address.last_name" class="form-label">Last Name</label>
-                                        <input type="text" name="billing_address[last_name]" id="billing_address.last_name" class="form-input" value="{{ old('billing_address.last_name') }}">
-                                    </div>
+                                <!-- ✅ SINGLE BILLING NAME! -->
+                                <div class="form-group full-width">
+                                    <label for="billing_address.name" class="form-label">Full Name</label>
+                                    <input type="text" name="billing_address[name]" id="billing_address.name" class="form-input" value="{{ old('billing_address.name') }}">
                                 </div>
 
                                 <div class="form-row">
