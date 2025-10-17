@@ -56,4 +56,11 @@ class Product extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+
+   public function isInWishlist()
+{
+    $userId = auth()->id() ?? session('wishlist_user_id', 'guest_' . uniqid());
+    session(['wishlist_user_id' => $userId]);
+    return $this->wishlists()->where('user_id', $userId)->exists();
+}
 }

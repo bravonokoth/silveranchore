@@ -14,6 +14,7 @@ use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -50,6 +51,8 @@ Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('products.index');
     Route::get('{product}', [ProductController::class, 'show'])->name('products.show');
 });
+Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
+Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
 Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
@@ -63,6 +66,7 @@ Route::prefix('cart')->group(function () {
     Route::put('{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('{id}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('/cart/quick-checkout/{productId}', [CartController::class, 'quickCheckout'])->name('cart.quick-checkout');
 });
 
 // 💳 Checkout
