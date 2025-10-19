@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use App\Events\NotificationSent;
 
+// 🔥 ADD THESE IMPORTS FOR PESAPAL
+use Knox\Pesapal\Facades\Pesapal;  // Or use Knox\Pesapal\Pesapal if no facade
+
 class OrderController extends Controller
 {
     public function __construct()
@@ -37,7 +40,7 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        // 🔥 DEBUG LOG
+        // 🔥 DEBUG LOG (UNCHANGED)
         \Log::info('=== ORDER STORE DEBUG ===');
         \Log::info('User: ' . (auth()->check() ? 'LOGGED IN' : 'GUEST'));
         \Log::info('Form Data: ', $request->all());
@@ -45,7 +48,7 @@ class OrderController extends Controller
         $user = auth()->user();
         $sessionId = Session::getId();
 
-        // ✅ SINGLE NAME VALIDATION!
+        // ✅ SINGLE NAME VALIDATION! (UNCHANGED)
         $validated = $request->validate([
             'address_id' => ['nullable', 'exists:addresses,id', function ($attribute, $value, $fail) use ($user) {
                 if ($user && !Address::where('id', $value)->where('user_id', $user->id)->exists()) {
@@ -109,7 +112,7 @@ class OrderController extends Controller
         \Log::info('🔥 STARTING TRANSACTION');
         DB::beginTransaction();
         try {
-            // 1. Handle shipping address ✅ FIXED WITH FULL DEBUG!
+            // 1. Handle shipping address ✅ FIXED WITH FULL DEBUG! (UNCHANGED)
             $shippingAddress = null;
             if ($user && $request->address_id) {
                 $shippingAddress = Address::where('id', $request->address_id)
@@ -132,7 +135,7 @@ class OrderController extends Controller
                 \Log::info('✅ New address created: ' . $shippingAddress->id);
             }
 
-            // 2. Handle billing address ✅ FIXED!
+            // 2. Handle billing address ✅ FIXED! (UNCHANGED)
             $billingAddress = $shippingAddress;
             if ($request->use_billing) {
                 $billingData = array_merge(
@@ -150,7 +153,7 @@ class OrderController extends Controller
                 \Log::info('✅ Billing address created: ' . $billingAddress->id);
             }
 
-            // 3. Create order
+            // 3. Create order (UNCHANGED)
             \Log::info('🔥 Creating Order...');
             $order = Order::create([
                 'user_id' => $user?->id,
@@ -163,7 +166,7 @@ class OrderController extends Controller
             ]);
             \Log::info('✅ Order Created: #' . $order->id);
 
-            // 4. Save order items & reduce stock
+            // 4. Save order items & reduce stock (UNCHANGED)
             foreach ($cartItems as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -175,30 +178,41 @@ class OrderController extends Controller
             }
             \Log::info('✅ Order Items & Stock Updated');
 
-            // 5. Initialize Paystack payment ✅ GUEST WORKS!
-            \Log::info('🔥 INITIALIZING PAYSTACK...');
-            \Log::info('Paystack Email: ' . ($user?->email ?? $validated['shipping_address']['email']));
-            \Log::info('Paystack Amount: KSh ' . $calculatedTotal);
+            // 🔥 PESAPAL INTEGRATION (REPLACES PAYSTACK)
+            \Log::info('🔥 INITIALIZING PESAPAL...');
+            $email = $user?->email ?? $validated['shipping_address']['email'];
+            $phone = $validated['shipping_address']['phone'];
+            $name = explode(' ', $validated['shipping_address']['name'])[0] ?? 'Customer';  // First name for PesaPal
             
-            $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
-                ->post('https://api.paystack.co/transaction/initialize', [
-                    'email' => $user?->email ?? $validated['shipping_address']['email'],
-                    'amount' => $calculatedTotal * 100,
-                    'reference' => 'order_' . $order->id,
-                    'callback_url' => route('payment.callback'),
-                ]);
+            // Generate unique transaction ID (like Paystack reference)
+            $transactionId = 'order_' . $order->id . '_' . time();
+            
+            \Log::info('PesaPal Email: ' . $email);
+            \Log::info('PesaPal Amount: KSh ' . $calculatedTotal);
+            \Log::info('PesaPal Transaction ID: ' . $transactionId);
 
-            \Log::info('Paystack Status: ' . $response->status());
-            $data = $response->json();
-            \Log::info('Paystack Response: ', $data);
+            // Submit to PesaPal (Creates payment session)
+            $pesapalResponse = Pesapal::submit([
+                'amount' => $calculatedTotal,
+                'description' => 'Order #' . $order->id . ' - Silveranchore Purchase',
+                'transaction_id' => $transactionId,
+                'currency' => 'KES',
+                'firstname' => $name,
+                'lastname' => substr($validated['shipping_address']['name'], strlen($name)) ?: 'User',
+                'email' => $email,
+                'phonenumber' => $phone,
+                'reference' => $order->id,  // For your tracking
+            ]);
 
-            if (!$response->successful() || !isset($data['data']['authorization_url'])) {
-                \Log::error('❌ Paystack Failed: ' . json_encode($data));
+            \Log::info('PesaPal Response: ', $pesapalResponse);
+
+            if (!$pesapalResponse || !isset($pesapalResponse['url'])) {
+                \Log::error('❌ PesaPal Failed: ' . json_encode($pesapalResponse));
                 DB::rollBack();
-                return redirect()->route('checkout.index')->with('error', 'Payment initialization failed: ' . ($data['message'] ?? 'Unknown error'));
+                return redirect()->route('checkout.index')->with('error', 'Payment initialization failed: ' . ($pesapalResponse['error'] ?? 'Unknown error'));
             }
 
-            // 6. Clear cart ✅ GUEST SESSION!
+            // 5. Clear cart ✅ GUEST SESSION! (UNCHANGED)
             $user
                 ? CartItem::where('user_id', $user->id)->delete()
                 : CartItem::where('session_id', $sessionId)->delete();
@@ -214,8 +228,8 @@ class OrderController extends Controller
                 $order->session_id
             ));
 
-            \Log::info('🚀 REDIRECTING TO PAYSTACK: ' . $data['data']['authorization_url']);
-            return redirect($data['data']['authorization_url']);
+            \Log::info('🚀 REDIRECTING TO PESAPAL: ' . $pesapalResponse['url']);
+            return redirect($pesapalResponse['url']);  // To PesaPal iframe/payment page
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -224,5 +238,75 @@ class OrderController extends Controller
             \Log::error('💥 FILE: ' . $e->getFile());
             return redirect()->route('checkout.index')->with('error', 'ERROR: ' . $e->getMessage());
         }
+    }
+
+    // 🔥 ADD THESE NEW METHODS FOR PESAPAL CALLBACK & IPN
+    public function callback(Request $request)
+    {
+        \Log::info('=== PESAPAL CALLBACK ===');
+        \Log::info('Callback Data: ', $request->all());
+
+        // Query payment status using tracking ID from PesaPal
+        $trackingId = $request->input('pesapal_transaction_tracking_id') ?? $request->input('order_tracking_id');
+        if (!$trackingId) {
+            return redirect()->route('checkout.index')->with('error', 'Invalid callback');
+        }
+
+        $status = Pesapal::queryPaymentStatus($trackingId);
+        \Log::info('PesaPal Status: ', $status);
+
+        if ($status['payment_status'] === 'COMPLETED') {
+            $orderId = $status['order_reference'] ?? explode('_', $trackingId)[1];  // Extract from reference
+            $order = Order::findOrFail($orderId);
+            $order->update([
+                'status' => 'paid',
+                'transaction_id' => $trackingId,
+            ]);
+            \Log::info('✅ Payment Completed for Order #' . $orderId);
+            return redirect()->route('orders.success', $orderId)->with('success', 'Payment successful! Order confirmed.');
+        }
+
+        \Log::error('❌ Payment Failed: ' . $status['payment_status']);
+        return redirect()->route('checkout.index')->with('error', 'Payment failed: ' . ($status['reason'] ?? 'Try again'));
+    }
+
+    public function ipn(Request $request)
+    {
+        \Log::info('=== PESAPAL IPN ===');
+        \Log::info('IPN Data: ', $request->all());
+
+        $trackingId = $request->input('pesapal_transaction_tracking_id');
+        if (!$trackingId) {
+            \Log::warning('Invalid IPN - No tracking ID');
+            return response('OK', 200);  // Acknowledge to PesaPal
+        }
+
+        $status = Pesapal::queryPaymentStatus($trackingId);
+        \Log::info('IPN Status: ', $status);
+
+        if ($status['payment_status'] === 'COMPLETED') {
+            $orderId = $status['order_reference'] ?? explode('_', $trackingId)[1];
+            $order = Order::find($orderId);
+            if ($order && $order->status === 'pending') {
+                $order->update([
+                    'status' => 'paid',
+                    'transaction_id' => $trackingId,
+                ]);
+                // Optional: Send email, dispatch job
+                \Log::info('✅ IPN Updated Order #' . $orderId);
+            }
+        }
+
+        return response('OK', 200);  // Always acknowledge IPN
+    }
+
+    // Optional: Success View Method
+    public function success(Order $order)
+    {
+        if ($order->status !== 'paid') {
+            abort(404);
+        }
+        $order->load(['items.product', 'shippingAddress']);
+        return view('orders.success', compact('order'));  // Create this view if needed
     }
 }

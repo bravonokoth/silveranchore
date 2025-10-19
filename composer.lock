@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "002203d864fe474c790c841b6727c08c",
+    "content-hash": "2a3a7a254ad723c44639c6a0027f0a9e",
     "packages": [
         {
             "name": "brick/math",
@@ -1306,6 +1306,68 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "knox/pesapal",
+            "version": "v2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/knox2/Pesapal.git",
+                "reference": "33ac583c4d8caeebac6a89d18ed264567e580d8a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/knox2/Pesapal/zipball/33ac583c4d8caeebac6a89d18ed264567e580d8a",
+                "reference": "33ac583c4d8caeebac6a89d18ed264567e580d8a",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": "^7.2.5|^8.0|^8.1|^8.2|^8.3|^8.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Pesapal": "Knox\\Pesapal\\Facades\\Pesapal"
+                    },
+                    "providers": [
+                        "Knox\\Pesapal\\PesapalServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Knox\\Pesapal\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Timothy Radier",
+                    "email": "timothyradier@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A laravel package that integrates into the pesapal api",
+            "homepage": "https://github.com/knox2/pesapal",
+            "keywords": [
+                "Orange Money",
+                "laravel 7 8 9 10 11 12",
+                "mastercard",
+                "mpesa",
+                "payments",
+                "pesapal",
+                "visa"
+            ],
+            "support": {
+                "issues": "https://github.com/knox2/Pesapal/issues",
+                "source": "https://github.com/knox2/Pesapal/tree/v2.2"
+            },
+            "time": "2025-04-30T15:43:22+00:00"
         },
         {
             "name": "laravel/framework",

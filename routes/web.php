@@ -89,6 +89,11 @@ Route::prefix('payment')->group(function () {
     Route::get('callback', [PaymentController::class, 'callback'])->name('payment.callback');
 });
 
+// PesaPal Routes 
+Route::post('/pesapal/ipn', [OrderController::class, 'ipn'])->name('pesapal.ipn');
+Route::get('/orders/callback', [OrderController::class, 'callback'])->name('orders.callback');
+Route::get('/orders/success/{order}', [OrderController::class, 'success'])->name('orders.success');  // Optional success page
+
 // 👤 Registration (Verification Required)
 Route::post('/register', [RegisteredUserController::class, 'store'])
     ->name('register')

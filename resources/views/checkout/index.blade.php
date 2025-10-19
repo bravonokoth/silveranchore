@@ -300,11 +300,13 @@
 
                             <input type="hidden" name="total" value="{{ $total }}">
                             
-                            <button type="submit" class="place-order-btn">
-                                <span>Place Order</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M5 12h14"></path>
-                                    <path d="m12 5 7 7-7 7"></path>
+                            {{-- 🔥 UPDATED PESAPAL BUTTON --}}
+                            <button type="submit" class="place-order-btn pesapal-btn">
+                                <span>💳 Pay KSh {{ number_format($total, 2) }} with M-Pesa</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="9" y1="10" x2="15" y2="10"></line>
+                                    <line x1="9" y1="14" x2="15" y2="14"></line>
                                 </svg>
                             </button>
                         </form>
@@ -324,4 +326,16 @@
             inputs.forEach(input => input.required = !this.value);
         });
     </script>
+
+    <style>
+        /* 🔥 PESAPAL GREEN BUTTON */
+        .pesapal-btn {
+            background: linear-gradient(135deg, #00c851, #007e33) !important;
+            border: none !important;
+        }
+        .pesapal-btn:hover {
+            background: linear-gradient(135deg, #00b847, #00662a) !important;
+            transform: translateY(-1px);
+        }
+    </style>
 @endsection
