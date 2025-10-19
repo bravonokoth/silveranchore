@@ -152,7 +152,7 @@ Route::prefix('admin')
 
         // 🖼️ Banners
         Route::get('banners/search', [BannerController::class, 'search'])->name('admin.banner.search');
-        Route::resource('banners', BannerController::class)->names('admin.banners');
+        Route::resource('banners', BannerController::class)->names('admin.banner');
 
         // 🗂️ Categories
         Route::get('categories/search', [AdminCategoryController::class, 'search'])->name('admin.categories.search');

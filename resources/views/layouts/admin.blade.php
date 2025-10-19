@@ -19,7 +19,7 @@
             <a href="{{ route('admin.orders.index') }}" class="nav-link"><i data-feather="shopping-cart"></i><span>Orders</span></a>
             <a href="{{ route('admin.inventories.index') }}" class="nav-link"><i data-feather="bar-chart-2"></i><span>Inventory</span></a>
             <a href="{{ route('admin.coupons.index') }}" class="nav-link"><i data-feather="gift"></i><span>Coupons</span></a>
-            <a href="{{ route('admin.banners.index') }}" class="nav-link"><i data-feather="image"></i><span>Banners</span></a>
+            <a href="{{ route('admin.banner.index') }}" class="nav-link"><i data-feather="image"></i><span>Banners</span></a>
             <a href="{{ route('admin.media.index') }}" class="nav-link"><i data-feather="camera"></i><span>Media</span></a>
             <a href="{{ route('admin.purchases.index') }}" class="nav-link"><i data-feather="shopping-bag"></i><span>Purchases</span></a>
         </nav>

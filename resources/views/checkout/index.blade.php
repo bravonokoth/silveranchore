@@ -302,7 +302,7 @@
                             
                             {{-- 🔥 UPDATED PESAPAL BUTTON --}}
                             <button type="submit" class="place-order-btn pesapal-btn">
-                                <span>💳 Pay KSh {{ number_format($total, 2) }} with M-Pesa</span>
+                                <span>💳 Pay KSh {{ number_format($total, 2) }} Securely</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                     <line x1="9" y1="10" x2="15" y2="10"></line>

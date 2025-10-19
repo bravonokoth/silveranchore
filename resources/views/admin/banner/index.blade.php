@@ -5,7 +5,7 @@
 @section('content')
     @include('partials.index-table-template', [
         'title' => 'Banners',
-        'createRoute' => route('admin.banners.create'),
+        'createRoute' => route('admin.banner.create'),
         'createLabel' => 'Create Banner',
         'searchRoute' => route('admin.banner.search'),
         'searchPlaceholder' => 'Search banners...',
@@ -17,8 +17,8 @@
             ['label' => 'Active', 'key' => 'is_active', 'type' => 'boolean']
         ],
         'actions' => [
-            ['type' => 'link', 'label' => 'Edit', 'route' => fn($item) => route('admin.banners.edit', $item), 'class' => 'edit-btn', 'icon' => 'edit'],
-            ['type' => 'form', 'label' => 'Delete', 'route' => fn($item) => route('admin.banners.destroy', $item), 'method' => 'DELETE', 'class' => 'delete-btn', 'icon' => 'trash-2']
+            ['type' => 'link', 'label' => 'Edit', 'route' => fn($item) => route('admin.banner.edit', $item), 'class' => 'edit-btn', 'icon' => 'edit'],
+            ['type' => 'form', 'label' => 'Delete', 'route' => fn($item) => route('admin.banner.destroy', $item), 'method' => 'DELETE', 'class' => 'delete-btn', 'icon' => 'trash-2']
         ],
         'pagination' => $banners
     ])
