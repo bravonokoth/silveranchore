@@ -163,8 +163,11 @@ Route::prefix('admin')
         Route::resource('coupons', CouponController::class)->names('admin.coupons')->only(['index', 'create', 'store']);
 
         // 📊 Inventories
-        Route::get('inventories/search', [InventoryController::class, 'search'])->name('admin.inventories.search');
-        Route::resource('inventories', InventoryController::class)->names('admin.inventories')->only(['index', 'create', 'store']);
+       Route::resource('inventories', InventoryController::class)
+    ->names('admin.inventories');
+    Route::get('inventories/search', [InventoryController::class, 'search'])->name('admin.inventories.search');
+
+
 
         // 🎨 Media
         Route::get('media/search', [MediaController::class, 'search'])->name('admin.media.search');

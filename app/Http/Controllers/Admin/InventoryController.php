@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -45,21 +44,73 @@ class InventoryController extends Controller
     }
 
     public function search(Request $request)
-{
-    $query = $request->input('query');
+    {
+        $query = $request->input('query');
 
-    $inventories = Inventory::with('product')
-        ->where('type', 'like', "%{$query}%")
-        ->orWhere('quantity', 'like', "%{$query}%")
-        ->orWhereHas('product', function ($q) use ($query) {
-            $q->where('name', 'like', "%{$query}%")
-              ->orWhere('product_code', 'like', "%{$query}%");
-        })
-        ->orWhere('notes', 'like', "%{$query}%")
-        ->paginate(20)
-        ->appends(['query' => $query]);
+        $inventories = Inventory::with('product')
+            ->where('type', 'like', "%{$query}%")
+            ->orWhere('quantity', 'like', "%{$query}%")
+            ->orWhereHas('product', function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('product_code', 'like', "%{$query}%");
+            })
+            ->orWhere('notes', 'like', "%{$query}%")
+            ->paginate(20)
+            ->appends(['query' => $query]);
 
-    return view('admin.inventories.index', compact('inventories'));
-}
+        return view('admin.inventories.index', compact('inventories'));
+    }
 
+    // ✅ ADD THESE 4 METHODS:
+
+    /** Show single inventory record */
+    public function show(Inventory $inventory)
+    {
+        $inventory->load('product');
+        return view('admin.inventories.show', compact('inventory'));
+    }
+
+    /** Edit inventory form */
+    public function edit(Inventory $inventory)
+    {
+        $products = Product::select('id', 'name')->get();
+        $inventory->load('product');
+        return view('admin.inventories.edit', compact('inventory', 'products'));
+    }
+
+    /** Update inventory */
+    public function update(Request $request, Inventory $inventory)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer',
+            'type' => 'required|in:adjustment,restock,sale',
+            'notes' => 'nullable|string',
+        ]);
+
+        // Calculate stock difference
+        $stockDiff = $validated['quantity'] - $inventory->quantity;
+        
+        $inventory->update($validated);
+        
+        // Update product stock
+        $product = Product::find($validated['product_id']);
+        $product->stock += $stockDiff;
+        $product->save();
+
+        return redirect()->route('admin.inventories.index')->with('success', 'Inventory updated successfully');
+    }
+
+    /** Delete inventory record */
+    public function destroy(Inventory $inventory)
+    {
+        // Update product stock (reverse the quantity)
+        $product = $inventory->product;
+        $product->stock -= $inventory->quantity;
+        $product->save();
+
+        $inventory->delete();
+
+        return redirect()->route('admin.inventories.index')->with('success', 'Inventory record deleted successfully');
+    }
 }
