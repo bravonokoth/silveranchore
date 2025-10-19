@@ -51,11 +51,11 @@
                <img src="{{ $category->media()->first() ? asset('storage/' . $category->media()->first()->path) : asset('images/category-placeholder.jpg') }}" 
      alt="{{ $category->name }}" 
      class="w-full h-32 object-cover rounded-lg">
-            </div>
-            <h3 class="text-lg font-semibold text-gray-800">{{ $category->name }}</h3>
-            <p class="text-sm text-gray-600 mb-2">{{ $category->products()->count() }} Products</p>
-            <a href="{{ route('categories.show', $category->id) }}" class="text-gold hover:underline">View Products</a>
-        </div>
+          <div class="overlay">
+                        <h3>{{ $category->name }}</h3>
+                        <p class="product-count">{{ $category->products_count ?? $category->products()->count() }} Products</p>
+                        <a href="{{ route('categories.show', $category->id) }}">View Products</a>
+                    </div>
     </div>
 @endforeach
 
