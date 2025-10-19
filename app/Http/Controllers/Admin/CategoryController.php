@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -17,7 +16,7 @@ class CategoryController extends Controller
 
     public function index()
     {
-        $categories = Category::withCount('products')->paginate(20);
+        $categories = Category::with('media')->withCount('products')->paginate(20);
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -33,28 +32,32 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
+        $validated['slug'] = Str::slug($request->input('name') . '-' . time());
+        $category = Category::create($validated);
+
+        // ✅ Use Spatie Media Library instead of storing path
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $category->addMediaFromRequest('image')
+                ->toMediaCollection('images');
         }
 
-        $validated['slug'] = Str::slug($request->input('name') . '-' . time());
-        Category::create($validated);
-
-        return redirect()->route('admin.categories.index')->with('success', 'Category created successfully');
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Category created successfully');
     }
 
     public function show(Category $category)
     {
-        $category->load('products');
+        $category->load(['products', 'media']);
         return view('admin.categories.show', compact('category'));
     }
 
     public function edit(Category $category)
     {
         $categories = Category::select('id', 'name')->where('id', '!=', $category->id)->get();
+        $category->load('media');
         return view('admin.categories.edit', compact('category', 'categories'));
     }
 
@@ -64,32 +67,46 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('categories', 'public');
-        }
 
         $validated['slug'] = Str::slug($request->input('name') . '-' . $category->id);
         $category->update($validated);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully');
+        // ✅ Use Spatie Media Library
+        if ($request->hasFile('image')) {
+            // Clear existing images
+            $category->clearMediaCollection('images');
+            
+            // Add new image
+            $category->addMediaFromRequest('image')
+                ->toMediaCollection('images');
+        }
+
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Category updated successfully');
     }
 
     public function destroy(Category $category)
     {
+        // ✅ Delete associated media
+        $category->clearMediaCollection('images');
         $category->delete();
-        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully');
+        
+        return redirect()->route('admin.categories.index')
+            ->with('success', 'Category deleted successfully');
     }
 
     public function search(Request $request)
     {
         $query = $request->input('search');
-        $categories = Category::withCount('products')
+        $categories = Category::with('media')
+            ->withCount('products')
             ->where('name', 'like', "%$query%")
             ->orWhere('description', 'like', "%$query%")
-            ->get();
+            ->paginate(20)
+            ->appends(['search' => $query]);
+            
         return view('admin.categories.index', compact('categories'));
     }
 }

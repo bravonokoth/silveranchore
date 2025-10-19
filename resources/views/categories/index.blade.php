@@ -10,9 +10,10 @@
     </div>
 @endif
 
-<!-- Category Section (Slick Carousel WITH IMAGES) -->
+<!-- Category Section -->
 <section class="max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Our Categories</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Our Categories</h2>
+    
     <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
          data-slides-show="4"
          data-slides-scroll="3"
@@ -29,18 +30,19 @@
            "settings": { "slidesToShow": 1 }
          }]'>
         
-        
         @foreach ($categories as $category)
             <div class="js-slide">
-                <div class="category-card text-center">
-                    <div class="category-image mb-3">
-                        <img src="{{ asset('storage/' . ($category->media->first()?->path ?? 'images/category-placeholder.jpg')) }}" 
+                <div class="category-card">
+                    <div class="category-image">
+                        <img src="{{ $category->getFirstMediaUrl('images') ?: asset('storage/images/category-placeholder.jpg') }}" 
                              alt="{{ $category->name }}" 
-                             class="w-full h-32 object-cover rounded-lg">
+                             onerror="this.src='{{ asset('storage/images/category-placeholder.png') }}';">
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800">{{ $category->name }}</h3>
-                    <p class="text-sm text-gray-600 mb-2">{{ $category->products_count ?? $category->products()->count() }} Products</p>
-                    <a href="{{ route('categories.show', $category->id) }}" class="text-gold hover:underline">View Products</a>
+                    <div class="overlay">
+                        <h3>{{ $category->name }}</h3>
+                        <p class="product-count">{{ $category->products_count ?? $category->products()->count() }} Products</p>
+                        <a href="{{ route('categories.show', $category->id) }}">View Products</a>
+                    </div>
                 </div>
             </div>
         @endforeach

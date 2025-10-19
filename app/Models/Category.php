@@ -12,6 +12,13 @@ class Category extends Model implements HasMedia
 
     protected $fillable = ['name', 'slug', 'description', 'image', 'parent_id'];
 
+    // ✅ ADD THIS METHOD - Required for Spatie Media Library
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images')
+            ->singleFile(); // Only one image per category
+    }
+
     public function products()
     {
         return $this->hasMany(Product::class);

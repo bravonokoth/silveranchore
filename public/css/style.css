@@ -1,10 +1,27 @@
-/* Importing Google font - Open Sans */
-
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
 
 /* To this: */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* 🚨 EMERGENCY DEBUG - FORCE EVERYTHING VISIBLE */
+section.max-w-7xl .js-slick-carousel .category-card {
+  border: 5px solid RED !important;
+  background: BLUE !important;
+  height: 300px !important;
+  width: 300px !important;
+}
+
+section.max-w-7xl .js-slick-carousel .category-image {
+  border: 3px solid GREEN !important;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+section.max-w-7xl .js-slick-carousel .category-image img {
+  border: 2px solid YELLOW !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 280px !important;
+}
 
 * {
   margin: 0;
@@ -565,12 +582,12 @@ body.dark .u-slick__pagination li.slick-active button {
   background: var(--gold-light);
 }
 
-/* Category Carousel */
+/* Category Carousel - Full Image with Overlay */
 section.max-w-7xl .js-slick-carousel .category-card {
-  background: #fff;
-  border-radius: 6px;
-  padding: 1rem;
-  text-align: center;
+  position: relative;
+  height: 280px; /* Fixed height for consistent carousel */
+  border-radius: 8px;
+  overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s, box-shadow 0.3s;
 }
@@ -580,34 +597,94 @@ section.max-w-7xl .js-slick-carousel .category-card:hover {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
+section.max-w-7xl .js-slick-carousel .category-card .category-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+section.max-w-7xl .js-slick-carousel .category-card .category-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Overlay */
+section.max-w-7xl .js-slick-carousel .category-card .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+section.max-w-7xl .js-slick-carousel .category-card:hover .overlay {
+  opacity: 1;
+}
+
+/* Text Styles */
 section.max-w-7xl .js-slick-carousel .category-card h3 {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #1a202c;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+section.max-w-7xl .js-slick-carousel .category-card .product-count {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 section.max-w-7xl .js-slick-carousel .category-card a {
   color: var(--gold);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  display: inline-block;
+  transition: all 0.3s ease;
+  text-shadow: none;
 }
 
 section.max-w-7xl .js-slick-carousel .category-card a:hover {
-  text-decoration: underline;
+  background: var(--gold);
+  color: #fff;
+  text-decoration: none;
 }
 
+/* Dark Mode */
 body.dark section.max-w-7xl .js-slick-carousel .category-card {
-  background: #2d3748;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-body.dark section.max-w-7xl .js-slick-carousel .category-card h3 {
-  color: #e2e8f0;
+body.dark section.max-w-7xl .js-slick-carousel .category-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 body.dark section.max-w-7xl .js-slick-carousel .category-card a {
   color: var(--gold-light);
+  border-color: var(--gold-light);
 }
 
+body.dark section.max-w-7xl .js-slick-carousel .category-card a:hover {
+  background: var(--gold-light);
+  color: #1a202c;
+}
 
 /* Fix horizontal scrollbar */
 html, body {
