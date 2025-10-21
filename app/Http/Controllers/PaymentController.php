@@ -2,62 +2,96 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use App\Models\Order;
+use Illuminate\Support\Facades\Log;
+use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaymentController extends Controller
 {
+    /**
+     * Initialize a Paystack payment.
+     */
     public function initialize(Request $request)
     {
         $validated = $request->validate([
             'email' => 'required|email',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:0.5',
             'order_id' => 'required|exists:orders,id',
         ]);
 
         $order = Order::findOrFail($validated['order_id']);
-        
-        // Initialize Paystack
-        $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
-            ->post('https://api.paystack.co/transaction/initialize', [
-                'email' => $validated['email'],
-                'amount' => $validated['amount'] * 100, // kobo
-                'reference' => 'order_' . $validated['order_id'],
-                'callback_url' => route('payment.callback'),
-                'metadata' => ['order_id' => $validated['order_id']]
-            ]);
 
-        $data = $response->json();
+        $paymentData = [
+            'amount' => $validated['amount'] * 100, // convert to kobo
+            'reference' => 'order_' . $order->id,
+            'email' => $validated['email'],
+            'callback_url' => route('payment.callback'),
+            'metadata' => [
+                'order_id' => $order->id,
+                'customer_email' => $validated['email']
+            ],
+        ];
 
-        if (!$response->successful() || !isset($data['data']['authorization_url'])) {
-            return back()->with('error', 'Payment initialization failed: ' . ($data['message'] ?? 'Unknown error'));
-        }
+        Log::info('=== PAYSTACK INITIALIZE ===', $paymentData);
 
-        return redirect($data['data']['authorization_url']);
+        return Paystack::getAuthorizationUrl($paymentData)->redirectNow();
     }
 
-    public function callback(Request $request)
+    /**
+     * Handle Paystack callback after payment.
+     */
+    public function callback()
     {
-        $reference = $request->reference;
+        try {
+            $paymentDetails = Paystack::getPaymentData();
+            Log::info('=== PAYSTACK CALLBACK ===', $paymentDetails);
 
-        $response = Http::withToken(env('PAYSTACK_SECRET_KEY'))
-            ->get("https://api.paystack.co/transaction/verify/{$reference}");
+            $reference = $paymentDetails['data']['reference'] ?? null;
+            $orderId = $paymentDetails['data']['metadata']['order_id'] ?? null;
 
-        $data = $response->json();
+            if (!$reference || !$orderId) {
+                throw new \Exception('Invalid payment callback payload');
+            }
 
-        if ($response->successful() && $data['data']['status'] === 'success') {
-            $orderId = str_replace('order_', '', $data['data']['reference']);
-            $order = Order::find($orderId);
+            $order = Order::findOrFail($orderId);
 
-            if ($order) {
+            if ($paymentDetails['data']['status'] === 'success') {
                 $order->update(['status' => 'paid']);
-                return redirect()->route('orders.show', $order)
-                    ->with('success', 'Payment successful! Order #' . $order->id);
+                Log::info("Order {$order->id} marked as PAID.");
+                return redirect()->route('order.success', ['order' => $order->id])
+                                 ->with('success', 'Payment successful!');
+            } else {
+                $order->update(['status' => 'failed']);
+                Log::warning("Order {$order->id} payment failed.");
+                return redirect()->route('order.failed', ['order' => $order->id])
+                                 ->with('error', 'Payment failed.');
+            }
+        } catch (\Exception $e) {
+            Log::error('PAYSTACK CALLBACK ERROR: ' . $e->getMessage());
+            return redirect('/')->with('error', 'Payment verification failed.');
+        }
+    }
+
+    /**
+     * Webhook endpoint (optional, for server-to-server verification)
+     */
+    public function webhook(Request $request)
+    {
+        $payload = $request->all();
+        Log::info('=== PAYSTACK WEBHOOK ===', $payload);
+
+        if (($payload['event'] ?? null) === 'charge.success') {
+            $orderId = $payload['data']['metadata']['order_id'] ?? null;
+            if ($orderId) {
+                $order = Order::find($orderId);
+                if ($order) {
+                    $order->update(['status' => 'paid']);
+                    Log::info("Order {$order->id} updated via webhook.");
+                }
             }
         }
 
-        return redirect()->route('checkout.index')
-            ->with('error', 'Payment failed. Please try again.');
+        return response()->json(['status' => 'ok']);
     }
 }

@@ -82,7 +82,7 @@
             <div class="action-title">Manage Coupons</div>
         </a>
 
-        <a href="{{ route('admin.banners.index') }}" class="action-card">
+        <a href="{{ route('admin.banner.index') }}" class="action-card">
             <div class="action-icon">🖼️</div>
             <div class="action-title">Manage Banners</div>
         </a>
