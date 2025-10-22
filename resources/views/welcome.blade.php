@@ -44,21 +44,22 @@
            "settings": { "slidesToShow": 1 }
          }]'>
         
-      @foreach ($categories as $category)
-    <div class="js-slide">
-        <div class="category-card text-center">
-            <div class="category-image mb-3">
-               <img src="{{ $category->media()->first() ? asset('storage/' . $category->media()->first()->path) : asset('images/category-placeholder.jpg') }}" 
-     alt="{{ $category->name }}" 
-     class="w-full h-32 object-cover rounded-lg">
-          <div class="overlay">
+        @foreach ($categories as $category)
+            <div class="js-slide">
+                <div class="category-card text-center">
+                    <div class="category-image mb-3">
+                        <img src="{{ $category->media()->first() ? asset('storage/' . $category->media()->first()->path) : asset('images/category-placeholder.jpg') }}" 
+                             alt="{{ $category->name }}" 
+                             class="w-full h-32 object-cover rounded-lg">
+                    </div>
+                    <div class="overlay">
                         <h3>{{ $category->name }}</h3>
                         <p class="product-count">{{ $category->products_count ?? $category->products()->count() }} Products</p>
                         <a href="{{ route('categories.show', $category->id) }}">View Products</a>
                     </div>
-    </div>
-@endforeach
-
+                </div>
+            </div>
+        @endforeach
     </div>
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
@@ -93,15 +94,14 @@
                "settings": { "slidesToShow": 1 }
              }]'>
             
-            {{-- ✅ NO FAKE DATA - USE REAL FEATURED PRODUCTS --}}
             @foreach ($featuredProducts as $product)
                 <div class="js-slide">
                     <div class="card text-center w-100">
                         <div class="position-relative">
-                    <img class="card-img-top" 
-                                    src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
-                                    alt="{{ $product->name }}"
-                                    style="height: 250px; object-fit: cover;">
+                            <img class="card-img-top" 
+                                 src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
+                                 alt="{{ $product->name }}"
+                                 style="height: 250px; object-fit: cover;">
                             
                             @if ($product->stock == 0)
                                 <div class="position-absolute top-0 left-0 pt-3 pl-3">
@@ -134,10 +134,10 @@
                                 </h3>
                                 <div class="d-block font-size-1">
                                     @if ($product->discount_price && $product->discount_price < $product->price)
-                                        <span class="font-weight-medium text-danger">${{ number_format($product->discount_price, 2) }}</span>
-                                        <span class="text-secondary ml-1"><del>${{ number_format($product->price, 2) }}</del></span>
+                                        <span class="font-weight-medium text-danger">Ksh {{ number_format($product->discount_price, 2) }}</span>
+                                        <span class="text-secondary ml-1"><del>Ksh {{ number_format($product->price, 2) }}</del></span>
                                     @else
-                                        <span class="font-weight-medium">${{ number_format($product->price, 2) }}</span>
+                                        <span class="font-weight-medium">Ksh {{ number_format($product->price, 2) }}</span>
                                     @endif
                                 </div>
                             </div>
@@ -155,9 +155,7 @@
                                 </a>
                             </div>
                             
-                            {{-- ✅ THREE BUTTONS --}}
                             <div class="btn-group d-flex gap-2 justify-content-center" role="group">
-                                {{-- 1. Add to Cart --}}
                                 <form action="{{ route('cart.store') }}" method="POST" class="d-inline">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -173,15 +171,13 @@
                                     @endif
                                 </form>
                                 
-                                {{-- 2. View Details --}}
                                 <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-outline-info btn-sm-wide">
                                     <i class="fas fa-eye me-1"></i>View Details
                                 </a>
                                 
-                                {{-- 3. Quick Checkout --}}
                                 @if($product->stock > 0)
                                     <a href="{{ route('checkout.quick', $product->id) }}" class="btn btn-sm btn-success btn-sm-wide">
-                                        <i class="fas fa-credit-card me-1"></i>${{ number_format($product->price, 2) }}
+                                        <i class="fas fa-credit-card me-1"></i>Ksh {{ number_format($product->price, 2) }}
                                     </a>
                                 @endif
                             </div>
@@ -199,7 +195,7 @@
 .js-slide { padding: 0 15px; }
 .category-card { 
     text-align: center; padding: 2rem; border: 2px dashed #e5e7eb; 
-    border-radius: 12px; height: 150px; display: flex; flex-direction: column; 
+    border-radius: 12px; height: 280px; display: flex; flex-direction: column; 
     justify-content: center; transition: all 0.3s; 
 }
 .category-card:hover { background: #f8fafc; border-color: #3b82f6; }

@@ -28,17 +28,15 @@
            "settings": { "slidesToShow": 1 }
          }]'>
         
-        {{-- ✅ NO @php BLOCK - USE REAL DATA FROM CONTROLLER --}}
         @foreach ($products as $product)
             <div class="js-slide">
                 <!-- Product -->
                 <div class="card text-center w-100">
                     <div class="position-relative">
-                       <img class="card-img-top" 
-                            src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
-                            alt="{{ $product->name }}">
-
-                        {{-- ✅ USE REAL STOCK STATUS --}}
+                        <img class="card-img-top" 
+                             src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
+                             alt="{{ $product->name }}">
+                        
                         @if ($product->stock == 0)
                             <div class="position-absolute top-0 left-0 pt-3 pl-3">
                                 <span class="badge badge-danger badge-pill">Sold out</span>
@@ -64,10 +62,10 @@
                                 </a>
                             </h3>
                             <div class="d-block font-size-1">
-                                <span class="font-weight-medium">${{ number_format($product->price, 2) }}</span>
+                                <span class="font-weight-medium">Ksh {{ number_format($product->price, 2) }}</span>
                                 @if ($product->discount_price && $product->discount_price < $product->price)
                                     <span class="text-secondary ml-1">
-                                        <del>${{ number_format($product->price, 2) }}</del>
+                                        <del>Ksh {{ number_format($product->price, 2) }}</del>
                                     </span>
                                 @endif
                             </div>
