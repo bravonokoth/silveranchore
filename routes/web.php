@@ -85,7 +85,7 @@ Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
 
 // 💰 Payment
 Route::prefix('payment')->group(function () {
-    Route::post('/', [PaymentController::class, 'initialize'])->name('payment.initialize'); // REMOVED auth middleware
+    Route::post('/', [PaymentController::class, 'initialize'])->name('payment.initialize');
     Route::get('callback', [PaymentController::class, 'callback'])->name('payment.callback');
     Route::get('/test-paystack', [PaymentController::class, 'testPaystack']);
 

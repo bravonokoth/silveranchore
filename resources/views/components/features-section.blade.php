@@ -1,3 +1,128 @@
+
+<style>
+    /* Scoped Reset for Features Section */
+    .features-section * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Features Section */
+    .features-section {
+        padding: 60px 0;
+        background: #ffffff; /* Solid white background for clarity */
+        position: relative; /* Ensure normal document flow */
+        z-index: 1; /* Low z-index to stay below other sections */
+        margin-top: 40px; /* Add top margin to avoid crowding */
+        margin-bottom: 40px; /* Add bottom margin for spacing */
+    }
+
+    .features-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 30px;
+    }
+
+    .feature-card {
+        background: #f9fafb;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #e5e7eb;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .feature-icon {
+        margin-bottom: 20px;
+        background: #e6f0fa;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .feature-icon svg {
+        stroke: #264653;
+        width: 32px;
+        height: 32px;
+        transition: stroke 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon svg {
+        stroke: #1d3a47;
+    }
+
+    .feature-content h3 {
+        font-size: 1.4rem;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+        font-weight: 700;
+        text-transform: capitalize;
+    }
+
+    .feature-content p {
+        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.6;
+        max-width: 90%;
+        margin: 0 auto;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .features-container {
+            grid-template-columns: 1fr;
+        }
+
+        .feature-card {
+            padding: 20px;
+        }
+
+        .feature-content h3 {
+            font-size: 1.2rem;
+        }
+
+        .feature-content p {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .features-section {
+            padding: 40px 0;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .features-container {
+            padding: 0 10px;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+        }
+
+        .feature-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+    }
+</style>
+
 <div class="features-section">
     <div class="features-container">
         <div class="feature-card">
