@@ -50,14 +50,17 @@
                     <!-- Wishlist Icon -->
                     <a href="{{ route('wishlist.index') }}" class="nav-icon-link" title="Wishlist">
                         <i class="fas fa-heart"></i>
-                        @auth
-                            @php
-                                $wishlistCount = Auth::user()->wishlistItems()->count();
-                            @endphp
-                            @if($wishlistCount > 0)
-                                <span class="nav-badge">{{ $wishlistCount }}</span>
-                            @endif
-                        @endauth
+                        @php
+                            $wishlistCount = 0;
+                            if (auth()->check()) {
+                                $wishlistCount = auth()->user()->wishlist()->count();
+                            } else {
+                                $wishlistCount = \App\Models\Wishlist::where('user_id', session('wishlist_user_id', 'guest_' . uniqid()))->count();
+                            }
+                        @endphp
+                        @if($wishlistCount > 0)
+                            <span class="nav-badge">{{ $wishlistCount }}</span>
+                        @endif
                     </a>
                     
                     <!-- Cart Icon -->
@@ -65,8 +68,8 @@
                         <i class="fas fa-shopping-cart"></i>
                         @php
                             $cartCount = 0;
-                            if(session()->has('cart')) {
-                                foreach(session('cart') as $item) {
+                            if (session()->has('cart')) {
+                                foreach (session('cart') as $item) {
                                     $cartCount += $item['quantity'] ?? 1;
                                 }
                             }
@@ -171,21 +174,24 @@
         <div class="mobile-icons">
             <a href="{{ route('wishlist.index') }}" class="nav-icon-link" title="Wishlist">
                 <i class="fas fa-heart"></i>
-                @auth
-                    @php
-                        $wishlistCount = Auth::user()->wishlistItems()->count();
-                    @endphp
-                    @if($wishlistCount > 0)
-                        <span class="nav-badge">{{ $wishlistCount }}</span>
-                    @endif
-                @endauth
+                @php
+                    $wishlistCount = 0;
+                    if (auth()->check()) {
+                        $wishlistCount = auth()->user()->wishlist()->count();
+                    } else {
+                        $wishlistCount = \App\Models\Wishlist::where('user_id', session('wishlist_user_id', 'guest_' . uniqid()))->count();
+                    }
+                @endphp
+                @if($wishlistCount > 0)
+                    <span class="nav-badge">{{ $wishlistCount }}</span>
+                @endif
             </a>
             <a href="{{ route('cart.index') }}" class="nav-icon-link" title="Shopping Cart">
                 <i class="fas fa-shopping-cart"></i>
                 @php
                     $cartCount = 0;
-                    if(session()->has('cart')) {
-                        foreach(session('cart') as $item) {
+                    if (session()->has('cart')) {
+                        foreach (session('cart') as $item) {
                             $cartCount += $item['quantity'] ?? 1;
                         }
                     }

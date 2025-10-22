@@ -27,6 +27,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\DashboardController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -143,6 +146,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
         Route::patch('{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     });
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // 🧑‍💼 Admin Routes (Bypass Email Verification)

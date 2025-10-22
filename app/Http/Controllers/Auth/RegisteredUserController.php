@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -23,52 +22,58 @@ class RegisteredUserController extends Controller
         return view('auth.register');
     }
 
-   public function store(Request $request): RedirectResponse
-{
-    $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    ]);
-
-    try {
-        // Create new user
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Assign default role
-        $user->assignRole('client');
+        try {
+            // Log mail configuration
+            Log::info('Mail configuration', [
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'username' => config('mail.mailers.smtp.username'),
+            ]);
 
-        // Fire Laravel’s built-in Registered event (sends verification email)
-        event(new Registered($user));
+            // Create new user
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
 
-        // Notify admins
-        $admins = User::role(['admin', 'super-admin'])->get();
-        if ($admins->isNotEmpty()) {
-            Notification::send($admins, new NewUserRegisteredNotification($user));
+            // Assign default role
+            $user->assignRole('client');
 
-            foreach ($admins as $admin) {
-                event(new NotificationSent(
-                    "New user {$user->name} ({$user->email}) has registered.",
-                    $admin->email,
-                    $admin->id
-                ));
+            // Fire Laravel’s built-in Registered event (sends verification email)
+            Log::info('Firing Registered event for user: ' . $user->email);
+            event(new Registered($user));
+
+            // Notify admins
+            $admins = User::role(['admin', 'super-admin'])->get();
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new NewUserRegisteredNotification($user));
+                foreach ($admins as $admin) {
+                    event(new NotificationSent(
+                        "New user {$user->name} ({$user->email}) has registered.",
+                        $admin->email,
+                        $admin->id
+                    ));
+                }
             }
+
+            return redirect()->route('verification.notice')
+                ->with('status', 'verification-link-sent');
+
+        } catch (\Exception $e) {
+            Log::error('Error during user registration: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e; // Rethrow to display error in development
         }
-
-        // ❌ Don’t log them in yet (forces email verification)
-        // Auth::login($user);
-
-        return redirect()->route('verification.notice')
-            ->with('status', 'verification-link-sent');
-
-    } catch (\Exception $e) {
-        Log::error('Error during user registration: ' . $e->getMessage());
-        throw $e;
     }
-}
-
 }
