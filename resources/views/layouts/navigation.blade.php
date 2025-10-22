@@ -33,9 +33,7 @@
                         {{ __('Contact') }}
                     </x-nav-link>
                     @auth
-                        <x-nav-link :href="route('addresses.index')" :active="request()->routeIs('addresses.index')">
-                            {{ __('Addresses') }}
-                        </x-nav-link>
+                      
                         <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.index')">
                             {{ __('Orders') }}
                         </x-nav-link>
