@@ -94,6 +94,10 @@ Route::prefix('payment')->group(function () {
 
 });
 
+// Webhook (must be POST and exclude CSRF)
+Route::post('/paystack/webhook', [PaymentController::class, 'webhook'])
+    ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+
 // PesaPal Routes 
 Route::post('/pesapal/ipn', [OrderController::class, 'ipn'])->name('pesapal.ipn');
 Route::get('/orders/callback', [OrderController::class, 'callback'])->name('orders.callback');
