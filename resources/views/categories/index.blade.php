@@ -34,7 +34,8 @@
             <div class="js-slide">
                 <div class="category-card">
                     <div class="category-image">
-                        <img src="{{ $category->getFirstMediaUrl('images') ?: asset('storage/images/category-placeholder.jpg') }}" 
+                        {{-- ✅ Fixed: Now uses media relationship like products --}}
+                        <img src="{{ asset('storage/' . ($category->media->first()?->path ?? 'images/category-placeholder.jpg')) }}" 
                              alt="{{ $category->name }}" 
                              onerror="this.src='{{ asset('storage/images/category-placeholder.png') }}';">
                     </div>

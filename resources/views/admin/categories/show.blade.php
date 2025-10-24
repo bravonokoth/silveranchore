@@ -21,31 +21,37 @@
                     </a>
                 </div>
             </div>
-
-            <!-- Category Image -->
-            @if ($category->image)
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Category Image</label>
-                    <div class="border rounded-lg overflow-hidden inline-block">
-                        <img src="{{ asset('storage/' . $category->image) }}" 
-                             alt="{{ $category->name }}" 
-                             class="max-h-64 w-auto object-cover"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <div style="display:none;" class="p-4 bg-red-50 text-red-600">
-                            <i data-feather="alert-circle" class="w-4 h-4 inline"></i>
-                            Image not found: {{ $category->image }}
+         <!-- Left Column - Image -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    @php
+                        $mediaImage = $category->media->first();
+                    @endphp
+                    
+                    @if ($mediaImage)
+                        <div class="aspect-square">
+                            <img src="{{ asset('storage/' . $mediaImage->path) }}" 
+                                 alt="{{ $category->name }}" 
+                                 class="w-full h-full object-cover">
                         </div>
+                    @else
+                        <div class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <div class="text-center">
+                                <svg class="w-24 h-24 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <p class="text-gray-500 font-medium">No image uploaded</p>
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <div class="p-4 border-t border-gray-100">
+                        <h3 class="font-semibold text-gray-800 text-lg mb-1">{{ $category->name }}</h3>
+                        <p class="text-sm text-gray-500">{{ $category->slug }}</p>
                     </div>
                 </div>
-            @else
-                <div class="mb-6">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Category Image</label>
-                    <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                        <i data-feather="image" class="w-12 h-12 mx-auto text-gray-400 mb-2"></i>
-                        <p class="text-gray-500">No image uploaded</p>
-                    </div>
-                </div>
-            @endif
+            </div>
+
 
             <!-- Category Details -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

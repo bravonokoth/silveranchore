@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Media;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -32,16 +34,28 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $validated['slug'] = Str::slug($request->input('name') . '-' . time());
-        $category = Category::create($validated);
+        
+        // Don't include image in the create - we'll handle it separately
+        $category = Category::create([
+            'name' => $validated['name'],
+            'slug' => $validated['slug'],
+            'description' => $validated['description'],
+            'parent_id' => $validated['parent_id'],
+        ]);
 
-        // ✅ Use Spatie Media Library instead of storing path
+        // Handle image upload using Media table (same as products)
         if ($request->hasFile('image')) {
-            $category->addMediaFromRequest('image')
-                ->toMediaCollection('images');
+            $imagePath = $request->file('image')->store('categories', 'public');
+            Media::create([
+                'model_type' => 'App\Models\Category',
+                'model_id' => $category->id,
+                'path' => $imagePath,
+                'type' => 'image',
+            ]);
         }
 
         return redirect()->route('admin.categories.index')
@@ -67,20 +81,38 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
             'parent_id' => 'nullable|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $validated['slug'] = Str::slug($request->input('name') . '-' . $category->id);
-        $category->update($validated);
+        
+        $category->update([
+            'name' => $validated['name'],
+            'slug' => $validated['slug'],
+            'description' => $validated['description'],
+            'parent_id' => $validated['parent_id'],
+        ]);
 
-        // ✅ Use Spatie Media Library
+        // Handle image upload using Media table (same as products)
         if ($request->hasFile('image')) {
-            // Clear existing images
-            $category->clearMediaCollection('images');
+            // Delete old media if exists
+            $oldMedia = Media::where('model_type', 'App\Models\Category')
+                ->where('model_id', $category->id)
+                ->first();
             
-            // Add new image
-            $category->addMediaFromRequest('image')
-                ->toMediaCollection('images');
+            if ($oldMedia) {
+                Storage::disk('public')->delete($oldMedia->path);
+                $oldMedia->delete();
+            }
+
+            // Store new image
+            $imagePath = $request->file('image')->store('categories', 'public');
+            Media::create([
+                'model_type' => 'App\Models\Category',
+                'model_id' => $category->id,
+                'path' => $imagePath,
+                'type' => 'image',
+            ]);
         }
 
         return redirect()->route('admin.categories.index')
@@ -89,8 +121,16 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        // ✅ Delete associated media
-        $category->clearMediaCollection('images');
+        // Delete associated media
+        $media = Media::where('model_type', 'App\Models\Category')
+            ->where('model_id', $category->id)
+            ->first();
+        
+        if ($media) {
+            Storage::disk('public')->delete($media->path);
+            $media->delete();
+        }
+
         $category->delete();
         
         return redirect()->route('admin.categories.index')
