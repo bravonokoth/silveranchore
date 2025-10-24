@@ -10,7 +10,7 @@ class Category extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['name', 'slug', 'description', 'image', 'parent_id'];
+    protected $fillable = ['name', 'slug', 'description', 'parent_id'];
 
     // ✅ ADD THIS METHOD - Required for Spatie Media Library
     public function registerMediaCollections(): void

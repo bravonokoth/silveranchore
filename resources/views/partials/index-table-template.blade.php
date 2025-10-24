@@ -56,7 +56,7 @@
                 @forelse ($items as $item)
                     <tr>
                         @foreach ($columns as $column)
-                            <td>
+                            <td class="{{ isset($column['truncate']) && $column['truncate'] ? 'truncate-cell' : '' }}">
                                 @if ($column['type'] === 'image')
                                     <img src="{{ asset('storage/' . $item->{$column['key']}) }}" alt="{{ $item->title ?? $item->name ?? 'Item' }}" class="table-image">
                                 @elseif ($column['type'] === 'boolean')
@@ -67,6 +67,14 @@
                                     ${{ number_format($item->{$column['key']}, 2) }}
                                 @elseif ($column['type'] === 'date')
                                     {{ $item->{$column['key']} ? \Carbon\Carbon::parse($item->{$column['key']})->format('Y-m-d') : 'N/A' }}
+                                @elseif ($column['type'] === 'text' && isset($column['truncate']) && $column['truncate'])
+                                    @php
+                                        $text = $item->{$column['key']} ?? 'N/A';
+                                        $maxLength = $column['maxLength'] ?? 100;
+                                    @endphp
+                                    <div class="truncate-wrapper" title="{{ $text }}">
+                                        {{ Str::limit($text, $maxLength) }}
+                                    </div>
                                 @else
                                     {{ $item->{$column['key']} ?? 'N/A' }}
                                 @endif

@@ -12,7 +12,13 @@
         'items' => $categories,
         'columns' => [
             ['label' => 'Name', 'key' => 'name', 'type' => 'text'],
-            ['label' => 'Description', 'key' => 'description', 'type' => 'text'],
+            [
+                'label' => 'Description', 
+                'key' => 'description', 
+                'type' => 'text',
+                'truncate' => true,      // Enable truncation
+                'maxLength' => 80        // Characters to show before "..."
+            ],
             ['label' => 'Products', 'key' => 'products_count', 'type' => 'text']
         ],
         'actions' => [
