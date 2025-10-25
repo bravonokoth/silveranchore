@@ -29,8 +29,6 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\DashboardController;
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -55,12 +53,12 @@ Route::prefix('products')->group(function () {
     Route::get('{product}', [ProductController::class, 'show'])->name('products.show');
 });
 
-// 🛒 OPEN WISHLIST ROUTES
+// 🛒 Wishlist Routes
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 Route::post('/wishlist/store', [WishlistController::class, 'store'])->name('wishlist.store');
 Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
-
+// 📂 Categories
 Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('{category}', [CategoryController::class, 'show'])->name('categories.show');
@@ -73,35 +71,34 @@ Route::prefix('cart')->group(function () {
     Route::put('{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('{id}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/', [CartController::class, 'clear'])->name('cart.clear');
-    Route::get('/cart/quick-checkout/{productId}', [CartController::class, 'quickCheckout'])->name('cart.quick-checkout');
+    Route::get('/quick-checkout/{productId}', [CartController::class, 'quickCheckout'])->name('cart.quick-checkout');
 });
 
-// 💳 Checkout
+// 💳 Checkout (Guest + Auth)
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/quick/{product}', [CartController::class, 'quickCheckout'])->name('checkout.quick');
 });
 
-// 📦 Order Creation (Guest or Auth)
-Route::post('orders', [OrderController::class, 'store'])->name('orders.store');
+// 📦 Orders (Guest + Auth)
+Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+Route::get('/orders/success/{order}', [OrderController::class, 'success'])->name('orders.success');
 
-// 💰 Payment
+// 💰 Paystack Payment Routes
 Route::prefix('payment')->group(function () {
-    Route::post('/', [PaymentController::class, 'initialize'])->name('payment.initialize');
-    Route::get('callback', [PaymentController::class, 'callback'])->name('payment.callback');
-    Route::get('/test-paystack', [PaymentController::class, 'testPaystack']);
-
+    Route::get('/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+    Route::get('/test-paystack', [PaymentController::class, 'testPaystack'])->name('payment.test');
 });
 
-// Webhook (must be POST and exclude CSRF)
+// 🔗 Paystack Webhook (MUST exclude CSRF)
 Route::post('/paystack/webhook', [PaymentController::class, 'webhook'])
-    ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+    ->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+    ->name('paystack.webhook');
 
-// PesaPal Routes 
+// 💚 PesaPal Routes (TODO: Implement)
 Route::post('/pesapal/ipn', [OrderController::class, 'ipn'])->name('pesapal.ipn');
-Route::get('/orders/callback', [OrderController::class, 'callback'])->name('orders.callback');
-Route::get('/orders/success/{order}', [OrderController::class, 'success'])->name('orders.success');  // Optional success page
+Route::get('/pesapal/callback', [OrderController::class, 'callback'])->name('pesapal.callback');
 
 // 👤 Registration (Verification Required)
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -120,7 +117,7 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
 // 🧍‍♂️ Authenticated & Verified User Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     // 🖥️ Client Dashboard
-    Route::get('/dashboard', fn () => view('dashboard'))
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware('role:client')
         ->name('dashboard');
 
@@ -129,31 +126,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // 📦 Orders
+    // 📦 Orders (Authenticated users only)
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('orders.index');
-        Route::get('{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('orders.show');
     });
 
     // 🏠 Addresses
     Route::prefix('addresses')->group(function () {
         Route::get('/', [AddressController::class, 'index'])->name('addresses.index');
-        Route::get('create', [AddressController::class, 'create'])->name('addresses.create');
+        Route::get('/create', [AddressController::class, 'create'])->name('addresses.create');
         Route::post('/', [AddressController::class, 'store'])->name('addresses.store');
-        Route::get('{address}/edit', [AddressController::class, 'edit'])->name('addresses.edit');
-        Route::put('{address}', [AddressController::class, 'update'])->name('addresses.update');
-        Route::delete('{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+        Route::get('/{address}/edit', [AddressController::class, 'edit'])->name('addresses.edit');
+        Route::put('/{address}', [AddressController::class, 'update'])->name('addresses.update');
+        Route::delete('/{address}', [AddressController::class, 'destroy'])->name('addresses.destroy');
     });
 
     // 🔔 Notifications
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
-        Route::patch('{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     });
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // 🧑‍💼 Admin Routes (Bypass Email Verification)
@@ -164,39 +157,36 @@ Route::prefix('admin')
         Route::get('/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
 
         // 🖼️ Banners
-        Route::get('banners/search', [BannerController::class, 'search'])->name('admin.banner.search');
+        Route::get('/banners/search', [BannerController::class, 'search'])->name('admin.banner.search');
         Route::resource('banners', BannerController::class)->names('admin.banner');
 
         // 🗂️ Categories
-        Route::get('categories/search', [AdminCategoryController::class, 'search'])->name('admin.categories.search');
+        Route::get('/categories/search', [AdminCategoryController::class, 'search'])->name('admin.categories.search');
         Route::resource('categories', AdminCategoryController::class)->names('admin.categories');
 
         // 🎟️ Coupons
-        Route::get('coupons/search', [CouponController::class, 'search'])->name('admin.coupons.search');
+        Route::get('/coupons/search', [CouponController::class, 'search'])->name('admin.coupons.search');
         Route::resource('coupons', CouponController::class)->names('admin.coupons')->only(['index', 'create', 'store']);
 
         // 📊 Inventories
-       Route::resource('inventories', InventoryController::class)
-    ->names('admin.inventories');
-    Route::get('inventories/search', [InventoryController::class, 'search'])->name('admin.inventories.search');
-
-
+        Route::get('/inventories/search', [InventoryController::class, 'search'])->name('admin.inventories.search');
+        Route::resource('inventories', InventoryController::class)->names('admin.inventories');
 
         // 🎨 Media
-        Route::get('media/search', [MediaController::class, 'search'])->name('admin.media.search');
+        Route::get('/media/search', [MediaController::class, 'search'])->name('admin.media.search');
         Route::resource('media', MediaController::class)->names('admin.media')->only(['index', 'create', 'store']);
 
         // 🛒 Products
-        Route::get('products/search', [AdminProductController::class, 'search'])->name('admin.products.search');
+        Route::get('/products/search', [AdminProductController::class, 'search'])->name('admin.products.search');
         Route::resource('products', AdminProductController::class)->names('admin.products');
 
         // 🛍️ Purchases
-        Route::get('purchases/search', [PurchaseController::class, 'search'])->name('admin.purchases.search');
+        Route::get('/purchases/search', [PurchaseController::class, 'search'])->name('admin.purchases.search');
         Route::resource('purchases', PurchaseController::class)->names('admin.purchases')->only(['index', 'create', 'store']);
 
         // 🧾 Orders
-        Route::get('orders/search', [AdminOrderController::class, 'search'])->name('admin.orders.search');
-        Route::post('orders/{order}/drop', [AdminOrderController::class, 'drop'])->name('admin.orders.drop');
+        Route::get('/orders/search', [AdminOrderController::class, 'search'])->name('admin.orders.search');
+        Route::post('/orders/{order}/drop', [AdminOrderController::class, 'drop'])->name('admin.orders.drop');
         Route::resource('orders', AdminOrderController::class)->names('admin.orders')->only(['index', 'show', 'edit', 'update', 'destroy']);
 
         // 🔔 Notifications
@@ -214,12 +204,12 @@ Route::prefix('admin')
     ->middleware(['auth', 'role:super-admin'])
     ->group(function () {
         // 👥 Users
-        Route::get('users/search', [UserController::class, 'search'])->name('admin.users.search');
+        Route::get('/users/search', [UserController::class, 'search'])->name('admin.users.search');
         Route::resource('users', UserController::class)->names('admin.users');
     });
 
-// 🧪 WebSocket Test Route
-Route::get('test-websocket', function () {
+// 🧪 WebSocket Test Route (Development only)
+Route::get('/test-websocket', function () {
     event(new \App\Events\TestEvent('Hello, Reverb!'));
     return view('test-websocket', ['message' => 'Event fired']);
 })->name('test-websocket');

@@ -2,13 +2,7 @@
 
 @section('content')
 <!-- Display Success Message -->
-@if (session('success'))
-    <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
-            <p>{{ session('success') }}</p>
-        </div>
-    </div>
-@endif
+
 
 <!-- Hero Section -->
 <section class="hero-section">

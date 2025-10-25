@@ -34,6 +34,15 @@
                 </div>
             @endif
 
+            @if (session('success'))
+                <div class="checkout-message success">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    {{ session('success') }}
+                </div>
+            @endif
+
             @if ($cartItems->isEmpty())
                 <div class="empty-checkout">
                     <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#c0a062" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 30px;">
@@ -46,7 +55,7 @@
                 </div>
             @else
                 <div class="checkout-grid">
-                    <!-- Order Summary (UNCHANGED) -->
+                    <!-- Order Summary -->
                     <div class="order-summary-section">
                         <h3>Order Summary</h3>
                         <div class="order-items">
@@ -88,7 +97,7 @@
                     <!-- Delivery Form -->
                     <div class="delivery-form-section">
                         <h3>Delivery Address</h3>
-                        <form method="POST" action="{{ route('orders.store') }}" class="checkout-form">
+                        <form method="POST" action="{{ route('orders.store') }}" class="checkout-form" id="checkout-form">
                             @csrf
                             
                             @auth
@@ -110,7 +119,7 @@
                                 @endif
                             @endauth
 
-                            <!-- ✅ SINGLE NAME FIELD! -->
+                            <!-- Full Name Field -->
                             <div class="form-group full-width">
                                 <label for="shipping_address.name" class="form-label">Full Name *</label>
                                 <input 
@@ -241,14 +250,13 @@
                             </div>
 
                             <div class="billing-checkbox">
-                                <input type="checkbox" name="use_billing" id="use_billing">
+                                <input type="checkbox" name="use_billing" id="use_billing" value="1">
                                 <label for="use_billing">Use a different billing address</label>
                             </div>
 
                             <div id="billing-address" class="billing-section hidden">
                                 <h3>Billing Address</h3>
                                 
-                                <!-- ✅ SINGLE BILLING NAME! -->
                                 <div class="form-group full-width">
                                     <label for="billing_address.name" class="form-label">Full Name</label>
                                     <input type="text" name="billing_address[name]" id="billing_address.name" class="form-input" value="{{ old('billing_address.name') }}">
@@ -298,17 +306,50 @@
                                 </div>
                             </div>
 
+                            <!-- Payment Method Selection -->
+                            <div class="payment-method-section">
+                                <h3>Select Payment Method</h3>
+                                <div class="payment-methods">
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment_method" value="paystack" checked>
+                                        <div class="payment-card paystack-card">
+                                            <div class="payment-logo">
+                                                <svg width="100" height="30" viewBox="0 0 120 30" fill="none">
+                                                    <rect width="120" height="30" fill="#00C3F7" rx="4"/>
+                                                    <text x="60" y="20" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">PAYSTACK</text>
+                                                </svg>
+                                            </div>
+                                            <p>Pay with Card, Bank Transfer, or USSD</p>
+                                            <span class="payment-badge">Recommended</span>
+                                        </div>
+                                    </label>
+
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment_method" value="pesapal">
+                                        <div class="payment-card pesapal-card">
+                                            <div class="payment-logo">
+                                                <svg width="100" height="30" viewBox="0 0 120 30" fill="none">
+                                                    <rect width="120" height="30" fill="#00C851" rx="4"/>
+                                                    <text x="60" y="20" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white" text-anchor="middle">PESAPAL</text>
+                                                </svg>
+                                            </div>
+                                            <p>Mobile Money & Card Payments</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
                             <input type="hidden" name="total" value="{{ $total }}">
                             
-                           {{-- 🔥 PAYSTACK BUTTON --}}
-<button type="submit" class="place-order-btn paystack-btn">
-    <span>💳 Pay KSh {{ number_format($total, 2) }} Securely</span>
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-        <line x1="9" y1="10" x2="15" y2="10"></line>
-        <line x1="9" y1="14" x2="15" y2="14"></line>
-    </svg>
-</button>
+                            <!-- Dynamic Payment Button -->
+                            <button type="submit" class="place-order-btn payment-btn paystack-btn" id="payment-btn">
+                                <span id="btn-text">
+                                    💳 Pay KSh {{ number_format($total, 2) }} with Paystack
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -317,25 +358,213 @@
     </div>
 
     <script>
-        document.getElementById('use_billing')?.addEventListener('change', function () {
-            document.getElementById('billing-address').classList.toggle('hidden', !this.checked);
+        // Toggle billing address section
+        const useBillingCheckbox = document.getElementById('use_billing');
+        const billingSection = document.getElementById('billing-address');
+        
+        useBillingCheckbox?.addEventListener('change', function () {
+            billingSection.classList.toggle('hidden', !this.checked);
+            
+            // ✅ Clear billing inputs when unchecked to prevent null validation errors
+            if (!this.checked) {
+                billingSection.querySelectorAll('input').forEach(input => {
+                    input.value = '';
+                });
+            }
         });
         
+        // Handle saved address selection
         document.getElementById('address_id')?.addEventListener('change', function () {
             const inputs = document.querySelectorAll('[name^="shipping_address"]');
             inputs.forEach(input => input.required = !this.value);
         });
+
+        // ✅ CRITICAL: Remove empty billing fields before form submission
+        document.getElementById('checkout-form')?.addEventListener('submit', function(e) {
+            const useBilling = document.getElementById('use_billing');
+            
+            // If billing checkbox is NOT checked, remove all billing fields from submission
+            if (!useBilling || !useBilling.checked) {
+                document.querySelectorAll('[name^="billing_address"]').forEach(input => {
+                    input.removeAttribute('name'); // Removes from form data entirely
+                });
+            }
+        });
+
+        // Dynamic payment button text and styling
+        const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+        const paymentBtn = document.getElementById('payment-btn');
+        const btnText = document.getElementById('btn-text');
+        const total = "{{ number_format($total, 2) }}";
+
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'paystack') {
+                    btnText.textContent = `💳 Pay KSh ${total} with Paystack`;
+                    paymentBtn.className = 'place-order-btn payment-btn paystack-btn';
+                } else if (this.value === 'pesapal') {
+                    btnText.textContent = `📱 Pay KSh ${total} with PesaPal`;
+                    paymentBtn.className = 'place-order-btn payment-btn pesapal-btn';
+                }
+            });
+        });
     </script>
 
     <style>
-        /* 🔥 PESAPAL GREEN BUTTON */
-        .pesapal-btn {
-            background: linear-gradient(135deg, #00c851, #007e33) !important;
+        /* Payment Method Section */
+        .payment-method-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .payment-method-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 15px;
+        }
+
+        .payment-option {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .payment-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .payment-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+        }
+
+        .payment-option input[type="radio"]:checked + .payment-card {
+            border-color: #00C3F7;
+            box-shadow: 0 4px 12px rgba(0, 195, 247, 0.2);
+        }
+
+        .payment-option input[type="radio"]:checked + .pesapal-card {
+            border-color: #00C851;
+            box-shadow: 0 4px 12px rgba(0, 200, 81, 0.2);
+        }
+
+        .payment-card:hover {
+            border-color: #ccc;
+            transform: translateY(-2px);
+        }
+
+        .payment-logo {
+            margin-bottom: 10px;
+        }
+
+        .payment-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .payment-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #00C3F7;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Payment Buttons */
+        .paystack-btn {
+            background: linear-gradient(135deg, #00C3F7, #0099CC) !important;
             border: none !important;
         }
+
+        .paystack-btn:hover {
+            background: linear-gradient(135deg, #00B3E6, #0088BB) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 195, 247, 0.4);
+        }
+
+        .pesapal-btn {
+            background: linear-gradient(135deg, #00C851, #007E33) !important;
+            border: none !important;
+        }
+
         .pesapal-btn:hover {
-            background: linear-gradient(135deg, #00b847, #00662a) !important;
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, #00B847, #00662A) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 200, 81, 0.4);
+        }
+
+        .place-order-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .place-order-btn svg {
+            transition: transform 0.3s ease;
+        }
+
+        .place-order-btn:hover svg {
+            transform: translateX(5px);
+        }
+
+        /* Success/Error Messages */
+        .checkout-message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .checkout-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .checkout-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Billing Section */
+        .billing-section.hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 @endsection
