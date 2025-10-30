@@ -197,6 +197,12 @@ Route::prefix('admin')
         // 👑 Profile
         Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
         Route::patch('/profile', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
+
+Route::resource('media', MediaController::class)
+    ->names('admin.media')
+    ->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+
     });
 
 // 👑 Super-Admin Only Routes

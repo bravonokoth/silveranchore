@@ -53,4 +53,38 @@ class MediaController extends Controller
     return view('admin.media.index', compact('media'));
 }
 
+public function edit(Media $medium)
+{
+    return view('admin.media.edit', compact('medium'));
+}
+
+public function update(Request $request, Media $medium)
+{
+    $validated = $request->validate([
+        'model_type' => 'sometimes|required|in:App\Models\Product,App\Models\Category',
+        'model_id' => 'sometimes|required|integer',
+        'type' => 'sometimes|required|in:image,video',
+        'path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    if ($request->hasFile('path')) {
+        // Optional: Delete old file
+        \Storage::disk('public')->delete($medium->path);
+        $validated['path'] = $request->file('path')->store('media', 'public');
+    }
+
+    $medium->update($validated);
+
+    return redirect()->route('admin.media.index')->with('success', 'Media updated');
+}
+
+public function destroy(Media $medium)
+{
+    \Storage::disk('public')->delete($medium->path);
+    $medium->delete();
+
+    return back()->with('success', 'Media deleted');
+}
+
+
 }
