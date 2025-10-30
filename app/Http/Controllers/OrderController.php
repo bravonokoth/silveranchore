@@ -6,18 +6,19 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Address;
+use App\Models\Notification;
+use App\Events\NotificationSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
-use App\Events\NotificationSent;
 use Unicodeveloper\Paystack\Facades\Paystack;
 
 class OrderController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except('store'); // Allow guests to store orders
+        $this->middleware('auth')->except('store');
     }
 
     public function index()
@@ -46,54 +47,49 @@ class OrderController extends Controller
         $user = auth()->user();
         $sessionId = Session::getId();
 
-      try {
-      $validated = $request->validate([
-    'address_id' => ['nullable', 'exists:addresses,id', function ($attribute, $value, $fail) use ($user) {
-        if ($user && !Address::where('id', $value)->where('user_id', $user->id)->exists()) {
-            $fail('The selected address is invalid.');
+        try {
+            $validated = $request->validate([
+                'address_id' => ['nullable', 'exists:addresses,id', function ($attribute, $value, $fail) use ($user) {
+                    if ($user && !Address::where('id', $value)->where('user_id', $user->id)->exists()) {
+                        $fail('The selected address is invalid.');
+                    }
+                    if (!$user && $value) {
+                        $fail('Guest users cannot select saved addresses.');
+                    }
+                }],
+                'shipping_address.name' => 'required_without:address_id|string|max:255',
+                'shipping_address.email' => 'required_without:address_id|email|max:255',
+                'shipping_address.phone_number' => 'required_without:address_id|string|max:20|regex:/^2547[0-9]{8}$/', // Fixed to phone_number
+                'shipping_address.line1' => 'required_without:address_id|string|max:255',
+                'shipping_address.line2' => 'nullable|string|max:255',
+                'shipping_address.city' => 'required_without:address_id|string|max:100',
+                'shipping_address.state' => 'nullable|string|max:100',
+                'shipping_address.postal_code' => 'nullable|string|max:20',
+                'shipping_address.country' => 'required_without:address_id|string|max:100',
+                'use_billing' => 'nullable|boolean',
+                'billing_address.name' => 'required_if:use_billing,1|string|max:255',
+                'billing_address.email' => 'required_if:use_billing,1|email|max:255',
+                'billing_address.phone_number' => 'required_if:use_billing,1|string|max:20|regex:/^2547[0-9]{8}$/',
+                'billing_address.line1' => 'required_if:use_billing,1|string|max:255',
+                'billing_address.line2' => 'nullable|string|max:255',
+                'billing_address.city' => 'required_if:use_billing,1|string|max:100',
+                'billing_address.state' => 'nullable|string|max:100',
+                'billing_address.postal_code' => 'nullable|string|max:20',
+                'billing_address.country' => 'required_if:use_billing,1|string|max:100',
+                'total' => 'required|numeric|min:0',
+                'payment_method' => 'required|in:paystack,pesapal',
+            ]);
+
+            Log::info('✅ VALIDATION PASSED');
+            Log::info('📝 Validated Data:', $validated);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('❌ VALIDATION FAILED');
+            Log::error('Validation Errors:', $e->errors());
+            return redirect()->route('checkout.index')
+                ->withErrors($e->errors())
+                ->withInput()
+                ->with('error', 'Please fix the validation errors.');
         }
-        if (!$user && $value) {
-            $fail('Guest users cannot select saved addresses.');
-        }
-    }],
-    'shipping_address.name' => 'required_without:address_id|string|max:255',
-    'shipping_address.email' => 'required_without:address_id|email|max:255',
-    'shipping_address.phone' => 'required_without:address_id|string|max:20',
-    'shipping_address.line1' => 'required_without:address_id|string|max:255',
-    'shipping_address.line2' => 'nullable|string|max:255',
-    'shipping_address.city' => 'required_without:address_id|string|max:100',
-    'shipping_address.state' => 'nullable|string|max:100',
-    'shipping_address.postal_code' => 'nullable|string|max:20',
-    'shipping_address.country' => 'required_without:address_id|string|max:100',
-    'use_billing' => 'nullable|boolean',
-    
-    // ✅ FIXED: Made billing fields nullable
-    'billing_address.name' => 'nullable|required_if:use_billing,1|string|max:255',
-    'billing_address.email' => 'nullable|required_if:use_billing,1|email|max:255',
-    'billing_address.phone' => 'nullable|required_if:use_billing,1|string|max:20',
-    'billing_address.line1' => 'nullable|required_if:use_billing,1|string|max:255',
-    'billing_address.line2' => 'nullable|string|max:255',
-    'billing_address.city' => 'nullable|required_if:use_billing,1|string|max:100',
-    'billing_address.state' => 'nullable|string|max:100',
-    'billing_address.postal_code' => 'nullable|string|max:20',
-    'billing_address.country' => 'nullable|required_if:use_billing,1|string|max:100',
-    
-    'total' => 'required|numeric|min:0',
-    'payment_method' => 'required|in:paystack,pesapal',
-]);
-        
-        Log::info('✅ VALIDATION PASSED');
-        Log::info('📝 Validated Data:', $validated);
-        
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        Log::error('❌ VALIDATION FAILED');
-        Log::error('Validation Errors:', $e->errors());
-        
-        return redirect()->route('checkout.index')
-            ->withErrors($e->errors())
-            ->withInput()
-            ->with('error', 'Please fix the validation errors.');
-    }
 
         // Get cart items
         $cartItems = $user
@@ -131,7 +127,7 @@ class OrderController extends Controller
 
         Log::info('🔥 STARTING TRANSACTION');
         DB::beginTransaction();
-        
+
         try {
             // 1. Handle shipping address
             $shippingAddress = null;
@@ -147,7 +143,7 @@ class OrderController extends Controller
                     'type' => 'shipping',
                     'name' => $validated['shipping_address']['name'],
                     'email' => $validated['shipping_address']['email'],
-                    'phone_number' => $validated['shipping_address']['phone'],
+                    'phone_number' => $validated['shipping_address']['phone_number'],
                     'line1' => $validated['shipping_address']['line1'],
                     'line2' => $validated['shipping_address']['line2'] ?? null,
                     'city' => $validated['shipping_address']['city'],
@@ -155,7 +151,7 @@ class OrderController extends Controller
                     'postal_code' => $validated['shipping_address']['postal_code'] ?? null,
                     'country' => $validated['shipping_address']['country'],
                 ];
-                
+
                 Log::info('🔍 Creating shipping address: ', $shippingData);
                 $shippingAddress = Address::create($shippingData);
                 Log::info('✅ New shipping address created: ' . $shippingAddress->id);
@@ -163,14 +159,14 @@ class OrderController extends Controller
 
             // 2. Handle billing address
             $billingAddress = $shippingAddress;
-            if ($request->use_billing && !empty($validated['billing_address'])) {
+            if ($request->use_billing && !empty($validated['billing_address']['name'])) {
                 $billingData = [
                     'user_id' => $user?->id,
                     'session_id' => $user ? null : $sessionId,
                     'type' => 'billing',
                     'name' => $validated['billing_address']['name'],
                     'email' => $validated['billing_address']['email'],
-                    'phone_number' => $validated['billing_address']['phone'],
+                    'phone_number' => $validated['billing_address']['phone_number'],
                     'line1' => $validated['billing_address']['line1'],
                     'line2' => $validated['billing_address']['line2'] ?? null,
                     'city' => $validated['billing_address']['city'],
@@ -178,7 +174,7 @@ class OrderController extends Controller
                     'postal_code' => $validated['billing_address']['postal_code'] ?? null,
                     'country' => $validated['billing_address']['country'],
                 ];
-                
+
                 Log::info('🔍 Creating billing address: ', $billingData);
                 $billingAddress = Address::create($billingData);
                 Log::info('✅ Billing address created: ' . $billingAddress->id);
@@ -186,7 +182,7 @@ class OrderController extends Controller
 
             // 3. Create order with payment fields
             $orderEmail = $user?->email ?? $validated['shipping_address']['email'];
-            
+
             Log::info('🔥 Creating Order...');
             $order = Order::create([
                 'user_id' => $user?->id,
@@ -194,8 +190,8 @@ class OrderController extends Controller
                 'email' => $orderEmail,
                 'total' => $calculatedTotal,
                 'status' => 'pending',
-                'payment_status' => 'pending', // ✅ ADDED
-                'payment_method' => $validated['payment_method'], // ✅ ADDED
+                'payment_status' => 'pending',
+                'payment_method' => $validated['payment_method'],
                 'shipping_address_id' => $shippingAddress->id,
                 'billing_address_id' => $billingAddress->id,
             ]);
@@ -230,18 +226,15 @@ class OrderController extends Controller
                 $order->session_id
             ));
 
-            // 7. Initialize payment based on selected method
+            // 7. Initialize payment
             Log::info('🔥 INITIALIZING PAYMENT METHOD: ' . $validated['payment_method']);
-            
             if ($validated['payment_method'] === 'paystack') {
                 return $this->initializePaystack($order, $orderEmail, $calculatedTotal);
             } elseif ($validated['payment_method'] === 'pesapal') {
                 return $this->initializePesapal($order);
             }
 
-            // Fallback (shouldn't reach here)
             return redirect()->route('orders.show', $order)->with('info', 'Order created. Please complete payment.');
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('💥 ORDER CREATION FAILED');
@@ -249,15 +242,11 @@ class OrderController extends Controller
             Log::error('💥 LINE: ' . $e->getLine());
             Log::error('💥 FILE: ' . $e->getFile());
             Log::error('💥 TRACE: ' . $e->getTraceAsString());
-            
             return redirect()->route('checkout.index')
                 ->with('error', 'Failed to create order: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Initialize Paystack payment using the package
-     */
     private function initializePaystack(Order $order, string $email, float $amount)
     {
         try {
@@ -267,8 +256,8 @@ class OrderController extends Controller
             Log::info('Amount: KSh ' . number_format($amount, 2));
 
             $paymentData = [
-                'amount' => $amount * 100, // Convert to kobo
-                'reference' => Paystack::genTranxRef(), // Generate unique reference
+                'amount' => $amount * 100,
+                'reference' => Paystack::genTranxRef(),
                 'email' => $email,
                 'callback_url' => route('payment.callback'),
                 'metadata' => [
@@ -278,80 +267,51 @@ class OrderController extends Controller
                         [
                             'display_name' => 'Order ID',
                             'variable_name' => 'order_id',
-                            'value' => $order->id
-                        ]
-                    ]
+                            'value' => $order->id,
+                        ],
+                    ],
                 ],
             ];
 
-            // Update order with payment reference
             $order->update(['payment_reference' => $paymentData['reference']]);
 
             Log::info('✅ Paystack Data Prepared: ', $paymentData);
             Log::info('🚀 REDIRECTING TO PAYSTACK...');
-
             return Paystack::getAuthorizationUrl($paymentData)->redirectNow();
-
         } catch (\Exception $e) {
             Log::error('💥 PAYSTACK INITIALIZATION FAILED: ' . $e->getMessage());
-            
             return redirect()->route('checkout.index')
                 ->with('error', 'Payment initialization failed. Please try again.');
         }
     }
 
-    /**
-     * Initialize PesaPal payment
-     */
     private function initializePesapal(Order $order)
     {
         Log::info('🔥 INITIALIZING PESAPAL for Order #' . $order->id);
-        
-        // TODO: Implement PesaPal integration
-        // For now, redirect to a success page or show message
-        
         return redirect()->route('orders.show', $order)
             ->with('info', 'PesaPal integration coming soon. Order created successfully.');
     }
 
-    /**
-     * Order success page after payment
-     */
     public function success(Order $order)
     {
-        // Verify user owns this order (or is guest with matching session)
         if ($order->user_id && $order->user_id !== auth()->id()) {
             abort(403, 'Unauthorized access to order.');
         }
-
         if (!$order->user_id && $order->session_id !== Session::getId()) {
             abort(403, 'Unauthorized access to order.');
         }
-
         return view('orders.success', compact('order'));
     }
 
-    /**
-     * Handle PesaPal callback
-     */
     public function callback(Request $request)
     {
         Log::info('=== PESAPAL CALLBACK ===', $request->all());
-        
-        // TODO: Implement PesaPal callback handling
-        
         return redirect()->route('home')->with('info', 'Payment processing...');
     }
 
-    /**
-     * Handle PesaPal IPN
-     */
     public function ipn(Request $request)
     {
         Log::info('=== PESAPAL IPN ===', $request->all());
-        
-        // TODO: Implement PesaPal IPN handling
-        
         return response()->json(['status' => 'received']);
     }
 }
