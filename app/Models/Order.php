@@ -12,7 +12,7 @@ class Order extends Model
     protected $fillable = [
         'user_id', 'session_id', 'email', 'total', 'status', 'payment_status',
         'payment_method', 'payment_reference', 'paid_at', 'shipping_address_id',
-        'billing_address_id',
+        'billing_address_id', 'shipping_address',
     ];
 
     protected $casts = [
