@@ -97,15 +97,7 @@
                                  alt="{{ $product->name }}"
                                  style="height: 250px; object-fit: cover;">
                             
-                            @if ($product->stock == 0)
-                                <div class="position-absolute top-0 left-0 pt-3 pl-3">
-                                    <span class="badge badge-danger badge-pill">Sold out</span>
-                                </div>
-                            @else
-                                <div class="position-absolute top-0 left-0 pt-3 pl-3">
-                                    <span class="badge badge-success badge-pill">Featured</span>
-                                </div>
-                            @endif
+                           
 
                             <div class="position-absolute top-0 right-0 pt-3 pr-3">
                                 <button type="button" class="btn btn-sm btn-icon btn-outline-secondary rounded-circle" 
@@ -137,44 +129,56 @@
                             </div>
                         </div>
 
-                        <div class="card-footer border-0 pt-0 pb-4 px-4">
-                            <div class="mb-3">
-                                <a class="d-inline-flex align-items-center small" href="#">
-                                    <div class="text-warning mr-2">
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <small class="{{ $i <= ($product->rating ?? 0) ? 'fas fa-star' : 'far fa-star text-muted' }}"></small>
-                                        @endfor
-                                    </div>
-                                    <span class="text-secondary">({{ $product->review_count ?? 0 }})</span>
-                                </a>
-                            </div>
-                            
-                            <div class="btn-group d-flex gap-2 justify-content-center" role="group">
-                                <form action="{{ route('cart.store') }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <input type="hidden" name="quantity" value="1">
-                                    @if($product->stock > 0)
-                                        <button type="submit" class="btn btn-sm btn-outline-primary btn-sm-wide">
-                                            <i class="fas fa-shopping-cart me-1"></i>Add to Cart
-                                        </button>
-                                    @else
-                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-sm-wide" disabled>
-                                            <i class="fas fa-ban me-1"></i>Sold Out
-                                        </button>
-                                    @endif
-                                </form>
-                                
-                                <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-outline-info btn-sm-wide">
-                                    <i class="fas fa-eye me-1"></i>View Details
-                                </a>
-                                
-                                @if($product->stock > 0)
-                                    <a href="{{ route('checkout.quick', $product->id) }}" class="btn btn-sm btn-success btn-sm-wide">
-                                        <i class="fas fa-credit-card me-1"></i>Ksh {{ number_format($product->price, 2) }}
-                                    </a>
-                                @endif
-                            </div>
+               <div class="card-footer border-0 pt-0 pb-4 px-4">
+    <!-- 1. BUTTONS: Add to Cart + View Details -->
+    <div class="btn-group d-flex gap-2 justify-content-center mb-3" role="group">
+        <form action="{{ route('cart.store') }}" method="POST" class="d-inline">
+            @csrf
+            <input type="hidden" name="product_id" value="{{ $product->id }}">
+            <input type="hidden" name="quantity" value="1">
+            @if($product->stock > 0)
+                <button type="submit" class="btn btn-sm btn-outline-primary btn-sm-wide">
+                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                </button>
+            @else
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-sm-wide" disabled>
+                    <i class="fas fa-ban me-1"></i>Sold Out
+                </button>
+            @endif
+        </form>
+
+        <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-outline-info btn-sm-wide">
+            <i class="fas fa-eye me-1"></i>View Details
+        </a>
+    </div>
+
+    <!-- 2. BUY NOW BUTTON WITH PRICE -->
+    @if($product->stock > 0)
+        <a href="{{ route('checkout.quick', $product->id) }}" 
+           class="btn btn-success btn-sm-wide d-block mx-auto text-center">
+            <i class="fas fa-credit-card me-1"></i>
+            Buy Now - 
+            @if ($product->discount_price && $product->discount_price < $product->price)
+                <span class="text-white">Ksh {{ number_format($product->discount_price, 2) }}</span>
+                <del class="text-white-50 ms-1">Ksh {{ number_format($product->price, 2) }}</del>
+            @else
+                <span class="text-white">Ksh {{ number_format($product->price, 2) }}</span>
+            @endif
+        </a>
+    @endif
+
+    <!-- 3. RATING -->
+    <div class="text-center mt-2">
+        <div class="d-inline-flex align-items-center small">
+            <div class="text-warning me-1">
+                @for ($i = 1; $i <= 5; $i++)
+                    <small class="{{ $i <= ($product->rating ?? 0) ? 'fas fa-star' : 'far fa-star text-muted' }}"></small>
+                @endfor
+            </div>
+            <span class="text-secondary">({{ $product->review_count ?? 0 }})</span>
+        </div>
+    </div>
+</div>
                         </div>
                     </div>
                 </div>
