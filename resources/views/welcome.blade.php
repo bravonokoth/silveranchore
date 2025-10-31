@@ -4,12 +4,56 @@
 <!-- Display Success Message -->
 
 
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="hero-background">
-        <img class="hero-image" src="{{ asset('images/pexels.jpg') }}" alt="Hero Image">
+<!-- HERO SECTION - FULL WIDTH & FULL HEIGHT -->
+<section class="hero-section position-relative overflow-hidden">
+    <!-- Full-width background container -->
+    <div class="hero-background w-100 h-100 position-absolute top-0 start-0">
+        <!-- Slick Slider (fills 100% of hero-background) -->
+        <div class="js-slick-carousel hero-slider w-100 h-100"
+             data-slides-show="1"
+             data-fade="true"
+             data-autoplay="true"
+             data-autoplay-speed="5000"
+             data-infinite="true"
+             data-pagi-classes="hero-pagination position-absolute bottom-0 start-50 translate-middle-x mb-4">
+
+            @php
+                $activeBanners = \App\Models\Banner::where('is_active', true)
+                                                    ->orderBy('created_at', 'desc')
+                                                    ->get();
+            @endphp
+
+            @forelse($activeBanners as $banner)
+                <div class="hero-slide w-100 h-100">
+                    @if($banner->link)
+                        <a href="{{ $banner->link }}" class="d-block w-100 h-100">
+                            <img src="{{ asset('storage/' . $banner->image_path) }}" 
+                                 alt="{{ $banner->title }}" 
+                                 class="hero-image w-100 h-100 object-cover">
+                        </a>
+                    @else
+                        <img src="{{ asset('storage/' . $banner->image_path) }}" 
+                             alt="{{ $banner->title }}" 
+                             class="hero-image w-100 h-100 object-cover">
+                    @endif
+                </div>
+            @empty
+                <div class="hero-slide w-100 h-100">
+                    <img src="{{ asset('images/pexels.jpg') }}" 
+                         alt="The Liquor Cabinet" 
+                         class="hero-image w-100 h-100 object-cover">
+                </div>
+            @endforelse
+        </div>
+
+        <!-- Fallback background (only shows if JS fails) -->
+        <div class="fallback-bg w-100 h-100 position-absolute top-0 start-0"
+             style="background: url('{{ asset('images/pexels.jpg') }}') center/cover no-repeat; filter: brightness(0.6);">
+        </div>
     </div>
-    <div class="hero-content">
+
+    <!-- Content Overlay -->
+    <div class="hero-content position-relative z-10">
         <h1 class="text-4xl font-bold text-white">Welcome to The Liquor Cabinet</h1>
         <p class="text-lg text-white mb-6">Discover our premium selection of fine liquors and accessories.</p>
         <div class="cta-buttons flex gap-4">
@@ -17,6 +61,13 @@
             <a href="{{ route('categories.index') }}" class="cta-button secondary">Browse Categories</a>
         </div>
     </div>
+
+    <!-- Pagination -->
+    <div class="hero-pagination"></div>
+</section>
+
+    <!-- Dots Pagination -->
+    <div class="hero-pagination"></div>
 </section>
 
 <!-- Category Section -->

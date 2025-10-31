@@ -62,10 +62,35 @@ body.dark {
   background: #f7fafc;
 }
 
+/* Fix: Make image fill the container */
+.hero-slide,
+.hero-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  display: block;
+}
+
+/* Slick track/list must match hero size */
+.hero-slider .slick-list,
+.hero-slider .slick-track {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Optional: Fade transition */
+.hero-slider .slick-slide {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.hero-slider .slick-active {
+  opacity: 1;
+}
+
+/* Keep your original background fallback (optional) */
 .hero-background {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 100%;
   height: 100%;
   background: url('/images/pexels.jpg') no-repeat center center/cover;
@@ -73,10 +98,12 @@ body.dark {
   z-index: 1;
 }
 
+/* Hide fallback img if using Slick */
 .hero-background img.hero-image {
-  display: none; /* Hide img tag as background is set via CSS */
+  display: none;
 }
 
+/* Keep your content styling */
 .hero-content {
   position: relative;
   z-index: 2;

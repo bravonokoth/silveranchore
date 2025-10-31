@@ -3,9 +3,9 @@
 @section('content')
     @include('partials.product-form-template', [
         'title' => 'Create Banner',
-        'backRoute' => route('admin.banners.index'),
+        'backRoute' => route('admin.banner.index'),
         'backLabel' => 'Back to Banners',
-        'formAction' => route('admin.banners.store'),
+        'formAction' => route('admin.banner.store'),
         'sections' => [
             [
                 'title' => 'Banner Information',
