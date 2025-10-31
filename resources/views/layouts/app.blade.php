@@ -4,33 +4,55 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Title -->
     <title>{{ config('app.name', 'The Liquor Cabinet') }}</title>
+
+    <!-- Favicon - Using your silver.png -->
+    <link rel="icon" href="{{ asset('images/silver.png') }}" type="image/png">
+    <!-- Optional: Apple Touch Icon (for iOS home screen) -->
+    <link rel="apple-touch-icon" href="{{ asset('images/silver.png') }}">
+
+    <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://fonts.bunny.net/css?family=open-sans:300,400,500,600,700&display=swap" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <!-- Vite (Tailwind + Alpine) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- jQuery & Slick Carousel -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="font-sans antialiased">
-    <div class="flex flex-col min-h-screen bg-gray-100"> <!-- Retained: Ensures full viewport height and light background -->
+    <div class="flex flex-col min-h-screen bg-gray-100">
         @include('layouts.navigation')
+
         @isset($header)
-            <header class="bg-white shadow"> <!-- CHANGED: Removed dark:bg-zinc-900 for light theme consistency -->
+            <header class="bg-white shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
         @endisset
-        <main class="flex-grow"> <!-- Retained: Expands to fill space, pushing footer down -->
+
+        <main class="flex-grow">
             @yield('content')
         </main>
+
         <!-- Global Footer -->
-        <section class="footer"> <!-- Retained: No changes to content, position fixed via CSS -->
+        <section class="footer">
             <div class="footer-row">
                 <div class="footer-col">
                     <h4>Info</h4>
@@ -84,6 +106,8 @@
             </div>
         </section>
     </div>
+
+    <!-- Slick Carousel Initialization -->
     <script>
         $(document).ready(function () {
             $('.js-slick-carousel').slick({
@@ -93,18 +117,9 @@
                 dots: true,
                 appendDots: '.u-slick__pagination',
                 responsive: [
-                    {
-                        breakpoint: 992,
-                        settings: { slidesToShow: 3 }
-                    },
-                    {
-                        breakpoint: 720,
-                        settings: { slidesToShow: 2 }
-                    },
-                    {
-                        breakpoint: 480,
-                        settings: { slidesToShow: 1 }
-                    }
+                    { breakpoint: 992, settings: { slidesToShow: 3 } },
+                    { breakpoint: 720, settings: { slidesToShow: 2 } },
+                    { breakpoint: 480, settings: { slidesToShow: 1 } }
                 ]
             });
         });
