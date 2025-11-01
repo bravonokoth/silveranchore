@@ -8,6 +8,8 @@ use App\Models\Notification;
 use App\Events\NotificationSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\OrderStatusUpdated;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -68,7 +70,6 @@ public function update(Request $request, Order $order)
 {
     \Log::info('Order Update Request:', $request->all());
 
-   
     $validated = $request->validate([
         'status' => 'required|in:pending,processing,shipped,delivered,canceled',
         'payment_status' => 'required|in:pending,paid,failed,refunded',
@@ -76,7 +77,6 @@ public function update(Request $request, Order $order)
     ]);
 
     $oldStatus = $order->status;
-
 
     $order->update([
         'status' => $validated['status'],
@@ -88,15 +88,33 @@ public function update(Request $request, Order $order)
 
     if ($oldStatus !== $validated['status']) {
         $message = "Your order #{$order->id} status changed to {$validated['status']}.";
-        Notification::create([
-            'user_id' => $order->user_id,
-            'session_id' => $order->session_id,
-            'email' => $order->email,
-            'message' => $message,
-            'is_read' => false,
+
+        // 1. Logged-in user
+        if ($order->user_id) {
+            $user = \App\Models\User::find($order->user_id);
+            if ($user) {
+                $user->notify(new OrderStatusUpdated($order, $message));
+            }
+        }
+
+        // 2. Guest fallback
+        \DB::table('notifications')->insert([
+            'id' => (string) Str::uuid(),
+            'type' => OrderStatusUpdated::class,
+            'notifiable_type' => $order->user_id ? 'App\Models\User' : null,
+            'notifiable_id' => $order->user_id,
+            'data' => json_encode([
+                'message' => $message,
+                'email' => $order->email,
+                'session_id' => $order->session_id,
+                'order_id' => $order->id,
+                'status' => $validated['status'],
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        event(new NotificationSent($message, $order->email, $order->user_id, $order->session_id));
+        event(new \App\Events\NotificationSent($message, $order->email, $order->user_id, $order->session_id));
     }
 
     return redirect()->route('admin.orders.index')->with('success', 'Order updated successfully');

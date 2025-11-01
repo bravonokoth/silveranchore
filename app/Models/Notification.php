@@ -1,4 +1,5 @@
 <?php
+// app/Models/Notification.php
 
 namespace App\Models;
 
@@ -9,13 +10,11 @@ class Notification extends DatabaseNotification
 {
     use HasFactory;
 
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     protected $fillable = [
-        'id',
-        'type',
-        'notifiable_type',
-        'notifiable_id',
-        'data',
-        'read_at',
+        'id', 'type', 'notifiable_type', 'notifiable_id', 'data', 'read_at'
     ];
 
     protected $casts = [
@@ -23,7 +22,13 @@ class Notification extends DatabaseNotification
         'read_at' => 'datetime',
     ];
 
-    // No user() relationship — handled polymorphically by notifiable()
+    // Accessors
+    public function getMessageAttribute()   { return $this->data['message'] ?? null; }
+    public function getEmailAttribute()     { return $this->data['email'] ?? null; }
+    public function getSessionIdAttribute() { return $this->data['session_id'] ?? null; }
+    public function getOrderIdAttribute()   { return $this->data['order_id'] ?? null; }
+    public function getIsGuestAttribute()   { return is_null($this->notifiable_id); }
+
     public function notifiable()
     {
         return $this->morphTo();

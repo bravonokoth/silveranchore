@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Notification;
 use App\Events\NotificationSent;
+use App\Mail\OrderConfirmed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Unicodeveloper\Paystack\Facades\Paystack;
 
 class PaymentController extends Controller
@@ -41,7 +43,7 @@ class PaymentController extends Controller
 
         try {
             $order->update(['payment_reference' => $paymentData['reference'], 'payment_method' => 'paystack']);
-            Log::info('✅ Paystack initialized for Order #' . $order->id, $paymentData);
+            Log::info('Paystack initialized for Order #' . $order->id, $paymentData);
             return Paystack::getAuthorizationUrl($paymentData)->redirectNow();
         } catch (\Exception $e) {
             Log::error('Paystack Init Error: ' . $e->getMessage(), ['order_id' => $order->id]);
@@ -60,7 +62,7 @@ class PaymentController extends Controller
                 throw new \Exception('Order ID not found in payment metadata');
             }
 
-            $order = Order::findOrFail($orderId);
+            $order = Order::with('shippingAddress')->findOrFail($orderId);
 
             if ($paymentDetails['data']['status'] === 'success') {
                 $updated = $order->update([
@@ -75,43 +77,63 @@ class PaymentController extends Controller
                     throw new \Exception('Failed to update order payment status');
                 }
 
-                $notificationEmail = $order->email ?? ($order->shippingAddress ? $order->shippingAddress->email : $paymentDetails['data']['customer']['email']);
+                // Determine email
+                $email = $order->email 
+                    ?? ($order->shippingAddress->email ?? $paymentDetails['data']['customer']['email'] ?? null);
 
+                if (!$email) {
+                    Log::warning("No email found for Order #{$order->id}");
+                }
+
+                // DB Notification
                 Notification::create([
                     'user_id' => $order->user_id,
                     'session_id' => $order->session_id,
-                    'email' => $notificationEmail,
+                    'email' => $email,
                     'message' => "Payment for order #{$order->id} completed successfully.",
                     'is_read' => false,
                 ]);
 
                 event(new NotificationSent(
                     "Payment for order #{$order->id} completed successfully.",
-                    $notificationEmail,
+                    $email,
                     $order->user_id,
                     $order->session_id
                 ));
 
-                Log::info("✅ Order #{$order->id} marked as PAID.", [
+                Log::info("Order #{$order->id} marked as PAID.", [
                     'payment_reference' => $paymentDetails['data']['reference'],
                 ]);
 
+                // SEND ORDER CONFIRMED EMAIL (QUEUED)
+                if ($email) {
+                    try {
+                        Mail::to($email)->queue(new OrderConfirmed($order));
+                        Log::info("Order confirmation email queued to {$email}");
+                    } catch (\Exception $e) {
+                        Log::error("Failed to queue confirmation email: " . $e->getMessage());
+                    }
+                }
+
                 return redirect()->route('orders.success', $order)
-                    ->with('success', 'Payment successful!');
+                    ->with('success', 'Payment successful! Order confirmed.');
             }
 
-            $updated = $order->update([
+            // Payment failed
+            $order->update([
                 'payment_status' => 'failed',
-                'status' => 'cancelled',
+                'status' => 'canceled',
             ]);
-            Log::warning("❌ Order #{$order->id} payment failed.", [
+
+            Log::warning("Order #{$order->id} payment failed.", [
                 'reason' => $paymentDetails['data']['gateway_response'] ?? 'Unknown',
             ]);
 
             return redirect()->route('checkout.index')
                 ->with('error', 'Payment failed. Please try again.');
+
         } catch (\Exception $e) {
-            Log::error('💥 PAYSTACK CALLBACK ERROR: ' . $e->getMessage(), [
+            Log::error('PAYSTACK CALLBACK ERROR: ' . $e->getMessage(), [
                 'order_id' => $orderId ?? 'unknown',
             ]);
             return redirect()->route('home')
@@ -135,37 +157,46 @@ class PaymentController extends Controller
         if ($event['event'] === 'charge.success') {
             $orderId = $event['data']['metadata']['order_id'] ?? null;
             if ($orderId) {
-                $order = Order::find($orderId);
+                $order = Order::with('shippingAddress')->find($orderId);
                 if ($order && $order->payment_status !== 'paid') {
-                    $updated = $order->update([
+                    $order->update([
                         'payment_status' => 'paid',
                         'payment_reference' => $event['data']['reference'],
                         'payment_method' => 'paystack',
                         'paid_at' => now(),
                     ]);
 
-                    if ($updated) {
-                        $notificationEmail = $order->email ?? ($order->shippingAddress ? $order->shippingAddress->email : $event['data']['customer']['email']);
+                    $email = $order->email 
+                        ?? ($order->shippingAddress->email ?? $event['data']['customer']['email'] ?? null);
 
-                        Notification::create([
-                            'user_id' => $order->user_id,
-                            'session_id' => $order->session_id,
-                            'email' => $notificationEmail,
-                            'message' => "Payment for order #{$order->id} completed successfully via webhook.",
-                            'is_read' => false,
-                        ]);
+                    Notification::create([
+                        'user_id' => $order->user_id,
+                        'session_id' => $order->session_id,
+                        'email' => $email,
+                        'message' => "Payment for order #{$order->id} completed successfully via webhook.",
+                        'is_read' => false,
+                    ]);
 
-                        event(new NotificationSent(
-                            "Payment for order #{$order->id} completed successfully via webhook.",
-                            $notificationEmail,
-                            $order->user_id,
-                            $order->session_id
-                        ));
+                    event(new NotificationSent(
+                        "Payment for order #{$order->id} completed successfully via webhook.",
+                        $email,
+                        $order->user_id,
+                        $order->session_id
+                    ));
 
-                        Log::info("Order #{$order->id} updated via webhook.", [
-                            'payment_reference' => $event['data']['reference'],
-                        ]);
+                    // QUEUE EMAIL IN WEBHOOK TOO
+                    if ($email) {
+                        try {
+                            Mail::to($email)->queue(new OrderConfirmed($order));
+                            Log::info("Order confirmation email queued via webhook to {$email}");
+                        } catch (\Exception $e) {
+                            Log::error("Webhook email queue failed: " . $e->getMessage());
+                        }
                     }
+
+                    Log::info("Order #{$order->id} updated via webhook.", [
+                        'payment_reference' => $event['data']['reference'],
+                    ]);
                 }
             }
         }

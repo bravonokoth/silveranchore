@@ -1,8 +1,3 @@
-@php
-    $user = Auth::user();
-    $isAdmin = $user && $user->hasRole(['admin', 'super-admin']);
-@endphp
-
 @extends($isAdmin ? 'layouts.admin' : 'layouts.app')
 
 @section($isAdmin ? 'page-title' : 'header')
@@ -10,140 +5,107 @@
 @endsection
 
 @section('content')
-    <div class="notifications-container">
-        <div class="notifications-card">
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                {{ __('Inbox') }}
-            </h2>
-            @if ($notifications->isEmpty())
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ __('Your inbox is empty.') }}
-                </p>
-            @else
-                <div class="inbox-table" x-data="notifications()" x-init="init">
-                    <table class="table-auto w-full">
-                        <thead>
-                            <tr class="text-left text-sm text-gray-600 dark:text-gray-400">
-                                <th class="px-4 py-2">{{ __('Status') }}</th>
-                                <th class="px-4 py-2">{{ __('Message') }}</th>
-                                <th class="px-4 py-2">{{ __('Date') }}</th>
-                                <th class="px-4 py-2">{{ __('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($notifications as $notification)
-                                <tr class="notification-item cursor-pointer" 
-                                    :class="{ 'unread': !notifications['{{ $notification->id }}']?.read_at, 'read': notifications['{{ $notification->id }}']?.read_at }" 
-                                    @click="openModal('{{ $notification->id }}')">
-                                    <td class="px-4 py-2">
-                                        <i data-feather="{{ $notification->read_at ? 'mail' : 'mail' }}" 
-                                           :class="{ 'text-gray-400': notifications['{{ $notification->id }}']?.read_at, 'text-accent': !notifications['{{ $notification->id }}']?.read_at }"></i>
-                                    </td>
-                                    <td class="px-4 py-2">
-                                        <span class="notification-message">
-                                            {{ Str::limit($notification->data['message'] ?? $notification->id, 50) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
-                                        {{ $notification->created_at->diffForHumans() }}
-                                    </td>
-                                    <td class="px-4 py-2">
-                                        <form x-show="!notifications['{{ $notification->id }}']?.read_at" 
-                                              action="{{ route('notifications.read', $notification) }}" 
-                                              method="POST" 
-                                              class="inline-block">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="mark-read-btn" title="Mark as Read">
-                                                <i data-feather="check-circle"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+<div class="notifications-container">
+    <div class="notifications-card">
+        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {{ __('Inbox') }}
+        </h2>
 
-                    <!-- Modal for Full Message -->
-                    <template x-if="selectedNotification">
-                        <div class="modal" x-show="showModal" x-transition>
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                        {{ __('Notification Details') }}
-                                    </h3>
-                                    <button @click="closeModal" class="modal-close">
-                                        <i data-feather="x"></i>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p x-text="notifications[selectedNotification]?.data?.message || 'No message'"></p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                                        <strong>{{ __('From') }}:</strong> 
-                                        <span x-text="notifications[selectedNotification]?.data?.user_name || 'System'"></span>
-                                        (<span x-text="notifications[selectedNotification]?.data?.email || 'N/A'"></span>)
-                                    </p>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">
-                                        <strong>{{ __('Date') }}:</strong> 
-                                        <span x-text="notifications[selectedNotification]?.created_at"></span>
-                                    </p>
-                                    <a :href="'{{ url('admin/users') }}/' + notifications[selectedNotification]?.data?.user_id" 
-                                       class="modal-link">
-                                        {{ __('View User') }}
-                                    </a>
-                                </div>
+        @if ($notifications->isEmpty())
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ __('Your inbox is empty.') }}
+            </p>
+        @else
+            <div class="inbox-table" x-data="notifications()" x-init="init">
+                <table class="table-auto w-full">
+                    <thead>
+                        <tr class="text-left text-sm text-gray-600 dark:text-gray-400">
+                            <th class="px-4 py-2">{{ __('Status') }}</th>
+                            <th class="px-4 py-2">{{ __('Message') }}</th>
+                            <th class="px-4 py-2">{{ __('Session ID') }}</th>
+                            <th class="px-4 py-2">{{ __('Date') }}</th>
+                            <th class="px-4 py-2">{{ __('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($notifications as $notification)
+                            <tr class="notification-item cursor-pointer" 
+                                :class="{ 'unread': !notifications['{{ $notification->id }}']?.read_at }" 
+                                @click="openModal('{{ $notification->id }}')">
+                                <td class="px-4 py-2">
+                                    <i data-feather="{{ $notification->read_at ? 'mail' : 'mail-open' }}"></i>
+                                </td>
+                                <td class="px-4 py-2">
+                                    {{ Str::limit($notification->message, 50) }}
+                                </td>
+                                <td class="px-4 py-2 text-xs text-gray-500">
+                                    {{ $notification->session_id ? Str::limit($notification->session_id, 12) : '—' }}
+                                </td>
+                                <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
+                                    {{ $notification->created_at->diffForHumans() }}
+                                </td>
+                                <td class="px-4 py-2">
+                                    @if(!$notification->read_at)
+                                        <form action="{{ route('notifications.markAsRead', $notification) }}" method="POST" class="inline">
+                                            @csrf @method('PATCH')
+                                            <button type="submit" class="text-xs text-blue-600">Mark Read</button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <!-- Modal -->
+                <template x-if="selectedNotification">
+                    <div class="modal" x-show="showModal" x-transition>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Notification</h3>
+                                <button @click="closeModal">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <p x-text="notifications[selectedNotification]?.message"></p>
+                                <p><strong>Session ID:</strong> <code x-text="notifications[selectedNotification]?.session_id || 'N/A'"></code></p>
+                                <p><strong>Email:</strong> <span x-text="notifications[selectedNotification]?.email || 'N/A'"></span></p>
+                                <p><strong>Order ID:</strong> <span x-text="notifications[selectedNotification]?.order_id || 'N/A'"></span></p>
                             </div>
                         </div>
-                    </template>
-                </div>
-            @endif
-        </div>
+                    </div>
+                </template>
+            </div>
+        @endif
     </div>
+</div>
 @endsection
 
 @section('scripts')
-    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('notifications', () => ({
-                notifications: @json($notifications->mapWithKeys(fn($notification) => [$notification->id => $notification->toArray()])),
-                showModal: false,
-                selectedNotification: null,
-                init() {
-                    console.log('Initializing Pusher for user: {{ auth()->id() }}');
-                    Pusher.logToConsole = true;
-                    const pusher = new Pusher('{{ env('REVERB_APP_KEY') }}', {
-                        wsHost: '{{ env('REVERB_HOST', 'localhost') }}',
-                        wsPort: {{ env('REVERB_PORT', 8080) }},
-                        wssPort: {{ env('REVERB_PORT', 8080) }},
-                        forceTLS: {{ env('REVERB_SCHEME', 'http') === 'https' ? 'true' : 'false' }},
-                        enabledTransports: ['ws', 'wss'],
-                    });
+<script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('notifications', () => ({
+        notifications: @json($notifications->mapWithKeys(fn($n) => [$n->id => $n->toArray()])),
+        showModal: false,
+        selectedNotification: null,
+        init() {
+            const pusher = new Pusher('{{ env('REVERB_APP_KEY') }}', {
+                wsHost: '{{ env('REVERB_HOST') }}',
+                wsPort: {{ env('REVERB_PORT') }},
+                forceTLS: {{ env('REVERB_SCHEME') === 'https' ? 'true' : 'false' }},
+                enabledTransports: ['ws', 'wss'],
+            });
 
-                    const channel = pusher.subscribe('notifications.{{ auth()->id() }}');
-                    channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (data) => {
-                        console.log('Broadcast received:', data);
-                        if (data.id && !this.notifications[data.id]) {
-                            this.notifications[data.id] = {
-                                id: data.id,
-                                data: data.data || data,
-                                created_at: data.created_at,
-                                read_at: null,
-                            };
-                        } else if (data.id && data.read_at) {
-                            this.notifications[data.id].read_at = data.read_at;
-                        }
-                    });
-                },
-                openModal(id) {
-                    this.selectedNotification = id;
-                    this.showModal = true;
-                },
-                closeModal() {
-                    this.showModal = false;
-                    this.selectedNotification = null;
+            const channel = pusher.subscribe('notifications.{{ auth()->id() ?? "guest" }}');
+            channel.bind('Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', (data) => {
+                if (data.id && !this.notifications[data.id]) {
+                    this.notifications[data.id] = data;
                 }
-            }));
-        });
-    </script>
+            });
+        },
+        openModal(id) { this.selectedNotification = id; this.showModal = true; },
+        closeModal() { this.showModal = false; this.selectedNotification = null; }
+    }));
+});
+</script>
 @endsection
