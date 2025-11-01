@@ -1,4 +1,9 @@
 <x-guest-layout>
+    <div class="flex flex-col items-center justify-center space-y-6">
+      <a href="/" class="flex flex-col items-center">
+            <img src="{{ asset('images/silver.png') }}" alt="SilverAnchor Logo" class="w-20 h-20 object-contain">
+            <h2 class="mt-2 text-2xl font-semibold text-gray-800 dark:text-gray-200">SilverAnchor</h2>
+        </a>
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
@@ -49,4 +54,5 @@
             </x-primary-button>
         </div>
     </form>
+    </div>
 </x-guest-layout>

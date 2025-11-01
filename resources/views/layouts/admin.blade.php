@@ -4,14 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Admin Dashboard' }}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('css/admin-dashboard.css') }}">
+
+    <!-- Scripts -->
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 <body class="admin-layout light">
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
-        <div class="logo">SilverAnchor</div>
+        <div class="logo">
+            <img src="{{ asset('images/silver.png') }}" alt="SilverAnchor Logo" class="logo-img">
+            <span class="logo-text">SilverAnchor</span>
+        </div>
         <nav class="nav-links">
             <a href="{{ route('admin.dashboard') }}" class="nav-link active"><i data-feather="home"></i><span>Dashboard</span></a>
             <a href="{{ route('admin.categories.index') }}" class="nav-link"><i data-feather="tag"></i><span>Categories</span></a>
@@ -38,10 +48,9 @@
                 <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
                     <i data-feather="moon"></i>
                 </button>
-                <button class="icon-btn"><i data-feather="settings"></i></button>
+                <button class="icon-btn" title="Settings"><i data-feather="settings"></i></button>
                 <div x-data="{ open: false }" class="profile-dropdown">
                     <button @click="open = !open" class="profile">
-                        <img src="https://i.pravatar.cc/40" alt="Profile" />
                         <div class="info">
                             <p>{{ auth()->user()->name ?? 'Admin User' }}</p>
                             <span>{{ auth()->user()->role ?? 'Administrator' }}</span>
@@ -69,82 +78,112 @@
                 </div>
             </div>
         </header>
+
         <main class="content">
             @yield('content')
         </main>
     </div>
 
+    <!-- Scripts -->
     <script>
         feather.replace();
 
-        // Theme Toggle
+        // === THEME TOGGLE ===
         const themeToggle = document.getElementById('theme-toggle');
         const body = document.body;
         const storedTheme = localStorage.getItem('theme');
 
         if (storedTheme === 'dark') {
             body.classList.add('dark');
-            body.classList.remove('light');
             themeToggle.innerHTML = feather.icons.sun.toSvg();
         }
 
         themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark');
-            body.classList.toggle('light');
-            const isDark = body.classList.contains('dark');
+            const isDark = body.classList.toggle('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             themeToggle.innerHTML = isDark ? feather.icons.sun.toSvg() : feather.icons.moon.toSvg();
         });
 
-        // Sidebar Toggle
+        // === SIDEBAR TOGGLE ===
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebar = document.getElementById('sidebar');
         const main = document.getElementById('main');
+
+        if (localStorage.getItem('sidebar') === 'collapsed') {
+            sidebar.classList.add('collapsed');
+            main.classList.add('expanded');
+        }
 
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             main.classList.toggle('expanded');
             localStorage.setItem('sidebar', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
         });
-
-        // Load sidebar state
-        if (localStorage.getItem('sidebar') === 'collapsed') {
-            sidebar.classList.add('collapsed');
-            main.classList.add('expanded');
-        }
     </script>
 
-<script type="module">
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+    <!-- Real-time Notifications -->
+    <script type="module">
+        import Echo from 'laravel-echo';
+        import Pusher from 'pusher-js';
 
-window.Pusher = Pusher;
+        window.Pusher = Pusher;
 
-window.Echo = new Echo({
-    broadcaster: 'reverb',
-    key: import.meta.env.VITE_REVERB_APP_KEY,
-    wsHost: import.meta.env.VITE_REVERB_HOST,
-    wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-    wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-    forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
-    enabledTransports: ['ws', 'wss'],
-});
+        window.Echo = new Echo({
+            broadcaster: 'reverb',
+            key: import.meta.env.VITE_REVERB_APP_KEY,
+            wsHost: import.meta.env.VITE_REVERB_HOST,
+            wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
+            wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
+            forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
+            enabledTransports: ['ws', 'wss'],
+        });
 
-// 👇🏽 Listen for broadcasts from the backend
-window.Echo.private('admin.notifications')
-    .listen('.notification.sent', (event) => {
-        console.log('🔔 New user registered:', event.message);
+        // Listen for broadcasts
+        window.Echo.private('admin.notifications')
+            .listen('.notification.sent', (event) => {
+                console.log('🔔 New user registered:', event.message);
 
-        // Optional: show a toast notification
-        const toast = document.createElement('div');
-        toast.innerText = event.message;
-        toast.classList.add('toast');
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 6000);
-    });
-</script>
+                const toast = document.createElement('div');
+                toast.innerText = event.message;
+                toast.classList.add('toast');
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 6000);
+            });
+    </script>
 
-
+    <style>
+        /* Inline helper styles */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            padding: 1rem;
+        }
+        .logo-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            z-index: 9999;
+            animation: fadeInOut 6s ease-in-out forwards;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+    </style>
 
 </body>
 </html>

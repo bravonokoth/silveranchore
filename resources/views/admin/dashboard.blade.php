@@ -32,7 +32,7 @@
     <div class="stat-card">
         <div class="stat-header">
             <div>
-                <div class="stat-value">${{ number_format(\App\Models\Order::sum('total'), 2) }}</div>
+                <div class="stat-value">Ksh{{ number_format(\App\Models\Order::sum('total'), 2) }}</div>
                 <div class="stat-label">Revenue</div>
             </div>
             <div class="stat-icon purple">💰</div>

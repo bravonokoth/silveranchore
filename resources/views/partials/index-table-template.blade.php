@@ -59,14 +59,29 @@
                             <td class="{{ isset($column['truncate']) && $column['truncate'] ? 'truncate-cell' : '' }}">
                                 @if ($column['type'] === 'image')
                                     <img src="{{ asset('storage/' . $item->{$column['key']}) }}" alt="{{ $item->title ?? $item->name ?? 'Item' }}" class="table-image">
+                                
                                 @elseif ($column['type'] === 'boolean')
                                     {{ $item->{$column['key']} ? 'Yes' : 'No' }}
+                                
                                 @elseif ($column['type'] === 'relation')
-                                    {{ $item->{$column['relation']}->{$column['relation_key']} ?? 'N/A' }}
+                                    @php
+                                        $relationValue = $item->{$column['relation']}->{$column['relation_key']} ?? null;
+                                        $fallbackValue = isset($column['fallback']) ? $column['fallback']($item) : 'N/A';
+                                    @endphp
+                                    {{ $relationValue ?? $fallbackValue }}
+                                
                                 @elseif ($column['type'] === 'currency')
-                                    ${{ number_format($item->{$column['key']}, 2) }}
+                                    {{ $column['currency'] ?? '$' }}{{ number_format($item->{$column['key']}, 2) }}
+                                
                                 @elseif ($column['type'] === 'date')
                                     {{ $item->{$column['key']} ? \Carbon\Carbon::parse($item->{$column['key']})->format('Y-m-d') : 'N/A' }}
+                                
+                                @elseif ($column['type'] === 'custom' && isset($column['render']))
+                                    {!! $column['render']($item) !!}
+                                
+                                @elseif ($column['type'] === 'text' && isset($column['render']))
+                                    {!! $column['render']($item) !!}
+                                
                                 @elseif ($column['type'] === 'text' && isset($column['truncate']) && $column['truncate'])
                                     @php
                                         $text = $item->{$column['key']} ?? 'N/A';
@@ -75,11 +90,13 @@
                                     <div class="truncate-wrapper" title="{{ $text }}">
                                         {{ Str::limit($text, $maxLength) }}
                                     </div>
+                                
                                 @else
                                     {{ $item->{$column['key']} ?? 'N/A' }}
                                 @endif
                             </td>
                         @endforeach
+                        
                         @if (!empty($actions))
                             <td>
                                 <div class="action-icons">

@@ -15,64 +15,96 @@
             [
                 'label' => 'Customer',
                 'key' => 'user',
-                'type' => 'relation',
-                'relation' => 'user',
-                'relation_key' => 'name',
-                'fallback' => fn($item) => $item->shippingAddress ? $item->shippingAddress->name : ($item->email ?? 'Guest'),
+                'type' => 'custom',
+                'render' => fn($item) => $item->user 
+                    ? $item->user->name 
+                    : ($item->shippingAddress->name ?? 'Guest Customer'),
             ],
             [
                 'label' => 'Phone',
-                'key' => 'shippingAddress',
-                'type' => 'relation',
-                'relation' => 'shippingAddress',
-                'relation_key' => 'phone_number',
-                'fallback' => fn($item) => $item->shippingAddress ? ($item->shippingAddress->phone_number ?? 'N/A') : 'N/A',
+                'key' => 'phone',
+                'type' => 'custom',
+                'render' => fn($item) => $item->shippingAddress->phone_number ?? 'N/A',
             ],
             [
                 'label' => 'Email',
                 'key' => 'email',
-                'type' => 'text',
-                'fallback' => fn($item) => $item->shippingAddress ? ($item->shippingAddress->email ?? 'N/A') : ($item->email ?? 'N/A'),
+                'type' => 'custom',
+                'render' => fn($item) => $item->email ?? ($item->shippingAddress->email ?? 'N/A'),
             ],
             [
                 'label' => 'Shipping Address',
                 'key' => 'shippingAddress',
                 'type' => 'custom',
                 'render' => fn($item) => $item->shippingAddress
-                    ? ($item->shippingAddress->line1 . ', ' . $item->shippingAddress->city . ', ' . $item->shippingAddress->country)
-                    : 'N/A',
+                    ? '<div class="text-sm">' . 
+                        htmlspecialchars($item->shippingAddress->line1) . '<br>' . 
+                        htmlspecialchars($item->shippingAddress->city) . ', ' . 
+                        htmlspecialchars($item->shippingAddress->country) . 
+                      '</div>'
+                    : '<span class="text-gray-500">N/A</span>',
             ],
             [
-                'label' => 'Products Ordered',
+                'label' => 'Products',
                 'key' => 'items',
                 'type' => 'custom',
-                'render' => fn($item) => $item->items->map(fn($orderItem) =>
-                    ($orderItem->product->name ?? 'Unknown Product') . ' (x' . $orderItem->quantity . ')'
-                )->implode('<br>') ?: 'No products',
+                'render' => fn($item) => $item->items->isNotEmpty()
+                    ? '<div class="text-sm space-y-1">' . 
+                        $item->items->map(fn($orderItem) =>
+                            '<div class="flex items-center gap-2">' .
+                                '<span class="font-medium">' . htmlspecialchars($orderItem->product->name ?? 'Unknown') . '</span>' .
+                                '<span class="text-gray-500">×' . $orderItem->quantity . '</span>' .
+                            '</div>'
+                        )->implode('') . 
+                      '</div>'
+                    : '<span class="text-gray-500">No products</span>',
             ],
             [
                 'label' => 'Total',
                 'key' => 'total',
-                'type' => 'currency',
-                'currency' => 'KSh',
+                'type' => 'custom',
+                'render' => fn($item) => '<span class="font-semibold text-green-600">KSh ' . number_format($item->total, 2) . '</span>',
             ],
             [
                 'label' => 'Status',
                 'key' => 'status',
-                'type' => 'text',
-                'render' => fn($item) => '<span class="px-2 py-1 rounded text-sm ' . ($item->status == 'pending' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800') . '">' . ucfirst($item->status) . '</span>',
+                'type' => 'custom',
+                'render' => fn($item) => match($item->status) {
+                    'pending' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>',
+                    'processing' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Processing</span>',
+                    'completed' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>',
+                    'cancelled' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Cancelled</span>',
+                    default => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">' . ucfirst($item->status) . '</span>',
+                },
             ],
             [
-                'label' => 'Payment Status',
+                'label' => 'Payment',
                 'key' => 'payment_status',
-                'type' => 'text',
-                'render' => fn($item) => '<span class="px-2 py-1 rounded text-sm ' . ($item->payment_status == 'pending' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800') . '">' . ucfirst($item->payment_status) . '</span>',
+                'type' => 'custom',
+                'render' => fn($item) => match($item->payment_status) {
+                    'pending' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>',
+                    'paid' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Paid</span>',
+                    'failed' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Failed</span>',
+                    'refunded' => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Refunded</span>',
+                    default => '<span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">' . ucfirst($item->payment_status) . '</span>',
+                },
             ],
             [
                 'label' => 'Payment Method',
                 'key' => 'payment_method',
-                'type' => 'text',
-                'render' => fn($item) => ucfirst($item->payment_method ?? 'Paystack'),
+                'type' => 'custom',
+                'render' => fn($item) => '<span class="text-sm capitalize">' . 
+                    ($item->payment_method ? htmlspecialchars($item->payment_method) : 'Paystack') . 
+                    '</span>',
+            ],
+            [
+                'label' => 'Date',
+                'key' => 'created_at',
+                'type' => 'custom',
+                'render' => fn($item) => '<span class="text-sm text-gray-600">' . 
+                    $item->created_at->format('M d, Y') . '<br>' . 
+                    '<span class="text-xs text-gray-500">' . $item->created_at->format('h:i A') . '</span>' .
+                    '</span>',
             ],
         ],
         'actions' => [
