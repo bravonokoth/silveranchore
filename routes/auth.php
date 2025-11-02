@@ -44,11 +44,11 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
 
     // Show Email Verification Notice
-    Route::get('verify-email', EmailVerificationPromptController::class)
+    Route::get('verify-email', [EmailVerificationPromptController::class, '__invoke'])
         ->name('verification.notice');
 
     // Verify Email
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+    Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
 

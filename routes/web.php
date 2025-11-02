@@ -14,7 +14,6 @@ use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BannerController;
-
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -106,14 +105,7 @@ Route::post('/register', [RegisteredUserController::class, 'store'])
     ->name('register')
     ->middleware('throttle:6,1');
 
-// 📧 Email Verification Flow
-Route::get('/verify-email', EmailVerificationPromptController::class)
-    ->middleware('auth')
-    ->name('verification.notice');
 
-Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-    ->middleware(['auth', 'throttle:6,1'])
-    ->name('verification.send');
 
 // 🧍‍♂️ Authenticated & Verified User Routes
 Route::middleware(['auth', 'verified'])->group(function () {

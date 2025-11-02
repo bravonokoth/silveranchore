@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -8,7 +9,7 @@ use App\Events\NotificationSent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth;        // ← Already there
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Log;
@@ -17,11 +18,19 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    /**
+     * Display the registration view.
+     */
     public function create(): View
     {
         return view('auth.register');
     }
 
+    /**
+     * Handle an incoming registration request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -66,8 +75,16 @@ class RegisteredUserController extends Controller
                 }
             }
 
+            // ========================================
+            // CRITICAL FIX: LOG THE USER IN
+            // ========================================
+            Auth::login($user);   // ← ADDED THIS LINE (LINE ~78)
+
+            // ========================================
+            // Now redirect to verification prompt
+            // ========================================
             return redirect()->route('verification.notice')
-                ->with('status', 'verification-link-sent');
+                ->with('status', 'verification-link-sent');   // ← This now works!
 
         } catch (\Exception $e) {
             Log::error('Error during user registration: ' . $e->getMessage(), [
