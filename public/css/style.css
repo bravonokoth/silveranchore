@@ -426,8 +426,8 @@ body.dark nav .hamburger:hover {
 }
 
 .category-card .category-image {
-  width: 100%;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   margin-bottom: 1rem;
   overflow: hidden;
   border-radius: 8px;
@@ -436,7 +436,8 @@ body.dark nav .hamburger:hover {
 .category-card .category-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f7fafc;
 }
 
 .category-card .overlay h3 {
@@ -496,14 +497,17 @@ body.dark nav .hamburger:hover {
 .js-slick-carousel .card-img-top {
   width: 100%;
   height: 200px;
-  object-fit: cover;
+  object-fit: contain;
   flex-shrink: 0;
+  background: #f7fafc;
+  padding: 10px;
 }
 
 .js-slick-carousel .position-relative {
   position: relative;
   height: 200px;
   flex-shrink: 0;
+  background: #f7fafc;
 }
 
 .js-slick-carousel .badge {
@@ -703,30 +707,7 @@ body.dark nav .hamburger:hover {
   cursor: not-allowed;
 }
 
-/* Dark Mode for Cards */
-body.dark .js-slick-carousel .card {
-  background: #2d3748;
-}
 
-body.dark .js-slick-carousel .card-body h3 a {
-  color: #e2e8f0;
-}
-
-body.dark .js-slick-carousel .card-body h3 a:hover {
-  color: var(--gold-light);
-}
-
-body.dark .js-slick-carousel .card-body .font-weight-medium {
-  color: #e2e8f0;
-}
-
-body.dark .category-card {
-  background: #2d3748;
-}
-
-body.dark .category-card .overlay h3 {
-  color: #e2e8f0;
-}
 
 /* Dark Mode */
 body.dark .js-slick-carousel .card {
