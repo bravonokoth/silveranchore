@@ -14,6 +14,7 @@ use App\Http\Controllers\StaticPageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BannerController;
+
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -155,6 +156,9 @@ Route::prefix('admin')
     ->group(function () {
         // 🖥️ Admin Dashboard
         Route::get('/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
+
+        Route::resource('users', UserController::class);
+        Route::get('users/search', [UserController::class, 'search'])->name('users.search');
 
         // 🖼️ Banners
         Route::get('/banners/search', [BannerController::class, 'search'])->name('admin.banner.search');

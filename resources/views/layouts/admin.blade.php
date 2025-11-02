@@ -32,6 +32,8 @@
             <a href="{{ route('admin.banner.index') }}" class="nav-link"><i data-feather="image"></i><span>Banners</span></a>
             <a href="{{ route('admin.media.index') }}" class="nav-link"><i data-feather="camera"></i><span>Media</span></a>
             <a href="{{ route('admin.purchases.index') }}" class="nav-link"><i data-feather="shopping-bag"></i><span>Purchases</span></a>
+            <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><i data-feather="users"></i><span>Users</span>
+</a>
         </nav>
     </aside>
 
