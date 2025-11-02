@@ -193,8 +193,15 @@ Route::prefix('admin')
 Route::prefix('notifications')->group(function () {
     Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
     Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead'])
-        ->name('notifications.markAsRead'); // Fixed!
+        ->name('notifications.markAsRead'); 
+    Route::patch('/mark-all-read', [NotificationController::class, 'markAllRead'])
+        ->name('notifications.markAllRead');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
 });
+
+
+
+
 
         // 👑 Profile
         Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');

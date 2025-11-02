@@ -38,16 +38,38 @@ class NotificationController extends Controller
     return view('notifications.index', compact('notifications', 'isAdmin'));
     }
 
-    public function markAsRead(Notification $notification)
+public function markAllRead()
     {
-        $canRead = 
-            ($notification->notifiable_id && Auth::id() && $notification->notifiable_id == Auth::id()) ||
-            ($notification->is_guest && $notification->session_id === session()->getId());
+        $user = Auth::user();
+        $sessionId = session()->getId();
 
-        if (!$canRead) abort(403);
+        if ($user) {
+            // Mark all user notifications as read
+            $user->unreadNotifications()->update(['read_at' => now()]);
+        }
 
-        $notification->update(['read_at' => now()]);
+        // Mark all guest notifications for this session as read
+        Notification::query()
+            ->whereNull('notifiable_id')
+            ->whereNull('read_at')
+            ->whereJsonContains('data->session_id', $sessionId)
+            ->update(['read_at' => now()]);
 
-        return back()->with('success', 'Marked as read');
+        return back()->with('success', 'All notifications marked as read');
     }
+public function destroy(Notification $notification)
+    {
+        $canDelete = 
+            ($notification->notifiable_id && Auth::id() && $notification->notifiable_id == Auth::id()) ||
+            (!$notification->notifiable_id && isset($notification->data['session_id']) && $notification->data['session_id'] === session()->getId());
+
+        if (!$canDelete) {
+            abort(403, 'Unauthorized to delete this notification');
+        }
+
+        $notification->delete();
+
+        return back()->with('success', 'Notification deleted');
+    }
+
 }
