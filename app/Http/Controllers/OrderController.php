@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Address;
 use App\Mail\OrderConfirmed;
+
 use App\Models\Notification;
 use App\Events\NotificationSent;
 use Illuminate\Http\Request;
