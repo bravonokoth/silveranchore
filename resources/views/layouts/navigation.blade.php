@@ -2,22 +2,32 @@
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center" style="height: 70px;">
-            <!-- Left: Logo -->
+            <!-- Left: Logo + Site Name -->
             <div class="flex items-center" style="min-width: 150px;">
                 <a href="{{ route('home') }}">
                     <img src="{{ asset('images/silver.png') }}" alt="Logo" class="h-12 w-auto">
                 </a>
+                <!-- Site Name (Silveranchor) -->
+                <span class="ml-3 text-2xl font-bold text-white hidden md:block">
+                    Silveranchor
+                </span>
             </div>
 
             <!-- Center: Search Bar (Desktop) -->
             <div class="hidden sm:flex flex-1 max-w-2xl mx-8">
                 <form action="{{ route('products.index') }}" method="GET" class="search-form w-full">
+                    {{-- Preserve all filters except search & page --}}
+                    @foreach(request()->except(['search', 'page']) as $key => $value)
+                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                    @endforeach
+
                     <input 
                         type="text" 
                         name="search" 
                         class="search-input" 
                         placeholder="Search for liquors, wines, spirits..." 
                         value="{{ request('search') }}"
+                        autocomplete="off"
                     >
                     <button type="submit" class="search-button">
                         <i class="fas fa-search"></i>
@@ -187,12 +197,17 @@
         <!-- Mobile Search -->
         <div class="mobile-search">
             <form action="{{ route('products.index') }}" method="GET" class="search-form">
+                @foreach(request()->except(['search', 'page']) as $key => $value)
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endforeach
+
                 <input 
                     type="text" 
                     name="search" 
                     class="search-input" 
                     placeholder="Search products..." 
                     value="{{ request('search') }}"
+                    autocomplete="off"
                 >
                 <button type="submit" class="search-button">
                     <i class="fas fa-search"></i>
