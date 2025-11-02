@@ -34,10 +34,7 @@
                             <p class="text-xl font-bold text-gray-800">{{ $ordersByStatus['pending'] ?? 0 }}</p>
                         </div>
                     </div>
-                    <!-- Pie Chart: Orders by Status  -->
-                    <div class="mt-6">
-                        <canvas id="ordersByStatusChart" height="50"></canvas>
-                    </div>
+                    <!-- Pie Chart Removed -->
                 </div>
             </div>
 
@@ -110,7 +107,6 @@
                             <p class="text-xl font-bold text-gray-800">{{ $shippingAddresses }}</p>
                         </div>
                     </div>
-                    <!-- Removed Address Chart -->
                 </div>
             </div>
 
@@ -148,48 +144,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Chart.js Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            try {
-                // Pie Chart: Orders by Status
-                const ordersByStatusCtx = document.getElementById('ordersByStatusChart').getContext('2d');
-                new Chart(ordersByStatusCtx, {
-                    type: 'pie',
-                    data: {
-                        labels: @json(array_keys($ordersByStatus)),
-                        datasets: [{
-                            label: 'Orders by Status',
-                            data: @json(array_values($ordersByStatus)),
-                            backgroundColor: [
-                                'rgba(59, 130, 246, 0.5)',
-                                'rgba(239, 68, 68, 0.5)',
-                                'rgba(16, 185, 129, 0.5)',
-                                'rgba(245, 158, 11, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(59, 130, 246, 1)',
-                                'rgba(239, 68, 68, 1)',
-                                'rgba(16, 185, 129, 1)',
-                                'rgba(245, 158, 11, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        plugins: {
-                            legend: { position: 'top' },
-                            title: { display: true, text: 'Orders by Status' }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Chart.js Error:', error);
-            }
-        });
-    </script>
 
     <!-- Embedded CSS -->
     <style>
@@ -247,7 +201,7 @@
         .text-green-800 { color: #276749; }
         .bg-yellow-100 { background-color: #fefcbf; }
         .text-yellow-800 { color: #975a16; }
-        .wide-section { width: 85%; max-width: none; margin-left: auto; margin-right: auto; } /* Increased to 85% width */
+        .wide-section { width: 85%; max-width: none; margin-left: auto; margin-right: auto; }
         .bg-blue-200 { background-color: #bfdbfe; }
         .bg-green-200 { background-color: #bbf7d0; }
         .bg-yellow-200 { background-color: #fef9c3; }

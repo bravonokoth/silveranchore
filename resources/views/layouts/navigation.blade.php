@@ -7,7 +7,6 @@
                 <a href="{{ route('home') }}">
                     <img src="{{ asset('images/silver.png') }}" alt="Logo" class="h-12 w-auto">
                 </a>
-                <!-- Site Name (Silveranchor) -->
                 <span class="ml-3 text-2xl font-bold text-white hidden md:block">
                     Silveranchor
                 </span>
@@ -16,7 +15,6 @@
             <!-- Center: Search Bar (Desktop) -->
             <div class="hidden sm:flex flex-1 max-w-2xl mx-8">
                 <form action="{{ route('products.index') }}" method="GET" class="search-form w-full">
-                    {{-- Preserve all filters except search & page --}}
                     @foreach(request()->except(['search', 'page']) as $key => $value)
                         <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                     @endforeach
@@ -34,6 +32,71 @@
                         <span class="hidden md:inline">Search</span>
                     </button>
                 </form>
+            </div>
+
+            <!-- NEW: Navigation Dropdown (Between Search & Icons) -->
+            <div class="hidden sm:flex items-center mx-4">
+                <div x-data="{ open: false }" class="relative">
+                    <button 
+                        @click="open = !open" 
+                        @click.outside="open = false"
+                        class="flex items-center gap-2 px-4 py-2 text-white font-medium rounded-lg hover:bg-white hover:bg-opacity-10 transition duration-200"
+                        aria-haspopup="true"
+                        :aria-expanded="open"
+                    >
+                        <i class="fas fa-bars"></i>
+                        <span class="hidden md:inline">Menu</span>
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': open }" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <div 
+                        x-show="open" 
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 scale-95"
+                        x-transition:enter-end="opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 scale-100"
+                        x-transition:leave-end="opacity-0 scale-95"
+                        class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-48 bg-white rounded-lg shadow-xl z-50 overflow-hidden"
+                        style="display: none;"
+                        x-cloak
+                    >
+                        <a href="{{ route('home') }}" 
+                           class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 {{ request()->routeIs('home') ? 'bg-gray-50 font-semibold' : '' }}">
+                            <i class="fas fa-home w-4"></i> Home
+                        </a>
+                        @auth
+                            <a href="{{ Auth::user()->hasRole(['super-admin', 'admin']) ? route('admin.dashboard') : route('dashboard') }}" 
+                               class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 {{ request()->routeIs('admin.dashboard', 'dashboard') ? 'bg-gray-50 font-semibold' : '' }}">
+                                <i class="fas fa-tachometer-alt w-4"></i> Dashboard
+                            </a>
+                        @endauth
+                        <a href="{{ route('products.index') }}" 
+                           class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 {{ request()->routeIs('products.index') ? 'bg-gray-50 font-semibold' : '' }}">
+                            <i class="fas fa-wine-bottle w-4"></i> Products
+                        </a>
+                        <a href="{{ route('categories.index') }}" 
+                           class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 {{ request()->routeIs('categories.index') ? 'bg-gray-50 font-semibold' : '' }}">
+                            <i class="fas fa-th-large w-4"></i> Categories
+                        </a>
+                        <a href="{{ route('about') }}" 
+                           class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 {{ request()->routeIs('about') ? 'bg-gray-50 font-semibold' : '' }}">
+                            <i class="fas fa-info-circle w-4"></i> About
+                        </a>
+                        <a href="{{ route('contact') }}" 
+                           class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 {{ request()->routeIs('contact') ? 'bg-gray-50 font-semibold' : '' }}">
+                            <i class="fas fa-envelope w-4"></i> Contact
+                        </a>
+                        @auth
+                            <a href="{{ route('orders.index') }}" 
+                               class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 {{ request()->routeIs('orders.index') ? 'bg-gray-50 font-semibold' : '' }}">
+                                <i class="fas fa-box w-4"></i> Orders
+                            </a>
+                        @endauth
+                    </div>
+                </div>
             </div>
 
             <!-- Right: Icons and User Dropdown -->
@@ -91,25 +154,13 @@
                              class="user-dropdown-menu"
                              style="display: none;"
                              x-cloak>
-                            <a href="{{ route('profile.edit') }}">
-                                <i class="fas fa-user"></i>
-                                <span>Profile</span>
-                            </a>
-                            <a href="{{ route('orders.index') }}">
-                                <i class="fas fa-box"></i>
-                                <span>My Orders</span>
-                            </a>
-                            <a href="{{ route('addresses.index') }}">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>Addresses</span>
-                            </a>
+                            <a href="{{ route('profile.edit') }}"><i class="fas fa-user"></i> <span>Profile</span></a>
+                            <a href="{{ route('orders.index') }}"><i class="fas fa-box"></i> <span>My Orders</span></a>
+                            <a href="{{ route('addresses.index') }}"><i class="fas fa-map-marker-alt"></i> <span>Addresses</span></a>
                             <div class="dropdown-divider"></div>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    <span>Log Out</span>
-                                </button>
+                                <button type="submit"><i class="fas fa-sign-out-alt"></i> <span>Log Out</span></button>
                             </form>
                         </div>
                     </div>
@@ -134,14 +185,8 @@
                              class="user-dropdown-menu"
                              style="display: none;"
                              x-cloak>
-                            <a href="{{ route('login') }}">
-                                <i class="fas fa-sign-in-alt"></i>
-                                <span>Login</span>
-                            </a>
-                            <a href="{{ route('register') }}">
-                                <i class="fas fa-user-plus"></i>
-                                <span>Register</span>
-                            </a>
+                            <a href="{{ route('login') }}"><i class="fas fa-sign-in-alt"></i> <span>Login</span></a>
+                            <a href="{{ route('register') }}"><i class="fas fa-user-plus"></i> <span>Register</span></a>
                         </div>
                     </div>
                 @endauth
@@ -159,38 +204,7 @@
         </div>
     </div>
 
-    <!-- Secondary Navigation Bar (Links below search) -->
-    <div class="hidden sm:block border-t border-white border-opacity-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-center gap-8 py-3">
-                <a href="{{ route('home') }}" class="nav-link-secondary {{ request()->routeIs('home') ? 'active' : '' }}">
-                    <i class="fas fa-home"></i> Home
-                </a>
-                @auth
-                    <a href="{{ Auth::user()->hasRole(['super-admin', 'admin']) ? route('admin.dashboard') : route('dashboard') }}" class="nav-link-secondary {{ request()->routeIs('admin.dashboard', 'dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
-                @endauth
-                <a href="{{ route('products.index') }}" class="nav-link-secondary {{ request()->routeIs('products.index') ? 'active' : '' }}">
-                    <i class="fas fa-wine-bottle"></i> Products
-                </a>
-                <a href="{{ route('categories.index') }}" class="nav-link-secondary {{ request()->routeIs('categories.index') ? 'active' : '' }}">
-                    <i class="fas fa-th-large"></i> Categories
-                </a>
-                <a href="{{ route('about') }}" class="nav-link-secondary {{ request()->routeIs('about') ? 'active' : '' }}">
-                    <i class="fas fa-info-circle"></i> About
-                </a>
-                <a href="{{ route('contact') }}" class="nav-link-secondary {{ request()->routeIs('contact') ? 'active' : '' }}">
-                    <i class="fas fa-envelope"></i> Contact
-                </a>
-                @auth
-                    <a href="{{ route('orders.index') }}" class="nav-link-secondary {{ request()->routeIs('orders.index') ? 'active' : '' }}">
-                        <i class="fas fa-box"></i> Orders
-                    </a>
-                @endauth
-            </div>
-        </div>
-    </div>
+    <!-- REMOVED: Secondary Navigation Bar (now in dropdown) -->
 
     <!-- Responsive Navigation Menu (Mobile) -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden mobile-menu">
@@ -200,18 +214,8 @@
                 @foreach(request()->except(['search', 'page']) as $key => $value)
                     <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                 @endforeach
-
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="search-input" 
-                    placeholder="Search products..." 
-                    value="{{ request('search') }}"
-                    autocomplete="off"
-                >
-                <button type="submit" class="search-button">
-                    <i class="fas fa-search"></i>
-                </button>
+                <input type="text" name="search" class="search-input" placeholder="Search products..." value="{{ request('search') }}" autocomplete="off">
+                <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
             </form>
         </div>
 
@@ -219,51 +223,31 @@
         <div class="mobile-icons">
             <a href="{{ route('wishlist.index') }}" class="nav-icon-link" title="Wishlist">
                 <i class="fas fa-heart"></i>
-                @if($wishlistCount > 0)
-                    <span class="nav-badge">{{ $wishlistCount }}</span>
-                @endif
+                @if($wishlistCount > 0)<span class="nav-badge">{{ $wishlistCount }}</span>@endif
             </a>
             <a href="{{ route('cart.index') }}" class="nav-icon-link" title="Shopping Cart">
                 <i class="fas fa-shopping-cart"></i>
-                @if($cartCount > 0)
-                    <span class="nav-badge">{{ $cartCount }}</span>
-                @endif
+                @if($cartCount > 0)<span class="nav-badge">{{ $cartCount }}</span>@endif
             </a>
         </div>
 
         <!-- Mobile Navigation Links -->
         <div class="mobile-nav-links">
-            <a href="{{ route('home') }}" class="mobile-nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
-                <i class="fas fa-home"></i> Home
-            </a>
+            <a href="{{ route('home') }}" class="mobile-nav-link {{ request()->routeIs('home') ? 'active' : '' }}"><i class="fas fa-home"></i> Home</a>
             @auth
-                <a href="{{ Auth::user()->hasRole(['super-admin', 'admin']) ? route('admin.dashboard') : route('dashboard') }}" class="mobile-nav-link {{ request()->routeIs('admin.dashboard', 'dashboard') ? 'active' : '' }}">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
+                <a href="{{ Auth::user()->hasRole(['super-admin', 'admin']) ? route('admin.dashboard') : route('dashboard') }}" class="mobile-nav-link {{ request()->routeIs('admin.dashboard', 'dashboard') ? 'active' : '' }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
             @endauth
-            <a href="{{ route('products.index') }}" class="mobile-nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}">
-                <i class="fas fa-wine-bottle"></i> Products
-            </a>
-            <a href="{{ route('categories.index') }}" class="mobile-nav-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">
-                <i class="fas fa-th-large"></i> Categories
-            </a>
-            <a href="{{ route('about') }}" class="mobile-nav-link {{ request()->routeIs('about') ? 'active' : '' }}">
-                <i class="fas fa-info-circle"></i> About
-            </a>
-            <a href="{{ route('contact') }}" class="mobile-nav-link {{ request()->routeIs('contact') ? 'active' : '' }}">
-                <i class="fas fa-envelope"></i> Contact
-            </a>
+            <a href="{{ route('products.index') }}" class="mobile-nav-link {{ request()->routeIs('products.index') ? 'active' : '' }}"><i class="fas fa-wine-bottle"></i> Products</a>
+            <a href="{{ route('categories.index') }}" class="mobile-nav-link {{ request()->routeIs('categories.index') ? 'active' : '' }}"><i class="fas fa-th-large"></i> Categories</a>
+            <a href="{{ route('about') }}" class="mobile-nav-link {{ request()->routeIs('about') ? 'active' : '' }}"><i class="fas fa-info-circle"></i> About</a>
+            <a href="{{ route('contact') }}" class="mobile-nav-link {{ request()->routeIs('contact') ? 'active' : '' }}"><i class="fas fa-envelope"></i> Contact</a>
             @auth
-                <a href="{{ route('addresses.index') }}" class="mobile-nav-link {{ request()->routeIs('addresses.index') ? 'active' : '' }}">
-                    <i class="fas fa-map-marker-alt"></i> Addresses
-                </a>
-                <a href="{{ route('orders.index') }}" class="mobile-nav-link {{ request()->routeIs('orders.index') ? 'active' : '' }}">
-                    <i class="fas fa-box"></i> Orders
-                </a>
+                <a href="{{ route('addresses.index') }}" class="mobile-nav-link {{ request()->routeIs('addresses.index') ? 'active' : '' }}"><i class="fas fa-map-marker-alt"></i> Addresses</a>
+                <a href="{{ route('orders.index') }}" class="mobile-nav-link {{ request()->routeIs('orders.index') ? 'active' : '' }}"><i class="fas fa-box"></i> Orders</a>
             @endauth
         </div>
 
-        <!-- Mobile Auth Section -->
+        <!-- Mobile Auth -->
         @auth
             <div class="pt-4 pb-1 border-t border-white border-opacity-20">
                 <div class="px-4 mb-3">
@@ -271,26 +255,17 @@
                     <div class="font-medium text-sm text-gray-300">{{ Auth::user()->email }}</div>
                 </div>
                 <div class="space-y-1">
-                    <a href="{{ route('profile.edit') }}" class="mobile-nav-link">
-                        <i class="fas fa-user"></i> Profile
-                    </a>
+                    <a href="{{ route('profile.edit') }}" class="mobile-nav-link"><i class="fas fa-user"></i> Profile</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="mobile-nav-link w-full text-left">
-                            <i class="fas fa-sign-out-alt"></i> Log Out
-                        </button>
+                        <button type="submit" class="mobile-nav-link w-full text-left"><i class="fas fa-sign-out-alt"></i> Log Out</button>
                     </form>
                 </div>
             </div>
         @else
-            <!-- Mobile Auth Buttons -->
             <div class="mobile-auth-buttons">
-                <a href="{{ route('login') }}" class="mobile-nav-link">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </a>
-                <a href="{{ route('register') }}" class="mobile-nav-link">
-                    <i class="fas fa-user-plus"></i> Register
-                </a>
+                <a href="{{ route('login') }}" class="mobile-nav-link"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="{{ route('register') }}" class="mobile-nav-link"><i class="fas fa-user-plus"></i> Register</a>
             </div>
         @endauth
     </div>
@@ -438,26 +413,6 @@
     margin: 8px 0;
     overflow: hidden;
     border-top: 1px solid #e9ecef;
-}
-
-/* Secondary Navigation Links */
-.nav-link-secondary {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    padding: 4px 0;
-    border-bottom: 2px solid transparent;
-}
-
-.nav-link-secondary:hover,
-.nav-link-secondary.active {
-    color: #ecc94b;
-    border-bottom-color: #ecc94b;
 }
 
 /* Hamburger */
