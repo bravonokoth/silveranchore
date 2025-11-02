@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/CheckoutController.php
 
 namespace App\Http\Controllers;
 
@@ -11,9 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use App\Mail\OrderConfirmed;
+use App\Mail\OrderDelivered;
 use Illuminate\Support\Facades\Mail;
-
-
+use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
@@ -45,101 +46,121 @@ class CheckoutController extends Controller
         return view('checkout.index', compact('cartItems', 'total', 'addresses'));
     }
 
-   public function store(Request $request)
-{
-    \Log::info('=== GUEST CHECKOUT START ===');
-    \Log::info('User: ' . (Auth::check() ? 'LOGGED IN' : 'GUEST'));
-    \Log::info('Form Data: ', $request->all());
+    public function store(Request $request)
+    {
+        Log::info('=== GUEST CHECKOUT START ===');
+        Log::info('User: ' . (Auth::check() ? 'LOGGED IN' : 'GUEST'));
+        Log::info('Form Data: ', $request->all());
 
-    $request->validate([
-        'shipping_address.name' => 'required|string|max:255',
-        'shipping_address.email' => 'required|email|max:255',
-        'shipping_address.phone' => 'required|string|max:20',
-        'shipping_address.line1' => 'required|string|max:255',
-        'shipping_address.city' => 'required|string|max:100',
-        'shipping_address.country' => 'required|string|max:100',
-        'total' => 'required|numeric|min:0',
-    ]);
-
-    \Log::info('VALIDATION PASSED');
-
-    DB::beginTransaction();
-
-    try {
-        $user = Auth::user();
-        $sessionId = Session::getId();
-
-        // 1. Create Shipping Address
-        $shippingData = $request->input('shipping_address');
-        $shippingData['phone_number'] = $shippingData['phone'];
-        $shippingData['type'] = 'shipping';
-        if ($user) {
-            $shippingData['user_id'] = $user->id;
-        } else {
-            $shippingData['session_id'] = $sessionId;
-        }
-        unset($shippingData['phone']);
-        $shippingAddress = Address::create($shippingData);
-
-        $billingAddress = $shippingAddress;
-
-        // 2. Get Cart Items
-        $cartItems = CartItem::where(function ($query) use ($user, $sessionId) {
-            if ($user) $query->where('user_id', $user->id);
-            else $query->where('session_id', $sessionId);
-        })->with('product')->get();
-
-        if ($cartItems->isEmpty()) {
-            throw new \Exception('Cart is empty');
-        }
-
-        // 3. Create Order
-        $order = Order::create([
-            'user_id' => $user?->id,
-            'session_id' => $user ? null : $sessionId,
-            'email' => $shippingData['email'],
-            'total' => $request->total,
-            'status' => 'pending',
-            'shipping_address_id' => $shippingAddress->id,
-            'billing_address_id' => $billingAddress->id,
+        $request->validate([
+            'shipping_address.name' => 'required|string|max:255',
+            'shipping_address.email' => 'required|email|max:255',
+            'shipping_address.phone' => 'required|string|max:20',
+            'shipping_address.line1' => 'required|string|max:255',
+            'shipping_address.city' => 'required|string|max:100',
+            'shipping_address.country' => 'required|string|max:100',
+            'total' => 'required|numeric|min:0',
         ]);
 
-        // 4. Order Items
-        foreach ($cartItems as $item) {
-            if ($item->product) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->price,
-                ]);
+        Log::info('VALIDATION PASSED');
+
+        DB::beginTransaction();
+
+        try {
+            $user = Auth::user();
+            $sessionId = Session::getId();
+
+            // 1. Create Shipping Address
+            $shippingData = $request->input('shipping_address');
+            $shippingData['phone_number'] = $shippingData['phone'];
+            $shippingData['type'] = 'shipping';
+            if ($user) {
+                $shippingData['user_id'] = $user->id;
+            } else {
+                $shippingData['session_id'] = $sessionId;
             }
+            unset($shippingData['phone']);
+            $shippingAddress = Address::create($shippingData);
+
+            $billingAddress = $shippingAddress;
+
+            // 2. Get Cart Items
+            $cartItems = CartItem::where(function ($query) use ($user, $sessionId) {
+                if ($user) $query->where('user_id', $user->id);
+                else $query->where('session_id', $sessionId);
+            })->with('product')->get();
+
+            if ($cartItems->isEmpty()) {
+                throw new \Exception('Cart is empty');
+            }
+
+            // 3. Create Order
+            $order = Order::create([
+                'user_id' => $user?->id,
+                'session_id' => $user ? null : $sessionId,
+                'email' => $shippingData['email'],
+                'total' => $request->total,
+                'status' => 'pending',
+                'payment_status' => 'pending',
+                'payment_method' => 'paystack',
+                'shipping_address_id' => $shippingAddress->id,
+                'billing_address_id' => $billingAddress->id,
+            ]);
+
+            // 4. Order Items
+            foreach ($cartItems as $item) {
+                if ($item->product) {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'product_id' => $item->product_id,
+                        'quantity' => $item->quantity,
+                        'price' => $item->product->price,
+                    ]);
+                }
+            }
+
+            // 5. Clear Cart
+            if ($user) {
+                CartItem::where('user_id', $user->id)->delete();
+            } else {
+                CartItem::where('session_id', $sessionId)->delete();
+            }
+
+            DB::commit();
+            Log::info('TRANSACTION SUCCESS - Order ID: ' . $order->id);
+
+            // SEND EMAIL AFTER COMMIT
+            try {
+                // Ensure relationships are loaded
+                $order->load(['shippingAddress', 'items.product']);
+                
+                Mail::to($order->email)->queue(new OrderConfirmed($order));
+                
+                Log::info('Order confirmation email queued', [
+                    'order_id' => $order->id,
+                    'email' => $order->email
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to queue order confirmation email', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                // Don't fail the checkout if email fails
+            }
+
+            // 6. Redirect to Paystack
+            return redirect()->route('payment.initialize', [
+                'order_id' => $order->id,
+                'email' => $shippingData['email'],
+                'amount' => $request->total
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('CHECKOUT FAILED: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return back()->with('error', 'Checkout failed: ' . $e->getMessage())->withInput();
         }
-
-        // 5. Clear Cart
-        if ($user) {
-            CartItem::where('user_id', $user->id)->delete();
-        } else {
-            CartItem::where('session_id', $sessionId)->delete();
-        }
-
-        DB::commit();
-        \Log::info('TRANSACTION SUCCESS');
-
-        // SEND EMAIL AFTER COMMIT
-        Mail::to($order->email)->queue(new OrderConfirmed($order));
-
-        // 6. Redirect to Paystack
-        return redirect()->route('payment.initialize', [
-            'order_id' => $order->id,
-            'email' => $shippingData['email'],
-            'amount' => $request->total
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        \Log::error('CHECKOUT FAILED: ' . $e->getMessage());
-        return back()->with('error', 'Checkout failed: ' . $e->getMessage())->withInput();
     }
-}
 }

@@ -189,10 +189,12 @@ Route::prefix('admin')
         Route::post('/orders/{order}/drop', [AdminOrderController::class, 'drop'])->name('admin.orders.drop');
         Route::resource('orders', AdminOrderController::class)->names('admin.orders')->only(['index', 'show', 'edit', 'update', 'destroy']);
 
-        // 🔔 Notifications
-        Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
-        Route::patch('/notifications/{notification}/read', [AdminNotificationController::class, 'markAsRead'])
-            ->name('admin.notifications.read');
+        // Notifications
+Route::prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead'])
+        ->name('notifications.markAsRead'); // Fixed!
+});
 
         // 👑 Profile
         Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');

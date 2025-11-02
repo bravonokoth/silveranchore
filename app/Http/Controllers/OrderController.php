@@ -6,10 +6,12 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Address;
+use App\Mail\OrderConfirmed;
 use App\Models\Notification;
 use App\Events\NotificationSent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Unicodeveloper\Paystack\Facades\Paystack;
@@ -220,7 +222,27 @@ class OrderController extends Controller
             DB::commit();
             Log::info('✅ TRANSACTION COMMITTED');
 
-            // 6. Fire notification event
+          // 6. SEND ORDER CONFIRMATION EMAIL (ADDED)
+            try {
+                // Load relationships needed for email
+                $order->load(['shippingAddress', 'items.product']);
+                
+                Mail::to($order->email)->queue(new OrderConfirmed($order));
+                
+                Log::info('📧 Order confirmation email queued', [
+                    'order_id' => $order->id,
+                    'email' => $order->email
+                ]);
+            } catch (\Exception $e) {
+                Log::error('❌ Failed to queue order confirmation email', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                // Continue even if email fails - don't break checkout
+            }
+
+            // 7. Fire notification event
             event(new NotificationSent(
                 "Order #{$order->id} created successfully.",
                 $order->email,
