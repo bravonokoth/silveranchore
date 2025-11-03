@@ -1,18 +1,16 @@
 <?php
-// app/Http/Controllers/NotificationController.php
 
 namespace App\Http\Controllers;
 
-use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['index', 'markAsRead']);
+        $this->middleware('auth')->except(['index', 'markAsRead', 'markAllRead']);
     }
 
     public function index()
@@ -20,36 +18,40 @@ class NotificationController extends Controller
         $user = Auth::user();
         $sessionId = session()->getId();
 
-        $userNotifications = $user?->notifications()->latest()->get() ?? collect();
+        $notifications = collect();
 
-        $guestNotifications = Notification::query()
+        if ($user) {
+            $notifications = $user->notifications()->latest()->get();
+        }
+
+        // Guest notifications (stored with session_id in data)
+        $guestNotifications = DatabaseNotification::query()
+            ->whereNull('notifiable_type')
             ->whereNull('notifiable_id')
             ->whereJsonContains('data->session_id', $sessionId)
             ->latest()
             ->get();
 
-        $notifications = $userNotifications
-            ->merge($guestNotifications)
+        $notifications = $notifications->merge($guestNotifications)
             ->sortByDesc('created_at')
             ->values();
 
-    $isAdmin = $user && $user->hasRole(['admin', 'super-admin']);
+        $isAdmin = $user?->is_admin ?? false;
 
-    return view('notifications.index', compact('notifications', 'isAdmin'));
+        return view('notifications.index', compact('notifications', 'isAdmin'));
     }
 
-public function markAllRead()
+    public function markAllRead()
     {
         $user = Auth::user();
         $sessionId = session()->getId();
 
         if ($user) {
-            // Mark all user notifications as read
-            $user->unreadNotifications()->update(['read_at' => now()]);
+            $user->unreadNotifications->markAsRead();
         }
 
-        // Mark all guest notifications for this session as read
-        Notification::query()
+        DatabaseNotification::query()
+            ->whereNull('notifiable_type')
             ->whereNull('notifiable_id')
             ->whereNull('read_at')
             ->whereJsonContains('data->session_id', $sessionId)
@@ -57,19 +59,34 @@ public function markAllRead()
 
         return back()->with('success', 'All notifications marked as read');
     }
-public function destroy(Notification $notification)
+
+    public function markAsRead(DatabaseNotification $notification)
     {
-        $canDelete = 
-            ($notification->notifiable_id && Auth::id() && $notification->notifiable_id == Auth::id()) ||
-            (!$notification->notifiable_id && isset($notification->data['session_id']) && $notification->data['session_id'] === session()->getId());
+        $this->authorizeNotification($notification);
+        $notification->markAsRead();
 
-        if (!$canDelete) {
-            abort(403, 'Unauthorized to delete this notification');
-        }
+        return response()->json(['success' => true]);
+    }
 
+    public function destroy(DatabaseNotification $notification)
+    {
+        $this->authorizeNotification($notification);
         $notification->delete();
 
         return back()->with('success', 'Notification deleted');
     }
 
+    protected function authorizeNotification($notification)
+    {
+        $user = Auth::user();
+        $sessionId = session()->getId();
+
+        $canAccess = 
+            ($notification->notifiable_id && $user && $notification->notifiable_id == $user->id) ||
+            (!$notification->notifiable_id && 
+             isset($notification->data['session_id']) && 
+             $notification->data['session_id'] === $sessionId);
+
+        if (!$canAccess) abort(403);
+    }
 }

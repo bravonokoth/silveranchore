@@ -147,7 +147,7 @@ class OrderController extends Controller
                     'type' => 'shipping',
                     'name' => $validated['shipping_address']['name'],
                     'email' => $validated['shipping_address']['email'],
-                    'phone_number' => $validated['shipping_address']['phone'], // ✅ FIXED: was phone_number
+                    'phone_number' => $validated['shipping_address']['phone'], 
                     'line1' => $validated['shipping_address']['line1'],
                     'line2' => $validated['shipping_address']['line2'] ?? null,
                     'city' => $validated['shipping_address']['city'],
@@ -171,7 +171,7 @@ class OrderController extends Controller
                     'type' => 'billing',
                     'name' => $validated['billing_address']['name'],
                     'email' => $validated['billing_address']['email'],
-                    'phone_number' => $validated['billing_address']['phone'], // ✅ FIXED: was phone_number
+                    'phone_number' => $validated['billing_address']['phone'], 
                     'line1' => $validated['billing_address']['line1'],
                     'line2' => $validated['billing_address']['line2'] ?? null,
                     'city' => $validated['billing_address']['city'],
@@ -220,36 +220,38 @@ class OrderController extends Controller
                 : CartItem::where('session_id', $sessionId)->delete();
             Log::info('✅ Cart Cleared');
 
-            DB::commit();
-            Log::info('✅ TRANSACTION COMMITTED');
+        DB::commit();
+Log::info('TRANSACTION COMMITTED');
 
-          // 6. SEND ORDER CONFIRMATION EMAIL (ADDED)
-            try {
-                // Load relationships needed for email
-                $order->load(['shippingAddress', 'items.product']);
-                
-                Mail::to($order->email)->queue(new OrderConfirmed($order));
-                
-                Log::info('📧 Order confirmation email queued', [
-                    'order_id' => $order->id,
-                    'email' => $order->email
-                ]);
-            } catch (\Exception $e) {
-                Log::error('❌ Failed to queue order confirmation email', [
-                    'order_id' => $order->id,
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-                // Continue even if email fails - don't break checkout
-            }
 
-            // 7. Fire notification event
-            event(new NotificationSent(
-                "Order #{$order->id} created successfully.",
-                $order->email,
-                $order->user_id,
-                $order->session_id
-            ));
+
+// -------------------------------------------------
+// 2. SEND CUSTOMER CONFIRMATION EMAIL
+// -------------------------------------------------
+try {
+    $order->load(['shippingAddress', 'items.product']);
+    Mail::to($order->email)->queue(new \App\Mail\OrderConfirmed($order));
+
+    Log::info('Order confirmation email queued', [
+        'order_id' => $order->id,
+        'email'    => $order->email,
+    ]);
+} catch (\Exception $e) {
+    Log::error('Failed to queue customer email', [
+        'order_id' => $order->id,
+        'error'    => $e->getMessage(),
+    ]);
+}
+
+// -------------------------------------------------
+// 3. FIRE EVENT (optional)
+// -------------------------------------------------
+event(new \App\Events\NotificationSent(
+    "Order #{$order->id} created successfully.",
+    $order->email,
+    $order->user_id,
+    $order->session_id
+));
 
             // 7. Initialize payment
             Log::info('🔥 INITIALIZING PAYMENT METHOD: ' . $validated['payment_method']);
