@@ -1,3 +1,15 @@
+<!-- TOP ANNOUNCEMENT BAR -->
+<div class="announcement-bar">
+    <div class="announcement-content">
+        <i class="fas fa-bullhorn announcement-icon"></i>
+        <span class="announcement-text">
+            <strong>Special Offer!</strong> Free delivery on orders over KSh 5,000 
+            <a href="{{ route('products.index') }}" class="announcement-link">Shop Now</a>
+        </span>
+    </div>
+</div>
+
+<!-- MAIN NAVIGATION -->
 <nav x-data="{ open: false }" class="navbar-wine">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -204,8 +216,6 @@
         </div>
     </div>
 
-    <!-- REMOVED: Secondary Navigation Bar (now in dropdown) -->
-
     <!-- Responsive Navigation Menu (Mobile) -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden mobile-menu">
         <!-- Mobile Search -->
@@ -272,26 +282,98 @@
 </nav>
 
 <style>
+/* ==================== TOP ANNOUNCEMENT BAR ==================== */
+.announcement-bar {
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+  color: #fff;
+  padding: 8px 20px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  position: relative;
+  z-index: 60;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.announcement-bar .announcement-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.announcement-bar .announcement-icon {
+  font-size: 14px;
+  color: #B8D9F7;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+.announcement-bar .announcement-text {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.announcement-bar .announcement-text strong {
+  color: #B8D9F7;
+  font-weight: 700;
+}
+
+.announcement-bar .announcement-link {
+  color: #B8D9F7;
+  text-decoration: underline;
+  margin-left: 5px;
+  transition: color 0.3s ease;
+}
+
+.announcement-bar .announcement-link:hover {
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .announcement-bar {
+    height: 30px;
+    padding: 6px 15px;
+    font-size: 12px;
+  }
+  
+  .announcement-bar .announcement-icon {
+    font-size: 12px;
+  }
+  
+  .announcement-bar .announcement-text {
+    font-size: 11px;
+  }
+}
+
+/* ==================== NAVBAR STYLES ==================== */
 [x-cloak] {
     display: none !important;
 }
 
-/* Wine Background for Navbar */
 .navbar-wine {
-    background: #722f37;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #4A90E2 0%, #1E88E5 100%);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
     position: relative;
     z-index: 50;
 }
 
-/* Search Form Styling */
 .search-form {
     display: flex;
     align-items: center;
     background: white;
     border-radius: 50px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
 }
 
 .search-input {
@@ -309,24 +391,24 @@
 }
 
 .search-button {
-    padding: 12px 28px;
-    background: #d69e2e;
+    padding: 18px 36px;
+    background: linear-gradient(135deg, #851ee5, #4A90E2);
     border: none;
     color: white;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
 .search-button:hover {
-    background: #b7791f;
+    background: linear-gradient(135deg, #4A90E2, #2C5F99);
+    box-shadow: 0 0 15px rgba(74, 144, 226, 0.3);
 }
 
-/* Navigation Icons */
 .nav-icon-link {
     position: relative;
     color: white;
@@ -336,15 +418,16 @@
 }
 
 .nav-icon-link:hover {
-    color: #ecc94b;
+    color: #B8D9F7;
     transform: scale(1.1);
+    filter: drop-shadow(0 0 8px rgba(184, 217, 247, 0.8));
 }
 
 .nav-badge {
     position: absolute;
     top: 0;
     right: 0;
-    background: #dc3545;
+    background: linear-gradient(135deg, #ff4757, #ff6348);
     color: white;
     font-size: 10px;
     font-weight: 600;
@@ -352,17 +435,17 @@
     border-radius: 10px;
     min-width: 18px;
     text-align: center;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4);
 }
 
-/* User Dropdown */
 .user-dropdown-trigger {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 50px;
     font-size: 14px;
     font-weight: 500;
@@ -371,7 +454,8 @@
 }
 
 .user-dropdown-trigger:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .user-dropdown-menu {
@@ -383,8 +467,9 @@
     padding: 8px 0;
     margin-top: 8px;
     background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(74, 144, 226, 0.2);
+    border: 1px solid rgba(74, 144, 226, 0.1);
 }
 
 .user-dropdown-menu a,
@@ -405,26 +490,30 @@
 
 .user-dropdown-menu a:hover,
 .user-dropdown-menu button:hover {
-    background-color: #f7fafc;
+    background: linear-gradient(135deg, #E8F4FD, #B8D9F7);
+    color: #2C5F99;
 }
 
 .dropdown-divider {
     height: 0;
     margin: 8px 0;
     overflow: hidden;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid rgba(74, 144, 226, 0.2);
 }
 
-/* Hamburger */
 .hamburger {
     color: white;
     padding: 8px;
+    transition: all 0.3s ease;
 }
 
-/* Mobile Menu */
+.hamburger:hover {
+    transform: scale(1.1);
+}
+
 .mobile-menu {
-    background: #722f37;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, #4A90E2 0%, #1E88E5 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .mobile-search {
@@ -436,7 +525,7 @@
     justify-content: center;
     gap: 2rem;
     padding: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .mobile-nav-links {
@@ -453,13 +542,14 @@
     color: white;
     text-decoration: none;
     font-size: 15px;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .mobile-nav-link:hover,
 .mobile-nav-link.active {
-    background: rgba(255, 255, 255, 0.1);
-    color: #ecc94b;
+    background: rgba(255, 255, 255, 0.15);
+    color: #B8D9F7;
+    border-left: 4px solid #B8D9F7;
 }
 
 .mobile-auth-buttons {
@@ -467,6 +557,6 @@
     flex-direction: column;
     padding: 1rem;
     gap: 0.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 </style>

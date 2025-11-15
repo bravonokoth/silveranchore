@@ -7,6 +7,17 @@
   font-family: 'Inter', sans-serif; 
 }
 
+/* ==================== ICE COLD THEME COLORS ==================== */
+:root {
+  --ice-blue: #4A90E2;
+  --ice-light: #7AB8F5;
+  --ice-dark: #2C5F99;
+  --ice-pale: #E8F4FD;
+  --ice-frost: #B8D9F7;
+  --ice-accent: #1E88E5;
+  --ice-glow: rgba(74, 144, 226, 0.3);
+}
+
 /* General Styles */
 body {
   background: #f7fafc;
@@ -36,10 +47,9 @@ body.dark {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #f7fafc;
+  background: linear-gradient(135deg, var(--ice-pale) 0%, var(--ice-frost) 100%);
 }
 
-/* Fix: Make image fill the container */
 .hero-slide,
 .hero-image {
   width: 100% !important;
@@ -48,14 +58,12 @@ body.dark {
   display: block;
 }
 
-/* Slick track/list must match hero size */
 .hero-slider .slick-list,
 .hero-slider .slick-track {
   width: 100% !important;
   height: 100% !important;
 }
 
-/* Optional: Fade transition */
 .hero-slider .slick-slide {
   opacity: 0;
   transition: opacity 1s ease;
@@ -64,23 +72,20 @@ body.dark {
   opacity: 1;
 }
 
-/* Keep your original background fallback (optional) */
 .hero-background {
   position: absolute;
   top: 0; left: 0;
   width: 100%;
   height: 100%;
   background: url('/images/pexels.jpg') no-repeat center center/cover;
-  filter: brightness(0.6);
+  filter: brightness(0.7) saturate(1.2) hue-rotate(200deg);
   z-index: 1;
 }
 
-/* Hide fallback img if using Slick */
 .hero-background img.hero-image {
   display: none;
 }
 
-/* Keep your content styling */
 .hero-content {
   position: relative;
   z-index: 2;
@@ -94,13 +99,14 @@ body.dark {
   font-size: 3.5rem;
   margin-bottom: 20px;
   letter-spacing: 1px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 4px 12px rgba(74, 144, 226, 0.8);
 }
 
 .hero-content p {
   font-size: 1.2rem;
   line-height: 1.6;
   margin-bottom: 30px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .cta-buttons {
@@ -109,27 +115,30 @@ body.dark {
 }
 
 .cta-button {
-  background: var(--gold);
+  background: linear-gradient(135deg, var(--ice-blue), var(--ice-accent));
   color: #fff;
   padding: 15px 30px;
   border: none;
-  border-radius: 5px;
+  border-radius: 50px;
   font-size: 1.1rem;
   cursor: pointer;
   text-decoration: none;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px var(--ice-glow);
 }
 
 .cta-button:hover {
-  background: var(--gold-dark);
+  background: linear-gradient(135deg, var(--ice-accent), var(--ice-blue));
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px var(--ice-glow);
 }
 
 .cta-button.secondary {
-  background: #4a5568;
+  background: linear-gradient(135deg, var(--ice-light), var(--ice-blue));
 }
 
 .cta-button.secondary:hover {
-  background: #2d3748;
+  background: linear-gradient(135deg, var(--ice-blue), var(--ice-light));
 }
 
 body.dark .hero-section {
@@ -1482,7 +1491,7 @@ html, body {
   width: 100vw;
   max-width: none;
   margin: 0;
-  background: #10182F;
+  background: linear-gradient(135deg, var(--ice-dark) 0%, #1a3d5c 100%);
   border-radius: 0;
   z-index: 1;
 }
