@@ -444,7 +444,7 @@
     gap: 8px;
     padding: 8px 16px;
     background: rgba(255, 255, 255, 0.15);
-    color: white;
+    color: rgb(255, 255, 255);
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 50px;
     font-size: 14px;
@@ -466,7 +466,7 @@
     min-width: 200px;
     padding: 8px 0;
     margin-top: 8px;
-    background-color: white;
+    background-color: rgb(143, 234, 250);
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(74, 144, 226, 0.2);
     border: 1px solid rgba(74, 144, 226, 0.1);
