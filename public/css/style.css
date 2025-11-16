@@ -442,10 +442,10 @@ section.max-w-7xl .js-slick-carousel .category-card .category-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.85);
+  filter: brightness(0.75); /* Darker to make text more visible */
 }
 
-/* Overlay - ALWAYS VISIBLE with light opacity */
+/* Overlay - ALWAYS VISIBLE with stronger opacity */
 section.max-w-7xl .js-slick-carousel .category-card .overlay {
   position: absolute;
   top: 0;
@@ -453,8 +453,8 @@ section.max-w-7xl .js-slick-carousel .category-card .overlay {
   width: 100%;
   height: 100%;
   background: linear-gradient(135deg, 
-    rgba(74, 144, 226, 0.4) 0%, 
-    rgba(30, 136, 229, 0.6) 100%);
+    rgba(74, 144, 226, 0.5) 0%, 
+    rgba(30, 136, 229, 0.7) 100%); /* Stronger opacity by default */
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -466,26 +466,28 @@ section.max-w-7xl .js-slick-carousel .category-card .overlay {
 
 section.max-w-7xl .js-slick-carousel .category-card:hover .overlay {
   background: linear-gradient(135deg, 
-    rgba(74, 144, 226, 0.6) 0%, 
-    rgba(30, 136, 229, 0.8) 100%);
+    rgba(74, 144, 226, 0.7) 0%, 
+    rgba(30, 136, 229, 0.9) 100%); /* Even stronger on hover */
 }
 
-/* Category Name - ALWAYS VISIBLE */
+/* Category Name - ALWAYS VISIBLE with stronger shadow */
 section.max-w-7xl .js-slick-carousel .category-card h3 {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 700; /* Bolder */
   color: #fff;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8); /* Stronger shadow */
   opacity: 1; /* Always visible */
+  letter-spacing: 0.5px;
 }
 
 section.max-w-7xl .js-slick-carousel .category-card .product-count {
-  color: rgba(255, 255, 255, 0.95);
+  color: rgba(255, 255, 255, 1); /* Fully opaque */
   font-size: 0.95rem;
   margin-bottom: 1rem;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); /* Stronger shadow */
   opacity: 1; /* Always visible */
+  font-weight: 500;
 }
 
 /* View Products Link - ONLY SHOWS ON HOVER */
@@ -514,294 +516,352 @@ section.max-w-7xl .js-slick-carousel .category-card:hover a {
 }
 
 /* ==================== PRODUCT CAROUSEL - REDUCED HEIGHT, 4-5 GRID ==================== */
-.js-slick-carousel {
-  margin: 0 -12px;
-}
-
-.js-slick-carousel .js-slide {
-  padding: 0 12px;
-  height: auto;
-}
-
 .js-slick-carousel .card {
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
-  transition: transform 0.3s, box-shadow 0.3s;
-  height: 460px; /* Increased slightly to fit all content */
-  display: flex;
-  flex-direction: column;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(74, 144, 226, 0.12);
+    transition: all 0.3s ease;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    position: relative;
 }
 
 .js-slick-carousel .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 35px rgba(74, 144, 226, 0.25);
+}
+
+/* Product Image - Clickable - MAXIMIZED HEIGHT */
+.js-slick-carousel .position-relative {
+    position: relative;
+    height: 270px; /* Increased from 250px */
+    flex-shrink: 0;
+    background: var(--ice-pale);
+    cursor: pointer;
+    overflow: hidden;
 }
 
 .js-slick-carousel .card-img-top {
-  width: 100%;
-  height: 160px; /* REDUCED further */
-  object-fit: cover;
-  flex-shrink: 0;
-  background: var(--ice-pale);
-  padding: 8px;
+    width: 100%;
+    height: 270px; /* Increased from 250px */
+    object-fit: cover;
+    transition: transform 0.4s ease;
 }
 
-.js-slick-carousel .position-relative {
-  position: relative;
-  height: 160px; /* REDUCED further */
-  flex-shrink: 0;
-  background: var(--ice-pale);
+.js-slick-carousel .card:hover .card-img-top {
+    transform: scale(1.08);
 }
 
-.js-slick-carousel .badge {
-  font-size: 0.65rem;
-  padding: 0.2rem 0.4rem;
-}
-
-.js-slick-carousel .badge-success {
-  background: #38a169;
-  color: #fff;
-}
-
-.js-slick-carousel .badge-danger {
-  background: #e53e3e;
-  color: #fff;
-}
-
-.js-slick-carousel .btn-icon {
-  width: 1.8rem;
-  height: 1.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-}
-
+/* Product Info Section - ULTRA COMPACT LAYOUT */
 .js-slick-carousel .card-body {
-  padding: 0.8rem;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+    padding: 0.4rem 1rem 0.3rem; /* Minimal padding */
+    flex-grow: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
+    align-items: center;
 }
 
-.js-slick-carousel .card-body a.text-secondary.small {
-  color: var(--ice-blue);
-  font-size: 0.7rem;
-  text-decoration: none;
-  display: inline-block;
-  margin-bottom: 0;
+/* LEFT SIDE - Product Name and Category */
+.js-slick-carousel .product-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    justify-content: center;
 }
 
-.js-slick-carousel .card-body a.text-secondary.small:hover {
-  color: var(--ice-accent);
-}
-
+/* Product Title - Clickable - Slightly Larger */
 .js-slick-carousel .card-body h3 {
-  font-size: 0.9rem; /* REDUCED */
-  font-weight: 500;
-  margin: 0;
-  line-height: 1.2;
-  min-height: 2.4rem; /* REDUCED */
+    font-size: 0.9rem; /* Increased from 0.85rem */
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.1;
 }
 
 .js-slick-carousel .card-body h3 a {
-  color: #1a202c;
-  text-decoration: none;
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+    color: #1a202c;
+    text-decoration: none;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    transition: color 0.3s ease;
 }
 
 .js-slick-carousel .card-body h3 a:hover {
-  color: var(--ice-blue);
+    color: var(--ice-blue);
 }
 
-/* Price Display */
-.js-slick-carousel .card-body .d-block.font-size-1 {
-  margin: 0.3rem 0;
+/* Category Link - Smaller, Italic, Light */
+.js-slick-carousel .card-body .product-category {
+    color: #94a3b8;
+    font-size: 0.65rem;
+    text-decoration: none;
+    display: block;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.3px;
+    transition: color 0.3s ease;
+    line-height: 1;
 }
 
-.js-slick-carousel .card-body .font-weight-medium {
-  font-size: 0.95rem;
-  color: #1a202c;
-  font-weight: 600;
+.js-slick-carousel .card-body .product-category:hover {
+    color: var(--ice-blue);
 }
 
-.js-slick-carousel .card-body .text-danger {
-  color: #e53e3e;
+/* RIGHT SIDE - Price and Stock */
+.js-slick-carousel .product-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    text-align: right;
+    justify-content: center;
 }
 
-.js-slick-carousel .card-body .text-secondary del {
-  font-size: 0.8rem;
-  color: #718096;
+/* Price Display - Italics */
+.js-slick-carousel .price-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+    align-items: flex-end;
 }
 
+.js-slick-carousel .current-price {
+    font-size: 1rem;
+    color: var(--ice-blue);
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+}
+
+.js-slick-carousel .original-price {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-decoration: line-through;
+    font-style: italic;
+    line-height: 1;
+}
+
+/* Stock Info */
+.js-slick-carousel .stock-info {
+    font-size: 0.65rem;
+    color: #10b981;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    line-height: 1;
+}
+
+.js-slick-carousel .stock-info i {
+    font-size: 0.6rem;
+}
+
+.js-slick-carousel .stock-info.out-of-stock {
+    color: #ef4444;
+}
+
+/* Card Footer - Buttons Section - MINIMAL PADDING */
 .js-slick-carousel .card-footer {
-  padding: 0 0.8rem 0.8rem;
-  background: transparent;
-  border: none;
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+    padding: 0.4rem 1rem 0.75rem; /* Reduced padding */
+    background: transparent;
+    border: none;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-/* Button Layout - Side by Side at TOP */
-.js-slick-carousel .btn-group {
-  display: flex;
-  gap: 6px;
-  width: 100%;
-  order: 1;
+/* Two Action Buttons - Simplified */
+.js-slick-carousel .action-buttons {
+    display: flex;
+    gap: 8px;
+    width: 100%;
 }
 
-.js-slick-carousel .btn-sm-wide {
-  flex: 1;
-  padding: 0.4rem 0.3rem;
-  font-size: 0.65rem;
-  border-radius: 8px;
-  border: 2px solid;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font-weight: 500;
-  white-space: nowrap;
+/* Add to Cart Button */
+.js-slick-carousel .add-to-cart-btn {
+    flex: 1;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.75rem;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--ice-blue), var(--ice-accent));
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: 0 4px 12px var(--ice-glow);
 }
 
-.js-slick-carousel .btn-sm-wide i {
-  font-size: 0.6rem;
+.js-slick-carousel .add-to-cart-btn:hover {
+    background: linear-gradient(135deg, var(--ice-accent), var(--ice-blue));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--ice-glow);
 }
 
-/* View Details Button - Left Side */
-.js-slick-carousel .btn-outline-info {
-  border-color: var(--ice-blue);
-  color: var(--ice-blue);
-  background: transparent;
+.js-slick-carousel .add-to-cart-btn i {
+    font-size: 0.7rem;
 }
 
-.js-slick-carousel .btn-outline-info:hover {
-  background: var(--ice-blue);
-  color: #fff;
-  box-shadow: 0 4px 12px var(--ice-glow);
+/* Buy Now Button */
+.js-slick-carousel .buy-now-btn {
+    flex: 1;
+    padding: 0.6rem 0.7rem;
+    font-size: 0.75rem;
+    border-radius: 10px;
+    border: 2px solid var(--ice-blue);
+    background: white;
+    color: var(--ice-blue);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-decoration: none;
 }
 
-/* Add to Cart Button - Right Side */
-.js-slick-carousel .btn-outline-primary {
-  border-color: var(--ice-accent);
-  color: var(--ice-accent);
-  background: transparent;
+.js-slick-carousel .buy-now-btn:hover {
+    background: var(--ice-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--ice-glow);
 }
 
-.js-slick-carousel .btn-outline-primary:hover {
-  background: var(--ice-accent);
-  color: #fff;
-  box-shadow: 0 4px 12px var(--ice-glow);
+.js-slick-carousel .buy-now-btn i {
+    font-size: 0.7rem;
 }
 
-/* Buy Now Button - Full Width MIDDLE */
-.js-slick-carousel .btn-success {
-  width: 100%;
-  border-color: var(--ice-blue);
-  background: linear-gradient(135deg, var(--ice-blue), var(--ice-accent));
-  color: #fff;
-  order: 2;
-  padding: 0.5rem 0.8rem;
-  font-size: 0.75rem;
-  box-shadow: 0 4px 12px var(--ice-glow);
-  border-radius: 8px;
-  font-weight: 600;
+/* Disabled State */
+.js-slick-carousel .btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #e2e8f0;
+    color: #94a3b8;
+    border-color: #e2e8f0;
 }
 
-.js-slick-carousel .btn-success:hover {
-  background: linear-gradient(135deg, var(--ice-accent), var(--ice-blue));
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--ice-glow);
+.js-slick-carousel .btn-disabled:hover {
+    transform: none;
+    box-shadow: none;
 }
 
-/* Rating Section - BOTTOM (Below all buttons) */
-.js-slick-carousel .card-footer > .text-center:last-child {
-  order: 3;
-  margin-top: 0.2rem;
+/* Badges */
+.js-slick-carousel .badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
 }
 
-.js-slick-carousel .card-footer .text-warning small {
-  font-size: 0.65rem;
+.js-slick-carousel .badge-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
 }
 
-.js-slick-carousel .card-footer .text-secondary {
-  font-size: 0.65rem;
+.js-slick-carousel .badge-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
 }
 
-/* Sold Out Button */
-.js-slick-carousel .btn-outline-secondary {
-  border-color: #cbd5e0;
-  color: #718096;
-  background: transparent;
-  cursor: not-allowed;
-  opacity: 0.6;
+/* Wishlist Heart Button */
+.js-slick-carousel .btn-icon {
+    width: 1.8rem;
+    height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid rgba(147, 197, 253, 0.3);
+    transition: all 0.3s ease;
 }
 
-.js-slick-carousel .btn-sm-wide.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.js-slick-carousel .btn-icon:hover {
+    background: var(--ice-blue);
+    color: white;
+    border-color: var(--ice-blue);
+    transform: scale(1.1);
 }
 
 /* Dark Mode */
 body.dark .js-slick-carousel .card {
-  background: #2d3748;
+    background: #2d3748;
 }
 
-body.dark .js-slick-carousel .card-body a.text-secondary {
-  color: var(--ice-light);
+body.dark .js-slick-carousel .card-body h3 a {
+    color: #e2e8f0;
 }
 
-body.dark .js-slick-carousel .card-body a.text-secondary:hover {
-  color: var(--ice-frost);
+body.dark .js-slick-carousel .card-body h3 a:hover {
+    color: var(--ice-light);
 }
 
-body.dark .js-slick-carousel .card-body .font-weight-medium {
-  color: #e2e8f0;
+body.dark .js-slick-carousel .product-category {
+    color: #94a3b8;
 }
 
-body.dark .js-slick-carousel .card-body .text-secondary del {
-  color: #a0aec0;
+body.dark .js-slick-carousel .buy-now-btn {
+    background: #1a202c;
+    border-color: var(--ice-light);
+    color: var(--ice-light);
 }
 
-/* Responsive - 4-5 products in grid */
-@media (min-width: 1400px) {
-  .js-slick-carousel[data-slides-show="4"] {
-    --slides-to-show: 5;
-  }
+body.dark .js-slick-carousel .buy-now-btn:hover {
+    background: var(--ice-light);
+    color: #1a202c;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-  .hero-section {
-    height: 70vh;
-  }
+    .js-slick-carousel .card {
+        height: 380px;
+    }
 
-  .hero-content h1 {
-    font-size: 2.5rem;
-  }
+    .js-slick-carousel .position-relative,
+    .js-slick-carousel .card-img-top {
+        height: 230px;
+    }
 
-  section.max-w-7xl .js-slick-carousel .category-card h3 {
-    font-size: 1.2rem;
-  }
+    .js-slick-carousel .card-body {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+    }
 
-  .js-slick-carousel .card {
-    height: 440px;
-  }
+    .js-slick-carousel .product-right {
+        text-align: left;
+    }
 
-  .js-slick-carousel .card-img-top,
-  .js-slick-carousel .position-relative {
-    height: 150px;
-  }
+    .js-slick-carousel .price-info {
+        align-items: flex-start;
+    }
+
+    .js-slick-carousel .stock-info {
+        justify-content: flex-start;
+    }
+
+    .js-slick-carousel .action-buttons {
+        flex-direction: column;
+    }
+
+    .js-slick-carousel .add-to-cart-btn,
+    .js-slick-carousel .buy-now-btn {
+        width: 100%;
+    }
 }
 
 /* ==================== PRODUCTS CATEGORY PAGE - UPDATED ==================== */
@@ -3688,3 +3748,243 @@ html, body {
     }
 }
 
+
+
+
+/* ==================== PROFILE EDIT PAGE - ENHANCED STYLING ==================== */
+.profile-edit-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.profile-edit-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+    border-radius: 20px;
+    padding: 45px;
+    box-shadow: 0 15px 50px rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(147, 197, 253, 0.4);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.profile-edit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+}
+
+.profile-edit-card header {
+    margin-bottom: 35px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(147, 197, 253, 0.2);
+}
+
+.profile-edit-card h2 {
+    font-size: 26px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 60%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.profile-edit-card p {
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.7;
+}
+
+/* Form Grid Layout for Side-by-Side Inputs */
+.profile-edit-card .space-y-6 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.profile-edit-card .space-y-6 > div {
+    margin-bottom: 0;
+}
+
+/* Full Width for Action Buttons */
+.profile-edit-card .flex.items-center {
+    grid-column: 1 / -1;
+}
+
+/* Input Field Styling */
+.profile-edit-card input[type="text"],
+.profile-edit-card input[type="email"],
+.profile-edit-card input[type="password"] {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid rgba(147, 197, 253, 0.3);
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    color: #1e293b;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.05);
+}
+
+.profile-edit-card input:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    background: white;
+    box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.12), 0 4px 12px rgba(99, 102, 241, 0.15);
+    transform: translateY(-1px);
+}
+
+.profile-edit-card input::placeholder {
+    color: #94a3b8;
+}
+
+.profile-edit-card label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+}
+
+/* Primary Button Styling */
+.profile-edit-card button[type="submit"],
+.profile-edit-card .inline-flex {
+    padding: 14px 35px;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+    letter-spacing: 0.5px;
+}
+
+.profile-edit-card button[type="submit"]:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 50%, #db2777 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.5);
+}
+
+.profile-edit-card button[type="submit"]:active {
+    transform: translateY(-1px);
+}
+
+/* Success Message */
+.profile-edit-card .text-sm.text-gray-600 {
+    color: #10b981;
+    font-weight: 500;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Danger Button (Delete Account) */
+.profile-edit-card button[x-on\:click\.prevent],
+.profile-edit-card .bg-red-600 {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35);
+}
+
+.profile-edit-card button[x-on\:click\.prevent]:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5);
+}
+
+/* Error Messages */
+.profile-edit-card .text-red-600,
+.profile-edit-card .text-sm.text-red-600 {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+/* Verification Notice */
+.profile-edit-card .text-sm.text-gray-800 {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+    border-left: 4px solid #f59e0b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 12px;
+    color: #92400e;
+}
+
+.profile-edit-card .text-sm.text-gray-800 button {
+    color: #8b5cf6;
+    text-decoration: underline;
+    background: none;
+    border: none;
+    padding: 0;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-edit-container {
+        padding: 40px 15px;
+    }
+    
+    .profile-edit-card {
+        padding: 30px 20px;
+    }
+
+    .profile-edit-card .space-y-6 {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .profile-edit-card h2 {
+        font-size: 22px;
+    }
+}
+
+/* Dark Mode Support */
+body.dark .profile-edit-card {
+    background: linear-gradient(135deg, rgba(45, 55, 72, 0.95) 0%, rgba(31, 41, 55, 0.95) 100%);
+    border-color: rgba(100, 116, 139, 0.3);
+}
+
+body.dark .profile-edit-card input {
+    background: #1e293b;
+    border-color: rgba(100, 116, 139, 0.3);
+    color: #e2e8f0;
+}
+
+body.dark .profile-edit-card input:focus {
+    background: #0f172a;
+    border-color: #8b5cf6;
+}
+
+body.dark .profile-edit-card label {
+    color: #e2e8f0;
+}
+
+body.dark .profile-edit-card p {
+    color: #94a3b8;
+}

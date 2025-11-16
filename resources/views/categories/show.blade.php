@@ -15,7 +15,8 @@
             <div class="products-grid">
                 @forelse ($products as $product)
                     <div class="product-card">
-                        <div class="product-image-wrapper">
+                        <!-- Product Image - Clickable -->
+                        <a href="{{ route('products.show', $product) }}" class="product-image-wrapper">
                             <img 
                                 src="{{ $product->media->where('type', 'image')->first() 
                                     ? asset('storage/' . $product->media->where('type', 'image')->first()->path) 
@@ -26,46 +27,72 @@
 
                             @if ($product->stock <= 0)
                                 <div class="out-of-stock-badge">Out of Stock</div>
+                            @else
+                                <div class="in-stock-badge">In Stock</div>
                             @endif
-                        </div>
+                        </a>
                         
                         <div class="product-card-content">
-                            <h3 class="product-card-title">{{ $product->name }}</h3>
-                            <p class="product-card-price">KSh {{ number_format($product->price, 2) }}</p>
+                            <!-- Split Layout: Name/Category LEFT, Price/Stock RIGHT -->
+                            <div class="product-info-grid">
+                                <!-- LEFT SIDE: Product Name & Category -->
+                                <div class="product-info-left">
+                                    <h3 class="product-card-title">
+                                        <a href="{{ route('products.show', $product) }}">
+                                            {{ $product->name }}
+                                        </a>
+                                    </h3>
+                                    <a href="{{ route('categories.show', $product->category_id) }}" class="product-category-link">
+                                        {{ $product->category?->name ?? 'Uncategorized' }}
+                                    </a>
+                                </div>
+
+                                <!-- RIGHT SIDE: Price & Stock -->
+                                <div class="product-info-right">
+                                    <p class="product-card-price">
+                                        @if ($product->discount_price && $product->discount_price < $product->price)
+                                            <span class="current-price">Ksh {{ number_format($product->discount_price, 0) }}</span>
+                                            <span class="original-price">Ksh {{ number_format($product->price, 0) }}</span>
+                                        @else
+                                            <span class="current-price">Ksh {{ number_format($product->price, 0) }}</span>
+                                        @endif
+                                    </p>
+                                    
+                                    <div class="product-stock-info {{ $product->stock <= 0 ? 'out-of-stock' : '' }}">
+                                        @if($product->stock > 0)
+                                            <i class="fas fa-check-circle"></i> {{ $product->stock }} in stock
+                                        @else
+                                            <i class="fas fa-times-circle"></i> Out of stock
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                             
+                            <!-- Action Buttons -->
                             <div class="product-card-actions">
-                                <a href="{{ route('products.show', $product) }}" class="view-details-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" 
-                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                    View Details
-                                </a>
-                                
-                                @if ($product->stock > 0)
-                                    <form action="{{ route('cart.store') }}" method="POST" class="add-to-cart-form">
-                                        @csrf
-                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="add-to-cart-btn">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" 
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="9" cy="21" r="1"></circle>
-                                                <circle cx="20" cy="21" r="1"></circle>
-                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 
-                                                         2-1.61L23 6H6"></path>
-                                            </svg>
-                                            Add to Cart
+                                <div class="button-row">
+                                    @if ($product->stock > 0)
+                                        <form action="{{ route('cart.store') }}" method="POST" class="add-to-cart-form">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="add-to-cart-btn">
+                                                <i class="fas fa-shopping-cart"></i>
+                                                Add to Cart
+                                            </button>
+                                        </form>
+
+                                        <a href="{{ route('checkout.quick', $product->id) }}" class="buy-now-btn">
+                                            <i class="fas fa-bolt"></i>
+                                            Buy Now
+                                        </a>
+                                    @else
+                                        <button class="add-to-cart-btn disabled" disabled>
+                                            <i class="fas fa-ban"></i>
+                                            Out of Stock
                                         </button>
-                                    </form>
-                                @else
-                                    <button class="add-to-cart-btn disabled" disabled>
-                                        Out of Stock
-                                    </button>
-                                @endif
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>

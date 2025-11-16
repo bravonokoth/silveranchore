@@ -68,34 +68,39 @@
                     @endif
                 </div>
 
-                @if ($product->stock > 0)
-                    <!-- Add to Cart Form -->
-                    <form action="{{ route('cart.store') }}" method="POST" class="product-cart-form">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <div class="quantity-row">
-                            <div class="quantity-box">
-                                <button type="button" class="qty-decrease" onclick="decreaseQty()">−</button>
-                                <input 
-                                    type="number" 
-                                    name="quantity" 
-                                    id="quantity" 
-                                    value="1" 
-                                    min="1" 
-                                    max="{{ $product->stock }}" 
-                                    class="qty-input"
-                                    readonly
-                                >
-                                <button type="button" class="qty-increase" onclick="increaseQty({{ $product->stock }})">+</button>
-                            </div>
-                            <button type="submit" class="add-basket-btn">
-                                Add to basket
-                            </button>
-                        </div>
-                        @error('quantity')
-                            <span class="error-text">{{ $message }}</span>
-                        @enderror
-                    </form>
+       @if ($product->stock > 0)
+    <!-- Add to Cart Form -->
+    <form action="{{ route('cart.store') }}" method="POST" class="product-cart-form">
+        @csrf
+        <input type="hidden" name="product_id" value="{{ $product->id }}">
+        <div class="quantity-row">
+            <div class="quantity-box">
+                <button type="button" class="qty-decrease" onclick="decreaseQty()">−</button>
+                <input 
+                    type="number" 
+                    name="quantity" 
+                    id="quantity" 
+                    value="1" 
+                    min="1" 
+                    max="{{ $product->stock }}" 
+                    class="qty-input"
+                    readonly
+                >
+                <button type="button" class="qty-increase" onclick="increaseQty({{ $product->stock }})">+</button>
+            </div>
+            <button type="submit" class="add-basket-btn">
+                <i class="fas fa-shopping-cart"></i>
+                Add to Cart
+            </button>
+            <a href="{{ route('checkout.quick', $product->id) }}" class="buy-now-btn-detail">
+                <i class="fas fa-bolt"></i>
+                Buy Now
+            </a>
+        </div>
+        @error('quantity')
+            <span class="error-text">{{ $message }}</span>
+        @enderror
+    </form>
 
                     <!-- Wishlist Button -->
                     <button 
@@ -307,6 +312,85 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     border-radius: 6px;
     z-index: 1000;
     animation: slideIn 0.3s ease;
+}
+
+/* Product Detail Page - Buy Now Button */
+.quantity-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.buy-now-btn-detail {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.buy-now-btn-detail:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    transform: translateY(-2px);
+}
+
+.buy-now-btn-detail i {
+    font-size: 14px;
+}
+
+.add-basket-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-basket-btn:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+    transform: translateY(-2px);
+}
+
+.add-basket-btn i {
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .quantity-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .quantity-box {
+        width: 100%;
+    }
+
+    .add-basket-btn,
+    .buy-now-btn-detail {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @keyframes slideIn {
