@@ -10,13 +10,14 @@
     </div>
 @endif
 
-<section class="products max-w-7xl mx-auto py-8">
+<section class="products max-w-7xl mx-auto py-8 px-4">
     <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Our Products</h2>
     
-    <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
+    <div class="js-slick-carousel u-slick"
          data-slides-show="4"
          data-slides-scroll="3"
          data-infinite="true"
+         data-center-mode="false"
          data-pagi-classes="text-center u-slick__pagination mt-7 mb-0"
          data-responsive='[{
            "breakpoint": 992,
@@ -30,7 +31,7 @@
          }]'>
         
       @foreach ($products as $product)
-    <div class="js-slide">
+    <div class="js-slide px-2">
         <!-- Product Card -->
         <div class="card text-center w-100">
             <!-- Product Image - Clickable to Product Details -->

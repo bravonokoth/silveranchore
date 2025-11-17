@@ -3,15 +3,15 @@
 @section('content')
 <!-- Display Success Message -->
 
-
 <!-- Category Section -->
-<section class="max-w-7xl mx-auto py-8">
+<section class="max-w-7xl mx-auto py-8 px-4">
     <h2 class="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-200">Our Categories</h2>
     
-    <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
+    <div class="js-slick-carousel u-slick"
          data-slides-show="4"
          data-slides-scroll="3"
          data-infinite="true"
+         data-center-mode="false"
          data-pagi-classes="text-center u-slick__pagination mt-7 mb-0"
          data-responsive='[{
            "breakpoint": 992,
@@ -25,7 +25,7 @@
          }]'>
         
         @foreach ($categories as $category)
-            <div class="js-slide">
+            <div class="js-slide px-2">
                 <div class="category-card">
                     <div class="category-image">
                         {{-- ✅ Fixed: Now uses media relationship like products --}}

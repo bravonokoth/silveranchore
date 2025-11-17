@@ -442,19 +442,19 @@ section.max-w-7xl .js-slick-carousel .category-card .category-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.75); /* Darker to make text more visible */
+  filter: brightness(0.6); /* Much darker to make overlay visible */
 }
 
-/* Overlay - ALWAYS VISIBLE with stronger opacity */
+/* Overlay - ALWAYS VISIBLE with STRONG dark gradient */
 section.max-w-7xl .js-slick-carousel .category-card .overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, 
-    rgba(74, 144, 226, 0.5) 0%, 
-    rgba(30, 136, 229, 0.7) 100%); /* Stronger opacity by default */
+  background: linear-gradient(180deg, 
+    rgba(0, 0, 0, 0.3) 0%, 
+    rgba(0, 0, 0, 0.7) 100%); /* Dark gradient from top to bottom */
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -465,28 +465,29 @@ section.max-w-7xl .js-slick-carousel .category-card .overlay {
 }
 
 section.max-w-7xl .js-slick-carousel .category-card:hover .overlay {
-  background: linear-gradient(135deg, 
-    rgba(74, 144, 226, 0.7) 0%, 
-    rgba(30, 136, 229, 0.9) 100%); /* Even stronger on hover */
+  background: linear-gradient(180deg, 
+    rgba(74, 144, 226, 0.4) 0%, 
+    rgba(30, 136, 229, 0.8) 100%); /* Blue gradient on hover */
 }
 
-/* Category Name - ALWAYS VISIBLE with stronger shadow */
+/* Category Name - ALWAYS VISIBLE */
 section.max-w-7xl .js-slick-carousel .category-card h3 {
   font-size: 1.5rem;
-  font-weight: 700; /* Bolder */
-  color: #fff;
+  font-weight: 700;
+  color: #ffffff; /* Pure white */
   margin-bottom: 0.5rem;
-  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8); /* Stronger shadow */
-  opacity: 1; /* Always visible */
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9); /* Very strong shadow */
+  opacity: 1;
   letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
 section.max-w-7xl .js-slick-carousel .category-card .product-count {
-  color: rgba(255, 255, 255, 1); /* Fully opaque */
+  color: #ffffff; /* Pure white */
   font-size: 0.95rem;
   margin-bottom: 1rem;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7); /* Stronger shadow */
-  opacity: 1; /* Always visible */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); /* Strong shadow */
+  opacity: 1;
   font-weight: 500;
 }
 
@@ -513,6 +514,49 @@ section.max-w-7xl .js-slick-carousel .category-card:hover a {
   background: #fff;
   color: var(--ice-blue);
   box-shadow: 0 4px 15px rgba(255, 255, 255, 0.4);
+}
+
+/* Dark Mode Adjustments */
+body.dark section.max-w-7xl .js-slick-carousel .category-card .overlay {
+  background: linear-gradient(180deg, 
+    rgba(0, 0, 0, 0.5) 0%, 
+    rgba(0, 0, 0, 0.85) 100%);
+}
+
+body.dark section.max-w-7xl .js-slick-carousel .category-card:hover .overlay {
+  background: linear-gradient(180deg, 
+    rgba(74, 144, 226, 0.5) 0%, 
+    rgba(30, 136, 229, 0.9) 100%);
+}
+
+/* FORCE OVERLAY VISIBILITY - Use this if above doesn't work */
+section.max-w-7xl .js-slick-carousel .category-card .overlay {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(180deg, 
+    rgba(0, 0, 0, 0.3) 0%, 
+    rgba(0, 0, 0, 0.7) 100%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  padding: 1.5rem !important;
+  opacity: 1 !important;
+  z-index: 2 !important; /* Ensure it's above the image */
+  pointer-events: none !important; /* Allow clicks to pass through except on link */
+}
+
+section.max-w-7xl .js-slick-carousel .category-card .overlay a {
+  pointer-events: auto !important; /* Re-enable clicks on the link */
+}
+
+section.max-w-7xl .js-slick-carousel .category-card h3,
+section.max-w-7xl .js-slick-carousel .category-card .product-count {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* ==================== PRODUCT CAROUSEL - REDUCED HEIGHT, 4-5 GRID ==================== */
@@ -3987,4 +4031,507 @@ body.dark .profile-edit-card label {
 
 body.dark .profile-edit-card p {
     color: #94a3b8;
+}
+
+
+/* ==================== CHECKOUT PAGE RESPONSIVE STYLES ==================== */
+
+/* Tablet (1024px and below) */
+@media (max-width: 1024px) {
+    .checkout-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .order-summary-section {
+        position: static;
+        order: 2; /* Move to bottom on tablet */
+    }
+
+    .delivery-form-section {
+        order: 1; /* Move to top on tablet */
+    }
+
+    .checkout-steps {
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .step span {
+        font-size: 12px;
+    }
+
+    .step-line {
+        width: 60px;
+    }
+}
+
+/* Mobile (768px and below) */
+@media (max-width: 768px) {
+    .checkout-wrapper {
+        padding: 20px 15px;
+    }
+
+    .checkout-container {
+        max-width: 100%;
+    }
+
+    .checkout-header h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .checkout-steps {
+        padding: 15px;
+        gap: 10px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .step {
+        flex-shrink: 0;
+    }
+
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+    }
+
+    .step span {
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .step-line {
+        width: 40px;
+    }
+
+    /* Order Summary */
+    .order-summary-section {
+        padding: 20px;
+    }
+
+    .order-summary-section h3 {
+        font-size: 20px;
+    }
+
+    .order-items {
+        max-height: 300px;
+    }
+
+    .order-item {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .order-item-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .order-item-details h4 {
+        font-size: 14px;
+    }
+
+    .order-item-details p {
+        font-size: 13px;
+    }
+
+    .order-item-price span {
+        font-size: 16px;
+    }
+
+    .total-row {
+        font-size: 14px;
+    }
+
+    .total-row.grand-total {
+        font-size: 18px;
+    }
+
+    /* Delivery Form */
+    .delivery-form-section {
+        padding: 20px;
+    }
+
+    .delivery-form-section h3 {
+        font-size: 20px;
+    }
+
+    .checkout-form {
+        gap: 15px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-input,
+    .form-select {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    .form-label {
+        font-size: 13px;
+    }
+
+    .billing-section {
+        padding: 20px;
+    }
+
+    .billing-section h3 {
+        font-size: 18px;
+    }
+
+    .billing-checkbox {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    /* Payment Method */
+    .payment-method-section {
+        padding-top: 20px;
+        margin-top: 20px;
+    }
+
+    .payment-method-section h3 {
+        font-size: 18px;
+    }
+
+    .payment-card {
+        padding: 15px;
+    }
+
+    .payment-logo svg {
+        width: 80px;
+        height: 24px;
+    }
+
+    .payment-card p {
+        font-size: 13px;
+    }
+
+    .payment-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    /* Place Order Button */
+    .place-order-btn {
+        padding: 14px 24px;
+        font-size: 16px;
+    }
+
+    .place-order-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Small Mobile (480px and below) */
+@media (max-width: 480px) {
+    .checkout-wrapper {
+        padding: 15px 10px;
+    }
+
+    .checkout-header h2 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+
+    .checkout-steps {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        padding: 10px;
+    }
+
+    .step-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .step span {
+        font-size: 10px;
+    }
+
+    .step-line {
+        width: 30px;
+    }
+
+    /* Order Summary */
+    .order-summary-section {
+        padding: 15px;
+    }
+
+    .order-summary-section h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .order-items {
+        gap: 10px;
+        max-height: 250px;
+    }
+
+    .order-item {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .order-item-image {
+        width: 50px;
+        height: 50px;
+    }
+
+    .order-item-details h4 {
+        font-size: 13px;
+    }
+
+    .order-item-details p {
+        font-size: 12px;
+    }
+
+    .order-item-price span {
+        font-size: 14px;
+    }
+
+    .order-total {
+        padding-top: 15px;
+        gap: 10px;
+    }
+
+    .total-row {
+        font-size: 13px;
+    }
+
+    .total-row.grand-total {
+        font-size: 16px;
+        padding-top: 10px;
+    }
+
+    /* Delivery Form */
+    .delivery-form-section {
+        padding: 15px;
+    }
+
+    .delivery-form-section h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .checkout-form {
+        gap: 12px;
+    }
+
+    .form-input,
+    .form-select {
+        padding: 9px 12px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+
+    .form-label {
+        font-size: 12px;
+    }
+
+    .billing-section {
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .billing-section h3 {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .billing-checkbox {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .billing-checkbox input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Payment Method */
+    .payment-method-section {
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+
+    .payment-method-section h3 {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .payment-methods {
+        gap: 12px;
+    }
+
+    .payment-card {
+        padding: 12px;
+    }
+
+    .payment-logo svg {
+        width: 70px;
+        height: 20px;
+    }
+
+    .payment-card p {
+        font-size: 12px;
+    }
+
+    .payment-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        top: 8px;
+        right: 8px;
+    }
+
+    /* Place Order Button */
+    .place-order-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        margin-top: 15px;
+    }
+
+    .place-order-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Empty Checkout */
+    .empty-checkout {
+        padding: 60px 15px;
+    }
+
+    .empty-checkout svg {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 20px;
+    }
+
+    .empty-checkout p {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .continue-shopping-btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+
+    /* Messages */
+    .checkout-message {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+
+    .checkout-message svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .checkout-header h2 {
+        font-size: 22px;
+    }
+
+    .step span {
+        display: none; /* Hide step labels on very small screens */
+    }
+
+    .step-line {
+        width: 20px;
+    }
+
+    .order-summary-section h3,
+    .delivery-form-section h3 {
+        font-size: 16px;
+    }
+
+    .order-item-image {
+        width: 45px;
+        height: 45px;
+    }
+
+    .form-input,
+    .form-select {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    .place-order-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .payment-logo svg {
+        width: 60px;
+        height: 18px;
+    }
+}
+
+/* Landscape Mode on Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .checkout-wrapper {
+        padding: 20px 30px;
+    }
+
+    .order-items {
+        max-height: 200px;
+    }
+
+    .checkout-steps {
+        gap: 12px;
+    }
+
+    .step-line {
+        width: 50px;
+    }
+}
+
+/* Fix for scrollable areas on mobile */
+@media (max-width: 768px) {
+    .order-items::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .order-items::-webkit-scrollbar-track {
+        background: rgba(147, 197, 253, 0.1);
+        border-radius: 10px;
+    }
+
+    .order-items::-webkit-scrollbar-thumb {
+        background: rgba(96, 165, 250, 0.4);
+        border-radius: 10px;
+    }
+}
+
+/* Prevent horizontal scroll on small screens */
+@media (max-width: 480px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .checkout-container {
+        overflow-x: hidden;
+    }
+
+    .checkout-steps {
+        max-width: 100%;
+    }
 }
