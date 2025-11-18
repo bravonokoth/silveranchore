@@ -37,7 +37,7 @@
                              class="hero-image w-100 h-100 object-cover">
                     @endif
                 </div>
-            @empty
+                   @empty
                 <div class="hero-slide w-100 h-100">
                     <img src="{{ asset('images/pexels.jpg') }}" 
                          alt="The Liquor Cabinet" 
@@ -53,21 +53,17 @@
     </div>
 
     <!-- Content Overlay -->
-    <div class="hero-content position-relative z-10">
-        <h1 class="text-4xl font-bold text-white">Welcome to The Liquor Cabinet</h1>
+    <div class="hero-content position-relative z-10 text-center">
+        <h1 class="text-4xl font-bold text-white">The Liquor Cabinet</h1>
         <p class="text-lg text-white mb-6">Discover our premium selection of fine liquors and accessories.</p>
-        <div class="cta-buttons flex gap-4">
+        <div class="cta-buttons flex gap-4 justify-center">
             <a href="{{ route('products.index') }}" class="cta-button">Shop Now</a>
             <a href="{{ route('categories.index') }}" class="cta-button secondary">Browse Categories</a>
         </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="hero-pagination"></div>
-</section>
-
-    <!-- Dots Pagination -->
-    <div class="hero-pagination"></div>
+    <!-- Slick Dots Pagination -->
+    <div class="hero-pagination position-absolute bottom-0 start-50 translate-middle-x mb-4 z-10"></div>
 </section>
 
 <!-- Category Section -->
@@ -251,4 +247,106 @@
 }
 .category-card:hover { background: #f8fafc; border-color: #3b82f6; }
 </style>
+
+
+
+
+
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    console.log('Initializing sliders...');
+    
+    // Initialize hero slider (always carousel)
+    const $heroSlider = $('.js-slick-carousel.hero-slider');
+    
+    if ($heroSlider.length) {
+        $heroSlider.slick({
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            fade: true,
+            autoplay: true,
+            autoplaySpeed: 5000,
+            infinite: true,
+            arrows: true,
+            dots: true,
+            cssEase: 'ease-in-out',
+            speed: 1000,
+            pauseOnHover: false,
+            pauseOnFocus: false,
+            adaptiveHeight: false,
+            appendDots: $('.hero-pagination'),
+            prevArrow: '<button type="button" class="slick-prev">←</button>',
+            nextArrow: '<button type="button" class="slick-next">→</button>'
+        });
+        
+        console.log('Hero slider initialized successfully');
+    }
+
+    // Function to initialize/destroy carousel based on screen size
+    function handleCarousel() {
+        const isMobile = window.innerWidth <= 480;
+        
+        $('.u-slick--gutters-3').each(function() {
+            const $this = $(this);
+            
+            if (isMobile) {
+                // Destroy carousel on mobile and add grid class
+                if ($this.hasClass('slick-initialized')) {
+                    $this.slick('unslick');
+                    console.log('Carousel destroyed for mobile');
+                }
+                $this.addClass('mobile-grid-layout');
+            } else {
+                // Remove mobile grid class and initialize carousel on desktop
+                $this.removeClass('mobile-grid-layout');
+                
+                if (!$this.hasClass('slick-initialized')) {
+                    const $pagination = $this.next('.u-slick__pagination');
+                    
+                    $this.slick({
+                        slidesToShow: 4,
+                        slidesToScroll: 2,
+                        infinite: true,
+                        dots: true,
+                        arrows: true,
+                        appendDots: $pagination.length ? $pagination : $this.parent(),
+                        prevArrow: '<button type="button" class="slick-prev">‹</button>',
+                        nextArrow: '<button type="button" class="slick-next">›</button>',
+                        responsive: [
+                            { 
+                                breakpoint: 992, 
+                                settings: { 
+                                    slidesToShow: 3,
+                                    slidesToScroll: 2
+                                } 
+                            },
+                            { 
+                                breakpoint: 720, 
+                                settings: { 
+                                    slidesToShow: 2,
+                                    slidesToScroll: 2
+                                } 
+                            }
+                        ]
+                    });
+                    console.log('Carousel initialized for desktop');
+                }
+            }
+        });
+    }
+    
+    // Run on load
+    handleCarousel();
+    
+    // Run on resize (debounced)
+    let resizeTimer;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(handleCarousel, 250);
+    });
+});
+</script>
+@endpush

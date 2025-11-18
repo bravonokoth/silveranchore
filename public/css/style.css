@@ -169,7 +169,7 @@ body.dark .cta-button.secondary:hover {
 
 /* Navigation */
 nav {
-  background: #fff;
+  background: #ffffff;
   position: relative;
   z-index: 10;
 }
@@ -4533,5 +4533,61 @@ body.dark .profile-edit-card p {
 
     .checkout-steps {
         max-width: 100%;
+    }
+}
+
+/* ==================== MOBILE GRID LAYOUT - SHOW ALL ITEMS ==================== */
+@media (max-width: 480px) {
+    /* Force grid layout when carousel is destroyed on mobile */
+    .mobile-grid-layout {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+    
+    .mobile-grid-layout .js-slide {
+        padding: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+    }
+    
+    /* Adjust card heights for mobile grid */
+    .mobile-grid-layout .card {
+        height: 370px !important;
+    }
+    
+    .mobile-grid-layout .position-relative,
+    .mobile-grid-layout .card-img-top {
+        height: 190px !important;
+    }
+    
+    .mobile-grid-layout .category-card {
+        height: 200px !important;
+    }
+    
+    /* Hide all pagination on mobile */
+    .u-slick__pagination {
+        display: none !important;
+    }
+}
+
+/* Very small screens - single column */
+@media (max-width: 360px) {
+    .mobile-grid-layout {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+    
+    .mobile-grid-layout .card {
+        height: 400px !important;
+    }
+    
+    .mobile-grid-layout .position-relative,
+    .mobile-grid-layout .card-img-top {
+        height: 220px !important;
     }
 }

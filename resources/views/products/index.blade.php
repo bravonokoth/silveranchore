@@ -136,3 +136,71 @@
     </div>
 </section>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    console.log('Initializing products carousel...');
+    
+    // Function to initialize/destroy carousel based on screen size
+    function handleProductCarousel() {
+        const isMobile = window.innerWidth <= 480;
+        const $carousel = $('.products .js-slick-carousel');
+        
+        if (isMobile) {
+            // Destroy carousel on mobile and add grid class
+            if ($carousel.hasClass('slick-initialized')) {
+                $carousel.slick('unslick');
+                console.log('Products carousel destroyed for mobile');
+            }
+            $carousel.addClass('mobile-grid-layout');
+        } else {
+            // Remove mobile grid class and initialize carousel on desktop
+            $carousel.removeClass('mobile-grid-layout');
+            
+            if (!$carousel.hasClass('slick-initialized')) {
+                const $pagination = $carousel.next('.u-slick__pagination');
+                
+                $carousel.slick({
+                    slidesToShow: 4,
+                    slidesToScroll: 3,
+                    infinite: true,
+                    dots: true,
+                    arrows: true,
+                    appendDots: $pagination.length ? $pagination : $carousel.parent(),
+                    prevArrow: '<button type="button" class="slick-prev">‹</button>',
+                    nextArrow: '<button type="button" class="slick-next">›</button>',
+                    responsive: [
+                        { 
+                            breakpoint: 992, 
+                            settings: { 
+                                slidesToShow: 3,
+                                slidesToScroll: 3
+                            } 
+                        },
+                        { 
+                            breakpoint: 720, 
+                            settings: { 
+                                slidesToShow: 2,
+                                slidesToScroll: 2
+                            } 
+                        }
+                    ]
+                });
+                console.log('Products carousel initialized for desktop');
+            }
+        }
+    }
+    
+    // Run on load
+    handleProductCarousel();
+    
+    // Run on resize (debounced)
+    let resizeTimer;
+    $(window).on('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(handleProductCarousel, 250);
+    });
+});
+</script>
+@endpush

@@ -466,7 +466,7 @@
     min-width: 200px;
     padding: 8px 0;
     margin-top: 8px;
-    background-color: rgb(143, 234, 250);
+    background-color: white;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(74, 144, 226, 0.2);
     border: 1px solid rgba(74, 144, 226, 0.1);
@@ -539,17 +539,26 @@
     align-items: center;
     gap: 12px;
     padding: 12px 1rem;
-    color: white;
+    color: rgb(11, 20, 70);
     text-decoration: none;
     font-size: 15px;
+    font-weight: 500;
     transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-nav-link i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
 }
 
 .mobile-nav-link:hover,
 .mobile-nav-link.active {
-    background: rgba(255, 255, 255, 0.15);
-    color: #B8D9F7;
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
     border-left: 4px solid #B8D9F7;
+    font-weight: 600;
 }
 
 .mobile-auth-buttons {
