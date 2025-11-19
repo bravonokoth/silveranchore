@@ -4536,58 +4536,256 @@ body.dark .profile-edit-card p {
     }
 }
 
-/* ==================== MOBILE GRID LAYOUT - SHOW ALL ITEMS ==================== */
+/* ==================== MOBILE CAROUSEL FIX ==================== */
+/* Add this to the END of your app.css file, REPLACING any previous mobile grid code */
+
 @media (max-width: 480px) {
-    /* Force grid layout when carousel is destroyed on mobile */
-    .mobile-grid-layout {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px !important;
-        width: 100% !important;
+    /* Ensure slides take proper width */
+    .js-slick-carousel .slick-slide {
+        margin: 0 6px; /* Small gap between slides */
     }
     
-    .mobile-grid-layout .js-slide {
+    .js-slick-carousel .slick-list {
+        margin: 0 -6px; /* Compensate for slide margins */
+    }
+    
+    .js-slide {
         padding: 0 !important;
+    }
+    
+    /* Product cards on mobile */
+    .js-slick-carousel .card {
+        height: 370px;
         width: 100% !important;
-        margin: 0 !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        display: block !important;
     }
     
-    /* Adjust card heights for mobile grid */
-    .mobile-grid-layout .card {
-        height: 370px !important;
+    .js-slick-carousel .position-relative,
+    .js-slick-carousel .card-img-top {
+        height: 190px;
     }
     
-    .mobile-grid-layout .position-relative,
-    .mobile-grid-layout .card-img-top {
-        height: 190px !important;
+    .js-slick-carousel .card-body {
+        padding: 0.5rem 0.8rem;
     }
     
-    .mobile-grid-layout .category-card {
-        height: 200px !important;
+    .js-slick-carousel .card-body h3 {
+        font-size: 0.8rem;
     }
     
-    /* Hide all pagination on mobile */
-    .u-slick__pagination {
-        display: none !important;
+    .js-slick-carousel .current-price {
+        font-size: 0.9rem;
+    }
+    
+    .js-slick-carousel .add-to-cart-btn,
+    .js-slick-carousel .buy-now-btn {
+        padding: 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Category cards on mobile */
+    section.max-w-7xl .js-slick-carousel .category-card {
+        height: 200px;
+        width: 100% !important;
+    }
+    
+    section.max-w-7xl .js-slick-carousel .category-card h3 {
+        font-size: 1rem;
+    }
+    
+    section.max-w-7xl .js-slick-carousel .category-card .product-count {
+        font-size: 0.8rem;
+    }
+    
+    /* Slick arrows on mobile */
+    .slick-prev,
+    .slick-next {
+        width: 32px !important;
+        height: 32px !important;
+        z-index: 100;
+        background: white !important;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .slick-prev {
+        left: 5px !important;
+    }
+    
+    .slick-next {
+        right: 5px !important;
+    }
+    
+    .slick-prev:before,
+    .slick-next:before {
+        color: var(--ice-blue) !important;
+        font-size: 18px !important;
+    }
+    
+    /* Slick dots on mobile */
+    .slick-dots {
+        bottom: -35px !important;
+    }
+    
+    .slick-dots li button:before {
+        font-size: 10px !important;
+        color: var(--ice-blue) !important;
+    }
+    
+    .slick-dots li.slick-active button:before {
+        color: var(--ice-accent) !important;
+    }
+    
+    /* Add spacing after carousel for dots */
+    section.max-w-7xl,
+    section.products {
+        padding-bottom: 50px;
     }
 }
 
-/* Very small screens - single column */
+/* Very small screens - 1 item */
 @media (max-width: 360px) {
-    .mobile-grid-layout {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
+    .js-slick-carousel .card {
+        height: 400px;
     }
     
-    .mobile-grid-layout .card {
-        height: 400px !important;
+    .js-slick-carousel .position-relative,
+    .js-slick-carousel .card-img-top {
+        height: 220px;
     }
     
-    .mobile-grid-layout .position-relative,
-    .mobile-grid-layout .card-img-top {
-        height: 220px !important;
+    section.max-w-7xl .js-slick-carousel .category-card {
+        height: 240px;
     }
+}
+
+/* Landscape mode on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .js-slick-carousel .card {
+        height: 320px;
+    }
+    
+    .js-slick-carousel .position-relative,
+    .js-slick-carousel .card-img-top {
+        height: 160px;
+    }
+    
+    section.max-w-7xl .js-slick-carousel .category-card {
+        height: 180px;
+    }
+}
+
+/* Slick Arrow Styles - FORCE VISIBILITY */
+.slick-prev,
+.slick-next {
+    display: block !important;
+    width: 40px !important;
+    height: 40px !important;
+    z-index: 1000 !important;
+    background: white !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #4A90E2 !important;
+}
+
+.slick-prev {
+    left: 10px !important;
+}
+
+.slick-next {
+    right: 10px !important;
+}
+
+.slick-prev:before,
+.slick-next:before {
+    font-family: 'Font Awesome 6 Free' !important;
+    font-weight: 900 !important;
+    font-size: 20px !important;
+    color: #4A90E2 !important;
+    opacity: 1 !important;
+    line-height: 1 !important;
+}
+
+.slick-prev:before {
+    content: '\f053' !important; /* Left arrow */
+}
+
+.slick-next:before {
+    content: '\f054' !important; /* Right arrow */
+}
+
+.slick-prev:hover,
+.slick-next:hover {
+    background: #4A90E2 !important;
+}
+
+.slick-prev:hover:before,
+.slick-next:hover:before {
+    color: white !important;
+}
+
+
+
+/* Container adjustments for arrows */
+.js-slick-carousel {
+    position: relative !important;
+    padding: 0 50px !important; /* Space for arrows */
+}
+
+.u-slick__pagination {
+    margin-top: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+/* Mobile specific adjustments */
+@media (max-width: 480px) {
+    .slick-prev,
+    .slick-next {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .slick-prev {
+        left: 5px !important;
+    }
+    
+    .slick-next {
+        right: 5px !important;
+    }
+    
+    .slick-prev:before,
+    .slick-next:before {
+        font-size: 16px !important;
+    }
+    
+    .js-slick-carousel {
+        padding: 0 40px !important;
+    }
+    
+  
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+    .slick-prev,
+    .slick-next {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .slick-prev:before,
+    .slick-next:before {
+        font-size: 14px !important;
+    }
+    
+    .js-slick-carousel {
+        padding: 0 35px !important;
+    }
+}
+
+/* Ensure carousel sections have proper spacing */
+section.max-w-7xl,
+section.products {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-bottom: 40px;
 }

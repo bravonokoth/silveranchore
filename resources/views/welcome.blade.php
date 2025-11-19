@@ -282,70 +282,62 @@ $(document).ready(function() {
             nextArrow: '<button type="button" class="slick-next">→</button>'
         });
         
-        console.log('Hero slider initialized successfully');
+        console.log('Hero slider initialized');
     }
 
-    // Function to initialize/destroy carousel based on screen size
-    function handleCarousel() {
-        const isMobile = window.innerWidth <= 480;
+    // Initialize category and product carousels
+    $('.u-slick--gutters-3').each(function(index) {
+        const $this = $(this);
+        const $pagination = $this.next('.u-slick__pagination');
         
-        $('.u-slick--gutters-3').each(function() {
-            const $this = $(this);
-            
-            if (isMobile) {
-                // Destroy carousel on mobile and add grid class
-                if ($this.hasClass('slick-initialized')) {
-                    $this.slick('unslick');
-                    console.log('Carousel destroyed for mobile');
-                }
-                $this.addClass('mobile-grid-layout');
-            } else {
-                // Remove mobile grid class and initialize carousel on desktop
-                $this.removeClass('mobile-grid-layout');
-                
-                if (!$this.hasClass('slick-initialized')) {
-                    const $pagination = $this.next('.u-slick__pagination');
-                    
-                    $this.slick({
-                        slidesToShow: 4,
-                        slidesToScroll: 2,
-                        infinite: true,
-                        dots: true,
+        $this.slick({
+            slidesToShow: 4,
+            slidesToScroll: 1, // Changed to 1 for smoother scrolling
+            infinite: true,
+            dots: true,
+            arrows: true,
+            appendDots: $pagination.length ? $pagination : $this.parent(),
+            prevArrow: '<button type="button" class="slick-prev">‹</button>',
+            nextArrow: '<button type="button" class="slick-next">›</button>',
+            responsive: [
+                { 
+                    breakpoint: 992, 
+                    settings: { 
+                        slidesToShow: 3,
+                        slidesToScroll: 1
+                    } 
+                },
+                { 
+                    breakpoint: 720, 
+                    settings: { 
+                        slidesToShow: 2,
+                        slidesToScroll: 1
+                    } 
+                },
+                { 
+                    breakpoint: 480, 
+                    settings: { 
+                        slidesToShow: 2,  // Show 2 items on mobile
+                        slidesToScroll: 1, // Scroll 1 at a time
+                        arrows: true,      // Keep arrows
+                        dots: false,        // Keep dots
+                        centerMode: false,  // Disable center mode
+                        variableWidth: false // Disable variable width
+                    } 
+                },
+                { 
+                    breakpoint: 360, 
+                    settings: { 
+                        slidesToShow: 1,  // Show 1 on very small screens
+                        slidesToScroll: 1,
                         arrows: true,
-                        appendDots: $pagination.length ? $pagination : $this.parent(),
-                        prevArrow: '<button type="button" class="slick-prev">‹</button>',
-                        nextArrow: '<button type="button" class="slick-next">›</button>',
-                        responsive: [
-                            { 
-                                breakpoint: 992, 
-                                settings: { 
-                                    slidesToShow: 3,
-                                    slidesToScroll: 2
-                                } 
-                            },
-                            { 
-                                breakpoint: 720, 
-                                settings: { 
-                                    slidesToShow: 2,
-                                    slidesToScroll: 2
-                                } 
-                            }
-                        ]
-                    });
-                    console.log('Carousel initialized for desktop');
+                        dots: false
+                    } 
                 }
-            }
+            ]
         });
-    }
-    
-    // Run on load
-    handleCarousel();
-    
-    // Run on resize (debounced)
-    let resizeTimer;
-    $(window).on('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(handleCarousel, 250);
+        
+        console.log('Carousel ' + (index + 1) + ' initialized');
     });
 });
 </script>

@@ -104,7 +104,7 @@
                 </div>
             </div>
             <div class="text-center py-4">
-                <p>&copy; {{ date('Y') }} The Liquor Cabinet</p>
+                <p>&copy; {{ date('Y') }} Silveranchore</p>
             </div>
         </section>
     </div>
