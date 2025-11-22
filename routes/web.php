@@ -74,6 +74,20 @@ Route::prefix('cart')->group(function () {
     Route::get('/quick-checkout/{productId}', [CartController::class, 'quickCheckout'])->name('cart.quick-checkout');
 });
 
+// 📂 Categories - Add fetch endpoint
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/fetch', [CategoryController::class, 'fetch'])->name('categories.fetch'); // NEW
+    Route::get('{category}', [CategoryController::class, 'show'])->name('categories.show');
+});
+
+// 🛍️ Products - Add fetch endpoint
+Route::prefix('products')->group(function () {
+    Route::get('/', [ProductController::class, 'index'])->name('products.index');
+    Route::get('/fetch', [ProductController::class, 'fetch'])->name('products.fetch'); // NEW
+    Route::get('{product}', [ProductController::class, 'show'])->name('products.show');
+});
+
 // 💳 Checkout (Guest + Auth)
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('checkout.index');

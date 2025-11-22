@@ -68,7 +68,7 @@
 
 <!-- Category Section -->
 <section class="max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Our Categories</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Categories</h2>
     <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
          data-slides-show="4"
          data-slides-scroll="3"
@@ -108,7 +108,7 @@
 <!-- Featured Products Section -->
 <section class="products max-w-7xl mx-auto py-8">
     <h2 class="text-2xl font-semibold mb-6 text-gray-800">
-        Featured Products ({{ $featuredProducts->count() }})
+        Products 
     </h2>
     
     @if($featuredProducts->count() === 0)
