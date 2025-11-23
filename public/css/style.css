@@ -4537,7 +4537,7 @@ body.dark .profile-edit-card p {
 }
 
 /* ==================== MOBILE CAROUSEL FIX ==================== */
-/* Add this to the END of your app.css file, REPLACING any previous mobile grid code */
+/*  REPLACING any previous mobile grid code */
 
 @media (max-width: 480px) {
     /* Ensure slides take proper width */
@@ -4790,3 +4790,205 @@ section.products {
     margin-bottom: 40px;
 }
 
+/* ==================== MOBILE FILTER TOGGLE & VERTICAL SCROLL ==================== */
+
+/* This ONLY changes scrolling behavior - NO card design changes */
+
+/* ==================== MOBILE FILTER RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    /* Show filter toggle button on mobile */
+    .products .toggle-filters-mobile {
+        display: flex !important;
+    }
+    
+    /* Hide filters by default on mobile */
+    .products #productFiltersPanel {
+        display: none;
+    }
+    
+    /* Stack filters vertically */
+    .products .filter-row {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Price range vertical on mobile */
+    .products .price-inputs {
+        flex-direction: column;
+    }
+    
+    .products .price-separator {
+        display: none;
+    }
+    
+    .products .apply-price-btn,
+    .products .reset-btn-products {
+        width: 100%;
+    }
+}
+
+/* ==================== MOBILE VERTICAL SCROLL FOR PRODUCTS PAGE ==================== */
+/* Desktop - Keep carousel as is */
+@media (min-width: 769px) {
+    .products .js-slick-carousel {
+        display: block !important;
+    }
+}
+
+/* Mobile and Tablet (768px and below) - Transform to vertical grid */
+@media (max-width: 768px) {
+    /* When JavaScript adds 'mobile-scroll-layout' class, transform to grid */
+    .products .js-slick-carousel.mobile-scroll-layout {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        max-height: none !important;
+        padding: 0 10px !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Hide Slick carousel controls on mobile grid */
+    .products .mobile-scroll-layout .slick-list,
+    .products .mobile-scroll-layout .slick-track,
+    .products .mobile-scroll-layout .slick-prev,
+    .products .mobile-scroll-layout .slick-next {
+        display: none !important;
+    }
+    
+    /* Hide pagination dots when in grid mode */
+    .products .mobile-scroll-layout + .u-slick__pagination {
+        display: none !important;
+    }
+    
+    /* Slides become grid items */
+    .products .mobile-scroll-layout .js-slide {
+        padding: 0 !important;
+        width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+        float: none !important;
+    }
+    
+    /* Card stays same, just fits in grid */
+    .products .mobile-scroll-layout .card {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+}
+
+/* Small Mobile (480px and below) - Single Column */
+@media (max-width: 480px) {
+    .products .js-slick-carousel.mobile-scroll-layout {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        padding: 0 !important;
+    }
+    
+    .products .mobile-scroll-layout .card {
+        max-width: 100%;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .products .mobile-scroll-layout {
+        gap: 15px !important;
+    }
+}
+
+/* Ensure proper spacing on mobile */
+@media (max-width: 768px) {
+    .products {
+        padding-bottom: 30px;
+    }
+}
+
+/* ==================== MOBILE VERTICAL SCROLL - SINGLE COLUMN ==================== */
+@media (max-width: 768px) {
+    /* Transform carousel to vertical scrollable grid */
+    .products .js-slick-carousel {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding: 0 10px !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Hide ALL Slick carousel controls */
+    .products .slick-list,
+    .products .slick-track,
+    .products .slick-prev,
+    .products .slick-next,
+    .products .slick-dots,
+    .products .u-slick__pagination {
+        display: none !important;
+    }
+    
+    /* Each product slide becomes full-width block */
+    .products .js-slide {
+        width: 100% !important;
+        max-width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        float: none !important;
+        position: static !important;
+        transform: none !important;
+    }
+    
+    /* Card takes full width, proper height */
+    .products .js-slide .card {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 480px !important;
+        min-height: 480px !important;
+        margin: 0 auto !important;
+    }
+    
+    .products .card-img-top {
+        height: 240px !important; /* Larger image on single column */
+    }
+    
+    /* Card body spacing */
+    .products .card-body {
+        padding: 1rem 1.2rem !important;
+    }
+    
+    /* Card footer spacing */
+    .products .card-footer {
+        padding: 0.8rem 1.2rem 1.2rem !important;
+    }
+    
+    /* Smaller badge on mobile */
+    .products .badge {
+        font-size: 0.5rem !important;
+        padding: 0.15rem 0.35rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Very small screens - optimize spacing */
+    .products .js-slick-carousel {
+        gap: 15px !important;
+        padding: 0 5px !important;
+    }
+    
+    .products .js-slide .card {
+        height: 500px !important;
+        min-height: 500px !important;
+    }
+    
+    .products .card-img-top {
+        height: 260px !important;
+    }
+}
+
+@media (max-width: 360px) {
+    /* Extra small screens */
+    .products .js-slide .card {
+        height: 520px !important;
+        min-height: 520px !important;
+    }
+}
