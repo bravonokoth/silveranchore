@@ -231,40 +231,38 @@ $(document).ready(function() {
     let totalProducts = allProducts.length;
     
     // Initialize carousel
-    function initProductCarousel() {
-        const isMobile = window.innerWidth <= 480;
-        const $carousel = $('.products .js-slick-carousel');
-        
-        if (isMobile) {
-            if ($carousel.hasClass('slick-initialized')) {
-                $carousel.slick('unslick');
-                console.log('Products carousel destroyed for mobile');
-            }
-            $carousel.addClass('mobile-grid-layout');
-        } else {
-            $carousel.removeClass('mobile-grid-layout');
-            
-            if (!$carousel.hasClass('slick-initialized')) {
-                const $pagination = $carousel.next('.u-slick__pagination');
-                
-                productCarousel = $carousel.slick({
-                    slidesToShow: 4,
-                    slidesToScroll: 3,
-                    infinite: true,
-                    dots: true,
-                    arrows: true,
-                    appendDots: $pagination.length ? $pagination : $carousel.parent(),
-                    prevArrow: '<button type="button" class="slick-prev">‹</button>',
-                    nextArrow: '<button type="button" class="slick-next">›</button>',
-                    responsive: [
-                        { breakpoint: 992, settings: { slidesToShow: 3, slidesToScroll: 3 } },
-                        { breakpoint: 720, settings: { slidesToShow: 2, slidesToScroll: 2 } }
-                    ]
-                });
-                console.log('Products carousel initialized for desktop');
-            }
+function initProductCarousel() {
+    const $carousel = $('.products .js-slick-carousel');
+    const isMobile = window.innerWidth <= 768; // Better breakpoint than 480
+
+    if (isMobile) {
+        // DESTROY slick completely on mobile/tablet
+        if ($carousel.hasClass('slick-initialized')) {
+            $carousel.slick('unslick');
+            console.log('Slick destroyed on mobile');
+        }
+        $carousel.addClass('mobile-grid-fallback');
+    } else {
+        // Re-init only on desktop
+        if (!$carousel.hasClass('slick-initialized')) {
+            $carousel.removeClass('mobile-grid-fallback');
+            productCarousel = $carousel.slick({
+                slidesToShow: 4,
+                slidesToScroll: 3,
+                infinite: true,
+                dots: true,
+                arrows: true,
+                appendDots: $('.u-slick__pagination'),
+                prevArrow: '<button type="button" class="slick-prev">‹</button>',
+                nextArrow: '<button type="button" class="slick-next">›</button>',
+                responsive: [
+                    { breakpoint: 992, settings: { slidesToShow: 3 } },
+                    { breakpoint: 768, settings: { slidesToShow: 2 } }
+                ]
+            });
         }
     }
+}
     
     // Toggle filters on mobile
     $('#toggleProductFilters').on('click', function() {
