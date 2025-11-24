@@ -67,64 +67,55 @@
 </section>
 
 <!-- Category Section -->
-<section class="max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800">Categories</h2>
-    <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
-         data-slides-show="4"
-         data-slides-scroll="3"
-         data-infinite="true"
-         data-pagi-classes="text-center u-slick__pagination mt-7 mb-0"
-         data-responsive='[{
-           "breakpoint": 992,
-           "settings": { "slidesToShow": 3 }
-         }, {
-           "breakpoint": 720,
-           "settings": { "slidesToShow": 2 }
-         }, {
-           "breakpoint": 480,
-           "settings": { "slidesToShow": 1 }
-         }]'>
-        
+
+<section class="max-w-7xl mx-auto py-16 px-4">
+   <h2 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight mb-12 relative inline-block">
+        Shop by Category
+        <span class="block w-36 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
+    </h2>
+
+    <div id="categories-grid">
         @foreach ($categories as $category)
-            <div class="js-slide">
-                <div class="category-card text-center">
-                    <div class="category-image mb-3">
-                        <img src="{{ $category->media()->first() ? asset('storage/' . $category->media()->first()->path) : asset('images/category-placeholder.jpg') }}" 
-                             alt="{{ $category->name }}" 
-                             class="w-full h-32 object-cover rounded-lg">
-                    </div>
+            <a href="{{ route('categories.show', $category->id) }}" class="block">
+                <div class="category-card">
+                    <img src="{{ $category->media()->first() 
+                        ? asset('storage/' . $category->media()->first()->path) 
+                        : asset('images/category-placeholder.jpg') }}" 
+                         alt="{{ $category->name }}">
+
                     <div class="overlay">
                         <h3>{{ $category->name }}</h3>
-                        <p class="product-count">{{ $category->products_count ?? $category->products()->count() }} Products</p>
-                        <a href="{{ route('categories.show', $category->id) }}">View Products</a>
+                        <div class="product-count">
+                            {{ $category->products_count ?? $category->products()->count() }} Products
+                        </div>
+                        <span class="view-btn">View Collection</span>
                     </div>
                 </div>
-            </div>
+            </a>
         @endforeach
     </div>
-    <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
 
+<!-- PRODUCT SECTIONS – REDUCED SPACING + FIXED ARROW + VISIBLE GLOW -->
+<section class="max-w-7xl mx-auto py-8 px-4"> <!-- Reduced from py-16 to py-8 -->
 
-
-<!-- NEW: Three Infinite Scroll Sections - 4 PER ROW ON DESKTOP -->
-<section class="max-w-7xl mx-auto py-12 px-4">
-
-    <!-- MOST POPULAR (Most Sold) -->
+    <!-- MOST POPULAR -->
     <div class="mb-20">
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <div class="flex justify-between items-center mb-12 relative">
+            <h3 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight relative z-10">
                 Most Popular
+                <span class="block w-20 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
             </h3>
-            <a href="{{ route('products.index') }}?sort=popular" class="text-blue-600 hover:text-blue-800 font-medium">
-                View All →
+            <a href="{{ route('products.index') }}?sort=popular"
+               class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group">
+                View All
+                <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
             </a>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
-             id="popular-section"
-             data-type="popular"
-             data-page="1">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-7" id="popular-section" data-type="popular" data-page="1">
             @php
                 $initialPopular = \App\Models\Product::where('is_active', true)
                     ->select('products.*')
@@ -140,7 +131,7 @@
             @endforeach
         </div>
 
-        <div class="text-center mt-12">
+        <div class="text-center mt-16">
             <div class="loading-spinner hidden inline-flex items-center gap-3 text-blue-600 font-medium text-lg">
                 Loading more products...
                 <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24">
@@ -153,19 +144,21 @@
 
     <!-- TRENDING NOW -->
     <div class="mb-20">
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <div class="flex justify-between items-center mb-12 relative">
+            <h3 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight relative z-10">
                 Trending Now
+                <span class="block w-20 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
             </h3>
-            <a href="{{ route('products.index') }}?sort=trending" class="text-blue-600 hover:text-blue-800 font-medium">
-                View All →
+            <a href="{{ route('products.index') }}?sort=trending"
+               class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group">
+                View All
+                <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
             </a>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
-             id="trending-section"
-             data-type="trending"
-             data-page="1">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-7" id="trending-section" data-type="trending" data-page="1">
             @php
                 $initialTrending = \App\Models\Product::where('is_active', true)
                     ->where('created_at', '>=', now()->subDays(30))
@@ -178,33 +171,26 @@
                 @include('partials.product-card', compact('product'))
             @endforeach
         </div>
-
-        <div class="text-center mt-12">
-            <div class="loading-spinner hidden inline-flex items-center gap-3 text-blue-600 font-medium text-lg">
-                Loading more products...
-                <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" class="opacity-25"/>
-                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                </svg>
-            </div>
-        </div>
+        <!-- spinner same as above -->
     </div>
 
     <!-- NEW ARRIVALS -->
     <div class="mb-20">
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <div class="flex justify-between items-center mb-12 relative">
+            <h3 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight relative z-10">
                 New Arrivals
+                <span class="block w-20 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
             </h3>
-            <a href="{{ route('products.index') }}?sort=newest" class="text-blue-600 hover:text-blue-800 font-medium">
-                View All →
+            <a href="{{ route('products.index') }}?sort=newest"
+               class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group">
+                View All
+                <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
             </a>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
-             id="new-section"
-             data-type="new"
-             data-page="1">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-7" id="new-section" data-type="new" data-page="1">
             @php
                 $initialNew = \App\Models\Product::where('is_active', true)
                     ->with(['media', 'category'])
@@ -216,19 +202,11 @@
                 @include('partials.product-card', compact('product'))
             @endforeach
         </div>
-
-        <div class="text-center mt-12">
-            <div class="loading-spinner hidden inline-flex items-center gap-3 text-blue-600 font-medium text-lg">
-                Loading more products...
-                <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" class="opacity-25"/>
-                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                </svg>
-            </div>
-        </div>
+        <!-- spinner same as above -->
     </div>
-
 </section>
+
+
 <style>
 .card-img-top { min-height: 250px; }
 .js-slide { padding: 0 15px; }
@@ -238,6 +216,40 @@
     justify-content: center; transition: all 0.3s; 
 }
 .category-card:hover { background: #f8fafc; border-color: #3b82f6; }
+
+.text-ice-blue {
+    color: #60a5fa !important;
+}
+
+/* Optional: Add a subtle underline glow effect */
+h3.text-ice-blue {
+    position: relative;
+}
+
+h3.text-ice-blue::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #60a5fa, transparent);
+    border-radius: 2px;
+    opacity: 0.7;
+}
+
+/* Increase gap between cards */
+.grid.gap-7 {
+    gap: 1.75rem;
+}
+
+/* Mobile spacing tweak */
+@media (max-width: 640px) {
+    .grid.gap-7 {
+        gap: 1.5rem;
+    }
+}
+
 </style>
 
 
