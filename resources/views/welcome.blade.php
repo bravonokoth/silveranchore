@@ -86,7 +86,7 @@
                     <div class="overlay">
                         <h3>{{ $category->name }}</h3>
                         <div class="product-count">
-                            {{ $category->products_count ?? $category->products()->count() }} Products
+                            
                         </div>
                         <span class="view-btn">View Collection</span>
                     </div>
@@ -98,6 +98,8 @@
 
 <!-- PRODUCT SECTIONS – REDUCED SPACING + FIXED ARROW + VISIBLE GLOW -->
 <section class="max-w-7xl mx-auto py-8 px-4"> <!-- Reduced from py-16 to py-8 -->
+
+    
 
     <!-- MOST POPULAR -->
     <div class="mb-20">

@@ -923,5 +923,369 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
 }
+
+/* Tablet devices (768px and below) */
+@media (max-width: 768px) {
+    .checkout-wrapper {
+        padding: 20px 15px;
+    }
+
+    .checkout-header h2 {
+        font-size: 24px;
+        text-align: center;
+    }
+
+    /* Stack checkout steps vertically on small screens */
+    .checkout-steps {
+        flex-direction: column;
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .step {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .step-line {
+        display: none; /* Hide connecting lines on mobile */
+    }
+
+    /* Single column layout for checkout grid */
+    .checkout-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    /* Remove sticky positioning on mobile */
+    .order-summary-section {
+        position: static;
+        padding: 20px;
+    }
+
+    .order-summary-section h3,
+    .delivery-form-section h3 {
+        font-size: 20px;
+    }
+
+    /* Adjust order items */
+    .order-item {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .order-item-image {
+        width: 60px;
+        height: 60px;
+    }
+
+    .order-item-details h4 {
+        font-size: 14px;
+    }
+
+    .order-item-details p {
+        font-size: 13px;
+    }
+
+    .order-item-price span {
+        font-size: 16px;
+    }
+
+    /* Form adjustments */
+    .delivery-form-section {
+        padding: 20px;
+    }
+
+    /* Stack form rows vertically */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-input,
+    .form-select {
+        padding: 12px 14px;
+        font-size: 16px; /* Prevent iOS zoom on focus */
+    }
+
+    /* Payment method cards */
+    .payment-card {
+        padding: 15px;
+    }
+
+    .payment-logo svg {
+        width: 80px;
+        height: 24px;
+    }
+
+    .payment-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    /* Payment button adjustments */
+    .place-order-btn {
+        padding: 14px 24px;
+        font-size: 16px;
+        flex-wrap: wrap;
+        text-align: center;
+    }
+
+    .place-order-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Total row adjustments */
+    .total-row {
+        font-size: 14px;
+    }
+
+    .total-row.grand-total {
+        font-size: 18px;
+    }
+
+    /* Billing section */
+    .billing-section {
+        padding: 20px;
+    }
+
+    .billing-section h3 {
+        font-size: 18px;
+    }
+
+    /* Checkout messages */
+    .checkout-message {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .checkout-message svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+
+    /* Empty checkout */
+    .empty-checkout {
+        padding: 60px 20px;
+    }
+
+    .empty-checkout svg {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .empty-checkout p {
+        font-size: 16px;
+    }
+}
+
+/* Mobile devices (480px and below) */
+@media (max-width: 480px) {
+    .checkout-wrapper {
+        padding: 15px 10px;
+    }
+
+    .checkout-header h2 {
+        font-size: 20px;
+    }
+
+    .checkout-steps {
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .step span {
+        font-size: 13px;
+    }
+
+    .order-summary-section,
+    .delivery-form-section {
+        padding: 15px;
+        border-radius: 12px;
+    }
+
+    .order-summary-section h3,
+    .delivery-form-section h3,
+    .payment-method-section h3 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    .order-item {
+        padding: 12px;
+    }
+
+    .order-item-image {
+        width: 50px;
+        height: 50px;
+    }
+
+    .order-item-details h4 {
+        font-size: 13px;
+    }
+
+    .order-item-price span {
+        font-size: 14px;
+    }
+
+    .form-input,
+    .form-select {
+        padding: 10px 12px;
+        font-size: 16px; /* Maintain 16px to prevent zoom */
+        border-radius: 10px;
+    }
+
+    .form-label {
+        font-size: 13px;
+    }
+
+    .billing-checkbox {
+        padding: 12px;
+    }
+
+    .billing-checkbox label {
+        font-size: 14px;
+    }
+
+    .billing-section {
+        padding: 15px;
+    }
+
+    .payment-card {
+        padding: 12px;
+    }
+
+    .payment-card p {
+        font-size: 13px;
+    }
+
+    .place-order-btn {
+        padding: 12px 20px;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+
+    #btn-text {
+        line-height: 1.4;
+    }
+
+    .total-row {
+        font-size: 13px;
+    }
+
+    .total-row.grand-total {
+        font-size: 16px;
+    }
+
+    .continue-shopping-btn {
+        padding: 12px 24px;
+        font-size: 15px;
+    }
+}
+
+/* Extra small devices (360px and below) */
+@media (max-width: 360px) {
+    .checkout-header h2 {
+        font-size: 18px;
+    }
+
+    .step {
+        gap: 8px;
+    }
+
+    .step-circle {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+    }
+
+    .step span {
+        font-size: 12px;
+    }
+
+    .order-summary-section,
+    .delivery-form-section {
+        padding: 12px;
+    }
+
+    .place-order-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+
+    .payment-logo svg {
+        width: 70px;
+        height: 20px;
+    }
+}
+
+/* Landscape orientation fixes for mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+    .checkout-wrapper {
+        padding: 15px 10px;
+    }
+
+    .order-summary-section {
+        position: static;
+    }
+
+    .order-items {
+        max-height: 200px;
+    }
+}
+
+/* Fix for iOS Safari input zoom */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select,
+    textarea,
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+        font-size: 16px !important;
+    }
+}
+
+/* Improve touch targets for mobile */
+@media (max-width: 768px) {
+    .payment-option,
+    .billing-checkbox,
+    .form-input,
+    .form-select,
+    .place-order-btn {
+        min-height: 44px; /* iOS recommended touch target size */
+    }
+
+    .billing-checkbox input[type="checkbox"] {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* Horizontal scroll fix */
+.checkout-form,
+.checkout-container {
+    overflow-x: hidden;
+}
+
+/* Ensure text doesn't overflow on small screens */
+@media (max-width: 480px) {
+    .order-item-details h4,
+    .form-label,
+    .payment-card p {
+        word-break: break-word;
+        hyphens: auto;
+    }
+}
+
     </style>
 @endsection

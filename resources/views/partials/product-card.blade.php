@@ -198,7 +198,7 @@
 }
 
 .product-card-grid .buy-now-btn {
-    background: white;
+    background: rgb(62, 226, 62);
     color: #3b82f6;
     border: 2px solid #3b82f6;
 }

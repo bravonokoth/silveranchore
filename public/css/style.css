@@ -744,7 +744,7 @@ body.dark .category-card::before {
     font-size: 0.75rem;
     border-radius: 10px;
     border: 2px solid var(--ice-blue);
-    background: white;
+    background: rgb(34, 226, 27);
     color: var(--ice-blue);
     font-weight: 600;
     cursor: pointer;
