@@ -105,138 +105,131 @@
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
 
-<!-- Featured Products Section -->
-<section class="products max-w-7xl mx-auto py-8">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-800">
-        Products 
-    </h2>
-    
-    @if($featuredProducts->count() === 0)
-        <div class="text-center py-12">
-            <i class="fas fa-star text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-500 mb-2">No Featured Products</h3>
-            <p class="text-gray-400">Check out our full collection!</p>
-            <a href="{{ route('products.index') }}" class="mt-4 inline-block bg-blue-600 text-white px-6 py-2 rounded">Shop All</a>
-        </div>
-    @else
-        <div class="js-slick-carousel u-slick u-slick--gutters-3 u-slick--equal-height"
-             data-slides-show="4"
-             data-slides-scroll="3"
-             data-infinite="true"
-             data-pagi-classes="text-center u-slick__pagination mt-7 mb-0"
-             data-responsive='[{
-               "breakpoint": 992,
-               "settings": { "slidesToShow": 3 }
-             }, {
-               "breakpoint": 720,
-               "settings": { "slidesToShow": 2 }
-             }, {
-               "breakpoint": 480,
-               "settings": { "slidesToShow": 1 }
-             }]'>
-            
-          @foreach ($featuredProducts as $product)
-    <div class="js-slide">
-        <!-- Product Card -->
-        <div class="card text-center w-100">
-            <!-- Product Image - Clickable to Product Details -->
-            <a href="{{ route('products.show', $product->id) }}" class="position-relative">
-                <img class="card-img-top" 
-                     src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
-                     alt="{{ $product->name }}">
-                
-                <!-- Stock Badge -->
-                @if ($product->stock == 0)
-                    <div class="position-absolute top-0 left-0 pt-3 pl-3">
-                        <span class="badge badge-danger">Sold Out</span>
-                    </div>
-                @else
-                    <div class="position-absolute top-0 left-0 pt-3 pl-3">
-                        <span class="badge badge-success">In Stock</span>
-                    </div>
-                @endif
+<!-- NEW: Three Infinite Scroll Sections -->
+<section class="max-w-7xl mx-auto py-12 px-4">
 
-                <!-- Wishlist Heart -->
-                <div class="position-absolute top-0 right-0 pt-3 pr-3">
-                    <button type="button" 
-                            class="btn btn-sm btn-icon btn-outline-secondary rounded-circle" 
-                            data-toggle="tooltip" data-placement="top" title="Save for later">
-                        <span class="fas fa-heart btn-icon__inner"></span>
-                    </button>
-                </div>
+<!-- NEW: Three Infinite Scroll Sections - 4 PER ROW ON DESKTOP -->
+<section class="max-w-7xl mx-auto py-12 px-4">
+
+    <!-- MOST POPULAR (Most Sold) -->
+    <div class="mb-20">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+                Most Popular
+            </h3>
+            <a href="{{ route('products.index') }}?sort=popular" class="text-blue-600 hover:text-blue-800 font-medium">
+                View All →
             </a>
+        </div>
 
-          <!-- Product Info - Reversed Split Layout -->
-            <div class="card-body">
-                <!-- LEFT SIDE: Product Name & Category -->
-                <div class="product-left">
-                    <h3>
-                        <a href="{{ route('products.show', $product->id) }}">
-                            {{ $product->name }}
-                        </a>
-                    </h3>
-                    <a href="{{ route('categories.show', $product->category_id) }}" class="product-category">
-                        {{ $product->category?->name ?? 'Uncategorized' }}
-                    </a>
-                </div>
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
+             id="popular-section"
+             data-type="popular"
+             data-page="1">
+            @php
+                $initialPopular = \App\Models\Product::where('is_active', true)
+                    ->select('products.*')
+                    ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+                    ->groupBy('products.id')
+                    ->orderByRaw('COUNT(order_items.id) DESC, products.created_at DESC')
+                    ->with(['media', 'category'])
+                    ->take(8)
+                    ->get();
+            @endphp
+            @foreach($initialPopular as $product)
+                @include('partials.product-card', compact('product'))
+            @endforeach
+        </div>
 
-                <!-- RIGHT SIDE: Price & Stock -->
-                <div class="product-right">
-                    <div class="price-info">
-                        @if ($product->discount_price && $product->discount_price < $product->price)
-                            <span class="current-price">Ksh {{ number_format($product->discount_price, 0) }}</span>
-                            <span class="original-price">Ksh {{ number_format($product->price, 0) }}</span>
-                        @else
-                            <span class="current-price">Ksh {{ number_format($product->price, 0) }}</span>
-                        @endif
-                    </div>
-
-                    <!-- Stock Info -->
-                    <div class="stock-info {{ $product->stock == 0 ? 'out-of-stock' : '' }}">
-                        @if($product->stock > 0)
-                            <i class="fas fa-check-circle"></i> {{ $product->stock }} in stock
-                        @else
-                            <i class="fas fa-times-circle"></i> Out of stock
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="card-footer border-0">
-                <div class="action-buttons">
-                    <!-- Add to Cart Button -->
-                    <form action="{{ route('cart.store') }}" method="POST" style="flex: 1;">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <input type="hidden" name="quantity" value="1">
-                        @if($product->stock > 0)
-                            <button type="submit" class="add-to-cart-btn">
-                                <i class="fas fa-shopping-cart"></i>Add to Cart
-                            </button>
-                        @else
-                            <button type="button" class="add-to-cart-btn btn-disabled" disabled>
-                                <i class="fas fa-ban"></i>Sold Out
-                            </button>
-                        @endif
-                    </form>
-
-                    <!-- Buy Now Button -->
-                    @if($product->stock > 0)
-                        <a href="{{ route('checkout.quick', $product->id) }}" class="buy-now-btn">
-                            <i class="fas fa-bolt"></i>Buy Now
-                        </a>
-                    @endif
-                </div>
+        <div class="text-center mt-12">
+            <div class="loading-spinner hidden inline-flex items-center gap-3 text-blue-600 font-medium text-lg">
+                Loading more products...
+                <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" class="opacity-25"/>
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
             </div>
         </div>
     </div>
-@endforeach
-        </div>
-        <div class="text-center u-slick__pagination mt-7 mb-0"></div>
-    @endif
-</section>
 
+    <!-- TRENDING NOW -->
+    <div class="mb-20">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+                Trending Now
+            </h3>
+            <a href="{{ route('products.index') }}?sort=trending" class="text-blue-600 hover:text-blue-800 font-medium">
+                View All →
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
+             id="trending-section"
+             data-type="trending"
+             data-page="1">
+            @php
+                $initialTrending = \App\Models\Product::where('is_active', true)
+                    ->where('created_at', '>=', now()->subDays(30))
+                    ->with(['media', 'category'])
+                    ->latest()
+                    ->take(8)
+                    ->get();
+            @endphp
+            @foreach($initialTrending as $product)
+                @include('partials.product-card', compact('product'))
+            @endforeach
+        </div>
+
+        <div class="text-center mt-12">
+            <div class="loading-spinner hidden inline-flex items-center gap-3 text-blue-600 font-medium text-lg">
+                Loading more products...
+                <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" class="opacity-25"/>
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW ARRIVALS -->
+    <div class="mb-20">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+                New Arrivals
+            </h3>
+            <a href="{{ route('products.index') }}?sort=newest" class="text-blue-600 hover:text-blue-800 font-medium">
+                View All →
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
+             id="new-section"
+             data-type="new"
+             data-page="1">
+            @php
+                $initialNew = \App\Models\Product::where('is_active', true)
+                    ->with(['media', 'category'])
+                    ->latest()
+                    ->take(8)
+                    ->get();
+            @endphp
+            @foreach($initialNew as $product)
+                @include('partials.product-card', compact('product'))
+            @endforeach
+        </div>
+
+        <div class="text-center mt-12">
+            <div class="loading-spinner hidden inline-flex items-center gap-3 text-blue-600 font-medium text-lg">
+                Loading more products...
+                <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" class="opacity-25"/>
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+</section>
 <style>
 .card-img-top { min-height: 250px; }
 .js-slide { padding: 0 15px; }
@@ -255,6 +248,62 @@
 @endsection
 
 @push('scripts')
+
+
+
+<script>
+// Infinite Scroll for the three sections
+document.addEventListener('DOMContentLoaded', function () {
+    const sections = document.querySelectorAll('#popular-section, #trending-section, #new-section');
+
+    sections.forEach(section => {
+        let isLoading = false;
+
+        const loadMore = () => {
+            if (isLoading) return;
+            isLoading = true;
+
+            const page = parseInt(section.dataset.page) + 1;
+            section.dataset.page = page;
+
+            const spinner = section.parentElement.querySelector('.loading-spinner');
+            spinner.classList.remove('hidden');
+
+            fetch(`/?type=${section.dataset.type}&page=${page}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.html.trim()) {
+                    section.insertAdjacentHTML('beforeend', data.html);
+                }
+                if (!data.hasMore) {
+                    spinner.remove();
+                }
+                spinner.classList.add('hidden');
+                isLoading = false;
+            })
+            .catch(err => {
+                console.error('Load more failed', err);
+                spinner.textContent = 'Failed to load more';
+                isLoading = false;
+            });
+        };
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !isLoading) {
+                    loadMore();
+                }
+            });
+        }, { rootMargin: '0px 0px 600px 0px' });
+
+        observer.observe(section.parentElement);
+    });
+});
+</script>
+
+
 <script>
 $(document).ready(function() {
     console.log('🚀 Initializing carousels...');

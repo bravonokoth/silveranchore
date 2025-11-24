@@ -9,28 +9,52 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $banner = Banner::where('is_active', true)->inRandomOrder()->first();
-
-        // Try to get featured products first
-        $featuredProducts = Product::where('is_featured', true)
-            ->where('is_active', true)
-            ->with(['media', 'category'])
-            ->take(8)
-            ->get();
-
-        // If no featured products exist, get latest products instead
-        if ($featuredProducts->isEmpty()) {
-            $featuredProducts = Product::where('is_active', true)
-                ->with(['media', 'category'])
-                ->latest()
-                ->take(8)
-                ->get();
-        }
-
+        $banner     = Banner::where('is_active', true)->inRandomOrder()->first();
         $categories = Category::with('media')->get();
 
-        return view('welcome', compact('banner', 'featuredProducts', 'categories'));
+        // AJAX: Infinite scroll
+        if ($request->ajax() || $request->wantsJson()) {
+            $type    = $request->get('type', 'new');
+            $page    = $request->get('page', 1);
+            $perPage = 8;
+
+            $query = Product::where('is_active', true)
+                            ->with(['media', 'category']);
+
+            if ($type === 'popular') {
+                // Most sold products (based on order_items count)
+                $query->select('products.*')
+                      ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+                      ->groupBy('products.id')
+                      ->orderByRaw('COUNT(order_items.id) DESC, products.created_at DESC');
+            } 
+            elseif ($type === 'trending') {
+                // Recent + slightly more popular (last 30 days)
+                $query->where('created_at', '>=', now()->subDays(30))
+                      ->orderBy('created_at', 'desc');
+            } 
+            else {
+                // New arrivals
+                $query->latest();
+            }
+
+            $products = $query->skip(($page - 1) * $perPage)
+                              ->take($perPage)
+                              ->get();
+
+            $html = '';
+            foreach ($products as $product) {
+                $html .= view('partials.product-card', compact('product'))->render();
+            }
+
+            return response()->json([
+                'html'    => $html,
+                'hasMore' => $products->count() === $perPage
+            ]);
+        }
+
+        return view('welcome', compact('banner', 'categories'));
     }
 }

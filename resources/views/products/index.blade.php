@@ -702,4 +702,20 @@ body.dark .price-range-section {
         justify-content: center;
     }
 }
+
+@media (max-width: 480px) {
+    .toggle-filters-mobile {
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+
+    .price-inputs {
+        gap: 8px;
+    }
+
+    .apply-price-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
 </style>

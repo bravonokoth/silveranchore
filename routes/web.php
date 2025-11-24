@@ -42,6 +42,7 @@ use App\Http\Controllers\DashboardController;
 // 🏠 Home Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+
 // 📄 Static Pages
 Route::get('/about', [StaticPageController::class, 'about'])->name('about');
 Route::get('/contact', [StaticPageController::class, 'contact'])->name('contact');
