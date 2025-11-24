@@ -32,8 +32,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 
-    
-
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -109,22 +107,80 @@
         </section>
     </div>
 
-    <!-- Slick Carousel Initialization -->
+    <!-- Smart Slick Carousel Initialization - Desktop Only -->
     <script>
         $(document).ready(function () {
-            $('.js-slick-carousel').slick({
-                slidesToShow: 4,
-                slidesToScroll: 3,
-                infinite: true,
-                dots: true,
-                appendDots: '.u-slick__pagination',
-                responsive: [
-                    { breakpoint: 992, settings: { slidesToShow: 3 } },
-                    { breakpoint: 720, settings: { slidesToShow: 2 } },
-                    { breakpoint: 480, settings: { slidesToShow: 1 } }
-                ]
+            console.log('🎯 Global Slick: Checking device...');
+            
+            function initGlobalCarousels() {
+                const isMobile = $(window).width() <= 768;
+                console.log(`📱 Device: ${isMobile ? 'MOBILE' : 'DESKTOP'} (${$(window).width()}px)`);
+                
+                // Only initialize Slick on DESKTOP
+                if (!isMobile) {
+                    console.log('💻 Initializing global Slick for desktop...');
+                    
+                    $('.js-slick-carousel').each(function() {
+                        const $carousel = $(this);
+                        
+                        // Skip if already initialized
+                        if ($carousel.hasClass('slick-initialized')) {
+                            console.log('⚠️ Carousel already initialized, skipping');
+                            return;
+                        }
+                        
+                        // Skip if it has page-specific initialization
+                        if ($carousel.closest('.products').length || 
+                            $carousel.hasClass('hero-slider') ||
+                            $carousel.hasClass('u-slick--gutters-3')) {
+                            console.log('⚠️ Page-specific carousel, skipping global init');
+                            return;
+                        }
+                        
+                        $carousel.slick({
+                            slidesToShow: 4,
+                            slidesToScroll: 3,
+                            infinite: true,
+                            dots: true,
+                            arrows: true,
+                            appendDots: '.u-slick__pagination',
+                            prevArrow: '<button type="button" class="slick-prev">‹</button>',
+                            nextArrow: '<button type="button" class="slick-next">›</button>',
+                            responsive: [
+                                { breakpoint: 992, settings: { slidesToShow: 3 } },
+                                { breakpoint: 720, settings: { slidesToShow: 2 } }
+                            ]
+                        });
+                        
+                        console.log('✅ Global Slick initialized');
+                    });
+                } else {
+                    console.log('📱 Mobile detected - Skipping global Slick initialization');
+                    console.log('📱 Page-specific mobile layout will handle display');
+                }
+            }
+            
+            // Initialize on load
+            initGlobalCarousels();
+            
+            // Reinitialize on resize (debounced)
+            let resizeTimer;
+            $(window).on('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    console.log('📐 Window resized, checking device type...');
+                    
+                    // Destroy all Slick instances
+                    $('.js-slick-carousel.slick-initialized').slick('unslick');
+                    
+                    // Reinitialize based on screen size
+                    initGlobalCarousels();
+                }, 250);
             });
         });
     </script>
+
+    <!-- Page-specific scripts -->
+    @stack('scripts')
 </body>
 </html>
