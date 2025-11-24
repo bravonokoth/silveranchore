@@ -1,5 +1,5 @@
 {{-- resources/views/partials/product-card.blade.php --}}
-<div class="card">
+<div class="product-card-grid">
     <a href="{{ route('products.show', $product->id) }}" class="position-relative">
         <img class="card-img-top" 
              src="{{ asset('storage/' . ($product->media->first()?->path ?? 'images/placeholder.jpg')) }}" 
@@ -81,58 +81,57 @@
 </div>
 
 <style>
-/* CARD STYLE  */
-.card {
+/* SAFE PRODUCT CARD FOR GRID — NO CONFLICT WITH SLICK */
+.product-card-grid {
     background: #fff;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(74, 144, 226, 0.12);
     transition: all 0.3s ease;
-    height: auto;
-    min-height: 420px;
+    height: 440px;
     display: flex;
     flex-direction: column;
 }
 
-.card:hover {
+.product-card-grid:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 35px rgba(74, 144, 226, 0.25);
 }
 
-.position-relative {
+.product-card-grid .position-relative {
     position: relative;
     height: 270px;
-    background: #f0f7ff;
+    background: #f8f9ff;
     overflow: hidden;
 }
 
-.card-img-top {
+.product-card-grid .card-img-top {
     width: 100%;
     height: 270px;
     object-fit: cover;
     transition: transform 0.4s ease;
 }
 
-.card:hover .card-img-top {
+.product-card-grid:hover .card-img-top {
     transform: scale(1.08);
 }
 
-.card-body {
-    padding: 0.6rem 1rem;
+.product-card-grid .card-body {
+    padding: 1rem;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.4rem;
+    gap: 0.5rem;
     flex-grow: 1;
 }
 
-.product-left h3 {
+.product-card-grid h3 {
     font-size: 0.95rem;
     font-weight: 600;
     margin: 0;
     line-height: 1.2;
 }
 
-.product-left h3 a {
+.product-card-grid h3 a {
     color: #1a202c;
     text-decoration: none;
     display: -webkit-box;
@@ -141,30 +140,25 @@
     overflow: hidden;
 }
 
-.product-left h3 a:hover { color: #3b82f6; }
-
-.product-category {
+.product-card-grid .product-category {
     font-size: 0.7rem;
     color: #94a3b8;
     font-style: italic;
 }
 
-.product-right { text-align: right; }
-
-.current-price {
+.product-card-grid .current-price {
     font-size: 1.1rem;
     font-weight: 700;
     color: #3b82f6;
-    font-style: italic;
 }
 
-.original-price {
+.product-card-grid .original-price {
     font-size: 0.75rem;
- color: #94a3b8;
- text-decoration: line-through;
+    color: #94a3b8;
+    text-decoration: line-through;
 }
 
-.stock-info {
+.product-card-grid .stock-info {
     font-size: 0.7rem;
     color: #10b981;
     display: flex;
@@ -173,60 +167,49 @@
     gap: 4px;
 }
 
-.stock-info.out-of-stock { color: #ef4444; }
-
-.card-footer {
+.product-card-grid .card-footer {
     padding: 0.5rem 1rem 1rem;
     margin-top: auto;
 }
 
-.action-buttons {
+.product-card-grid .action-buttons {
     display: flex;
     gap: 10px;
 }
 
-.add-to-cart-btn {
+.product-card-grid .add-to-cart-btn,
+.product-card-grid .buy-now-btn {
     flex: 1;
-    padding: 0.7rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s;
+}
+
+.product-card-grid .add-to-cart-btn {
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: white;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.3s;
 }
 
-.add-to-cart-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59,130,246,0.4);
-}
-
-.buy-now-btn {
-    flex: 1;
-    padding: 0.7rem;
+.product-card-grid .buy-now-btn {
     background: white;
     color: #3b82f6;
     border: 2px solid #3b82f6;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    text-align: center;
-    transition: all 0.3s;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
 }
 
-.buy-now-btn:hover {
-    background: #3b82f6;
-    color: white;
+/* MOBILE: 1 full-width card */
+@media (max-width: 639px) {
+    .product-card-grid {
+        max-width: 380px;
+        margin: 0 auto;
+        height: 420px;
+    }
 }
 
 /* GRID LAYOUT - 4 ON DESKTOP, 1 ON MOBILE */
@@ -234,49 +217,38 @@
 #trending-section,
 #new-section {
     display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     padding: 0 16px;
 }
 
-/* Mobile: 1 card, full width */
-@media (max-width: 639px) {
+@media (min-width: 640px) {
     #popular-section,
     #trending-section,
     #new-section {
-        grid-template-columns: repeat(1, 1fr);
-        gap: 20px;
-        padding: 0 20px;
-    }
-    
-    .card {
-        max-width: 380px;
-        margin: 0 auto;
-        width: 100%;
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
-/* Tablet: 2-3 cards */
-@media (min-width: 640px) and (max-width: 1023px) {
-    #popular-section,
-    #trending-section,
-    #new-section {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Desktop: 4 cards */
 @media (min-width: 1024px) {
     #popular-section,
     #trending-section,
     #new-section {
         grid-template-columns: repeat(4, 1fr);
+        padding: 0;
         max-width: 1400px;
         margin: 0 auto;
-        padding: 0;
-    }
-    
-    .card {
-        max-width: none;
     }
 }
+
+@media (max-width: 639px) {
+    #popular-section,
+    #trending-section,
+    #new-section {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+    }
+}
+
+
 </style>

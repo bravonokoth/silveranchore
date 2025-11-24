@@ -105,8 +105,7 @@
     <div class="text-center u-slick__pagination mt-7 mb-0"></div>
 </section>
 
-<!-- NEW: Three Infinite Scroll Sections -->
-<section class="max-w-7xl mx-auto py-12 px-4">
+
 
 <!-- NEW: Three Infinite Scroll Sections - 4 PER ROW ON DESKTOP -->
 <section class="max-w-7xl mx-auto py-12 px-4">
@@ -252,7 +251,7 @@
 
 
 <script>
-// Infinite Scroll for the three sections
+
 document.addEventListener('DOMContentLoaded', function () {
     const sections = document.querySelectorAll('#popular-section, #trending-section, #new-section');
 
@@ -266,39 +265,50 @@ document.addEventListener('DOMContentLoaded', function () {
             const page = parseInt(section.dataset.page) + 1;
             section.dataset.page = page;
 
-            const spinner = section.parentElement.querySelector('.loading-spinner');
-            spinner.classList.remove('hidden');
+            const spinner = section.closest('.mb-20').querySelector('.loading-spinner');
+            if (spinner) spinner.classList.remove('hidden');
 
-            fetch(`/?type=${section.dataset.type}&page=${page}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            fetch(`/load-more?type=${section.dataset.type}&page=${page}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
             })
             .then(r => r.json())
             .then(data => {
-                if (data.html.trim()) {
+                if (data.html && data.html.trim()) {
                     section.insertAdjacentHTML('beforeend', data.html);
                 }
                 if (!data.hasMore) {
-                    spinner.remove();
+                    if (spinner) spinner.remove();
+                } else if (spinner) {
+                    spinner.classList.add('hidden');
                 }
-                spinner.classList.add('hidden');
                 isLoading = false;
             })
             .catch(err => {
                 console.error('Load more failed', err);
-                spinner.textContent = 'Failed to load more';
+                if (spinner) spinner.textContent = 'Failed to load';
                 isLoading = false;
             });
         };
 
-        const observer = new IntersectionObserver(entries => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !isLoading) {
-                    loadMore();
-                }
-            });
-        }, { rootMargin: '0px 0px 600px 0px' });
+        // Create sentinel at bottom of each section
+        const sentinel = document.createElement('div');
+        sentinel.style.height = '20px';
+        sentinel.className = 'load-more-sentinel';
+        section.appendChild(sentinel);
 
-        observer.observe(section.parentElement);
+        const observer = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && !isLoading) {
+                loadMore();
+            }
+        }, { 
+            rootMargin: '0px 0px 400px 0px',
+            threshold: 0.1
+        });
+
+        observer.observe(sentinel);
     });
 });
 </script>

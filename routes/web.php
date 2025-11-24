@@ -41,7 +41,7 @@ use App\Http\Controllers\DashboardController;
 
 // 🏠 Home Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
+Route::get('/load-more', [HomeController::class, 'loadMore'])->name('home.loadmore');
 
 // 📄 Static Pages
 Route::get('/about', [StaticPageController::class, 'about'])->name('about');

@@ -57,4 +57,33 @@ class HomeController extends Controller
 
         return view('welcome', compact('banner', 'categories'));
     }
+
+public function loadMore(Request $request)
+{
+    $type = $request->get('type');
+    $page = $request->get('page', 1);
+
+    $perPage = 8;
+    $query = Product::where('is_active', true)->with(['media', 'category']);
+
+    if ($type === 'popular') {
+        $products = $query->select('products.*')
+            ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
+            ->groupBy('products.id')
+            ->orderByRaw('COUNT(order_items.id) DESC, products.created_at DESC');
+    } elseif ($type === 'trending') {
+        $products = $query->where('created_at', '>=', now()->subDays(30))->latest();
+    } else {
+        $products = $query->latest();
+    }
+
+    $products = $products->paginate($perPage, ['*'], 'page', $page);
+
+    // Return ONLY the product cards HTML
+    return response()->json([
+        'html' => view('partials.product-cards-grid', compact('products'))->render(),
+        'hasMore' => $products->hasMorePages()
+    ]);
+}
+
 }
