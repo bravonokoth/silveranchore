@@ -224,64 +224,198 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    const $carousel = $('.products .js-slick-carousel');
-    const allProducts = $('.products .js-slide');
+    console.log('🚀 Initializing carousels...');
     
-    console.log('🔍 DEBUG INFO:');
-    console.log('- Carousel found:', $carousel.length);
-    console.log('- Products found:', allProducts.length);
-    console.log('- Window width:', $(window).width());
+    // Initialize hero slider (always carousel)
+    const $heroSlider = $('.js-slick-carousel.hero-slider');
     
-    // Function to initialize
-    function initProductDisplay() {
-        const windowWidth = $(window).width();
-        console.log('📱 Initializing at width:', windowWidth);
+    if ($heroSlider.length) {
+        $heroSlider.slick({
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            fade: true,
+            autoplay: true,
+            autoplaySpeed: 5000,
+            infinite: true,
+            arrows: true,
+            dots: true,
+            cssEase: 'ease-in-out',
+            speed: 1000,
+            pauseOnHover: false,
+            pauseOnFocus: false,
+            adaptiveHeight: false,
+            appendDots: $('.hero-pagination'),
+            prevArrow: '<button type="button" class="slick-prev">←</button>',
+            nextArrow: '<button type="button" class="slick-next">→</button>'
+        });
         
-        // Destroy carousel if exists
+        console.log('✅ Hero slider initialized');
+    }
+
+    // Function to force mobile layout (NO SLICK)
+    function forceMobileLayout($carousel) {
+        const $slides = $carousel.find('.js-slide');
+        
+        console.log(`📱 FORCING mobile layout for ${$slides.length} slides`);
+        
+        // Destroy Slick if exists
         if ($carousel.hasClass('slick-initialized')) {
-            console.log('🔄 Destroying carousel');
             $carousel.slick('unslick');
         }
         
-        if (windowWidth <= 768) {
-            console.log('📱 MOBILE MODE');
-            
-            // Force products visible
-            allProducts.each(function(i) {
-                const $item = $(this);
-                $item.attr('style', 'display: block !important; visibility: visible !important; opacity: 1 !important;');
-                console.log(`✅ Product ${i+1} forced visible`);
-            });
-            
-            // Force grid
-            $carousel.attr('style', 'display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 15px !important;');
-            
-        } else {
-            console.log('💻 DESKTOP MODE');
-            $carousel.removeAttr('style');
-            allProducts.removeAttr('style');
-            
-            $carousel.slick({
-                slidesToShow: 4,
-                slidesToScroll: 3,
-                infinite: true,
-                dots: true,
-                arrows: true,
-                responsive: [{
-                    breakpoint: 992,
-                    settings: { slidesToShow: 3 }
-                }]
-            });
+        // Remove ALL Slick classes and styles
+        $carousel.removeAttr('style')
+                 .removeClass('slick-slider slick-initialized');
+        
+        $slides.removeAttr('style')
+               .removeClass('slick-slide slick-active slick-current slick-cloned');
+        
+        // Remove Slick wrappers
+        if ($carousel.find('.slick-list').length) {
+            const $items = $carousel.find('.slick-track > .js-slide');
+            if ($items.length) {
+                $items.unwrap().unwrap();
+            }
         }
+        
+        // Force visible layout
+        $carousel.css({
+            'display': 'flex',
+            'flex-direction': 'column',
+            'gap': '20px',
+            'padding': '0 10px',
+            'width': '100%',
+            'overflow': 'visible',
+            'height': 'auto'
+        });
+        
+        // Make each slide visible
+        $slides.each(function(index) {
+            const $slide = $(this);
+            $slide.css({
+                'display': 'block',
+                'width': '100%',
+                'max-width': '100%',
+                'float': 'none',
+                'margin': '0',
+                'padding': '0',
+                'position': 'static',
+                'transform': 'none',
+                'opacity': '1',
+                'visibility': 'visible',
+                'left': 'auto',
+                'right': 'auto',
+                'top': 'auto',
+                'height': 'auto'
+            });
+            
+            // Make card visible
+            $slide.find('.card, .category-card').css({
+                'display': 'flex',
+                'flex-direction': 'column',
+                'width': '100%',
+                'max-width': '100%',
+                'opacity': '1',
+                'visibility': 'visible',
+                'position': 'relative',
+                'transform': 'none',
+                'height': 'auto'
+            });
+            
+            console.log(`  ✓ Slide ${index + 1} forced visible`);
+        });
+        
+        // Hide pagination
+        $carousel.next('.u-slick__pagination').hide();
+        
+        console.log(`✅ Mobile layout applied - ${$slides.length} slides visible`);
+    }
+
+    // Initialize category and product carousels
+    function initCarousels() {
+        const isMobile = $(window).width() <= 768;
+        const windowWidth = $(window).width();
+        
+        console.log(`📐 Window: ${windowWidth}px | Mobile: ${isMobile}`);
+        
+        $('.u-slick--gutters-3').each(function(index) {
+            const $carousel = $(this);
+            const $slides = $carousel.find('.js-slide');
+            const $pagination = $carousel.next('.u-slick__pagination');
+            
+            console.log(`\n📦 Carousel ${index + 1}:`);
+            console.log(`  - Slides found: ${$slides.length}`);
+            console.log(`  - Mode: ${isMobile ? 'MOBILE' : 'DESKTOP'}`);
+            
+            if (isMobile) {
+                // FORCE mobile layout - NO SLICK
+                forceMobileLayout($carousel);
+                
+            } else {
+                // Desktop: Use Slick carousel
+                console.log(`  💻 Initializing Slick carousel...`);
+                
+                // Destroy existing Slick
+                if ($carousel.hasClass('slick-initialized')) {
+                    $carousel.slick('unslick');
+                }
+                
+                // Clear mobile styles
+                $carousel.removeAttr('style');
+                $slides.removeAttr('style');
+                $slides.find('.card, .category-card').removeAttr('style');
+                
+                // Initialize Slick
+                $carousel.slick({
+                    slidesToShow: 4,
+                    slidesToScroll: 1,
+                    infinite: true,
+                    dots: true,
+                    arrows: true,
+                    appendDots: $pagination.length ? $pagination : $carousel.parent(),
+                    prevArrow: '<button type="button" class="slick-prev">‹</button>',
+                    nextArrow: '<button type="button" class="slick-next">›</button>',
+                    responsive: [
+                        { 
+                            breakpoint: 992, 
+                            settings: { 
+                                slidesToShow: 3,
+                                slidesToScroll: 1
+                            } 
+                        },
+                        { 
+                            breakpoint: 720, 
+                            settings: { 
+                                slidesToShow: 2,
+                                slidesToScroll: 1
+                            } 
+                        }
+                    ]
+                });
+                
+                // Show pagination
+                if ($pagination.length) {
+                    $pagination.show();
+                }
+                
+                console.log(`  ✅ Slick initialized`);
+            }
+        });
+        
+        console.log('\n🎉 All carousels initialized!\n');
     }
     
-    // Initialize
-    initProductDisplay();
+    // Initialize on load
+    initCarousels();
     
-    // Resize
+    // Reinitialize on resize (debounced)
+    let resizeTimer;
     $(window).on('resize', function() {
-        clearTimeout(window.resizeTimer);
-        window.resizeTimer = setTimeout(initProductDisplay, 250);
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            console.log('\n📐 RESIZE detected - Reinitializing...');
+            initCarousels();
+        }, 250);
     });
 });
 </script>

@@ -9,24 +9,27 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    /**
-     * Display the home page with a banner, featured products, and categories.
-     *
-     * @return \Illuminate\View\View
-     */
-public function index()
+    public function index()
     {
         $banner = Banner::where('is_active', true)->inRandomOrder()->first();
 
+        // Try to get featured products first
         $featuredProducts = Product::where('is_featured', true)
             ->where('is_active', true)
-            ->with('media')
+            ->with(['media', 'category'])
             ->take(8)
             ->get();
 
-       
-        $categories = Category::with('media') 
-            ->get();
+        // If no featured products exist, get latest products instead
+        if ($featuredProducts->isEmpty()) {
+            $featuredProducts = Product::where('is_active', true)
+                ->with(['media', 'category'])
+                ->latest()
+                ->take(8)
+                ->get();
+        }
+
+        $categories = Category::with('media')->get();
 
         return view('welcome', compact('banner', 'featuredProducts', 'categories'));
     }
