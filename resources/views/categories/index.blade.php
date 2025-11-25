@@ -342,4 +342,37 @@ body.dark .no-results-message {
         flex: 1;
     }
 }
+
+@media (max-width: 719px) {
+    .js-slick-carousel[data-slides-show="4"] {
+        /* Override Slick's default 1-slide-on-mobile behavior */
+        --slick-slides-to-show: 2 !important;
+    }
+    
+    .js-slick-carousel .slick-track {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px;
+    }
+    
+    .js-slick-carousel .slick-slide {
+        float: none !important;
+        width: auto !important;
+        margin: 0 !important;
+    }
+    
+    .js-slick-carousel .slick-list {
+        padding: 0 8px !important;
+    }
+}
+
+/* Extra small phones – still 2 cards, tighter gap */
+@media (max-width: 480px) {
+    .js-slick-carousel .slick-track {
+        gap: 12px;
+    }
+    .js-slick-carousel .slick-list {
+        padding: 0 6px !important;
+    }
+}
 </style>

@@ -228,10 +228,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Mobile filter toggle
     document.getElementById('toggleProductFilters').addEventListener('click', function() {
-        const panel = document.getElementById('productFiltersPanel');
-        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        this.querySelector('i').classList.toggle('fa-times');
-    });
+    const panel = document.getElementById('productFiltersPanel');
+    const icon = this.querySelector('i');
+
+    // This is the fix: check if panel is currently hidden (no style or display:none)
+    if (!panel.style.display || panel.style.display === 'none') {
+        panel.style.display = 'block';
+        icon.classList.remove('fa-sliders-h');
+        icon.classList.add('fa-times');
+    } else {
+        panel.style.display = 'none';
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-sliders-h');
+    }
+});
 });
 </script>
 @endpush
@@ -488,54 +498,83 @@ body.dark .price-range-section {
     border-top-color: #4a5568;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+    /* Show toggle button */
     .toggle-filters-mobile {
-        display: flex;
+        display: flex !important;
     }
-    
-    .filters-panel {
-        display: none;
-        margin-top: 15px;
+
+    /* Hide panel by default */
+    #productFiltersPanel {
+        display: none !important;
     }
-    
+
+    /* When JS sets display: block → show it smoothly */
+    #productFiltersPanel[style*="block"] {
+        display: block !important;
+        animation: slideDown 0.35s ease-out;
+    }
+
+    /* Full-width stacked filters */
     .filter-row {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        grid-template-columns: 1fr !important;
+        gap: 14px;
     }
-    
+
     .price-inputs {
         flex-direction: column;
+        gap: 10px;
         align-items: stretch;
     }
-    
-    .price-input {
-        width: 100%;
+
+    .price-input,
+    .apply-price-btn {
+        width: 100% !important;
     }
-    
+
     .price-separator {
         display: none;
     }
-    
+
     .apply-price-btn {
-        width: 100%;
         justify-content: center;
+    }
+
+    .reset-btn-products {
+        width: 100%;
     }
 }
 
-@media (max-width: 480px) {
+/* Desktop — hide mobile button, always show panel */
+@media (min-width: 768px) {
     .toggle-filters-mobile {
-        font-size: 13px;
-        padding: 8px 14px;
+        display: none !important;
     }
-
-    .price-inputs {
-        gap: 8px;
+    #productFiltersPanel {
+        display: block !important;
     }
+}
 
-    .apply-price-btn {
+/* Smooth slide-down animation */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Extra small phones polish */
+@media (max-width: 480px) {
+    .products-filter-bar {
+        padding: 16px;
+    }
+    .toggle-filters-mobile {
+        font-size: 14px;
         padding: 10px 16px;
-        font-size: 13px;
     }
 }
 </style>
@@ -548,7 +587,7 @@ body.dark .price-range-section {
         padding: 0 12px;
     }
 
-    /* Mobile: 2 cards per row (your new request) */
+    /* Mobile: 2 cards per row */
     @media (max-width: 767px) {
         #products-grid-container {
             grid-template-columns: 1fr 1fr;        /* ← 2 cards on phone */
@@ -609,4 +648,7 @@ body.dark .price-range-section {
             height: 220px;
         }
     }
+
+
+    
 </style>
