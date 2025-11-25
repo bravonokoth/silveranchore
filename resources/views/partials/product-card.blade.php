@@ -61,9 +61,9 @@
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="quantity" value="1">
                 @if($product->stock > 0)
-                    <button type="submit" class="add-to-cart-btn">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                    </button>
+                    <button onclick="openCartSidebar()" class="add-to-cart-btn">
+                                Add to Cart
+                            </button>
                 @else
                     <button type="button" class="add-to-cart-btn btn-disabled" disabled>
                         <i class="fas fa-ban"></i> Sold Out

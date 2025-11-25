@@ -68,9 +68,10 @@ Route::prefix('categories')->group(function () {
 // 🛒 Cart (Guest + Auth)
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::get('/items', [CartController::class, 'getCartItems'])->name('cart.items'); // NEW - for sidebar
     Route::post('/', [CartController::class, 'store'])->name('cart.store');
     Route::put('{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::delete('{id}', [CartController::class, 'remove'])->name('cart.remove'); // Changed from destroy
     Route::delete('/', [CartController::class, 'clear'])->name('cart.clear');
     Route::get('/quick-checkout/{productId}', [CartController::class, 'quickCheckout'])->name('cart.quick-checkout');
 });

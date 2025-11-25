@@ -23,36 +23,35 @@
                                                     ->get();
             @endphp
 
-            @forelse($activeBanners as $banner)
-                <div class="hero-slide w-100 h-100">
-                    @if($banner->link)
-                        <a href="{{ $banner->link }}" class="d-block w-100 h-100">
-                            <img src="{{ asset('storage/' . $banner->image_path) }}" 
-                                 alt="{{ $banner->title }}" 
-                                 class="hero-image w-100 h-100 object-cover">
-                        </a>
-                    @else
-                        <img src="{{ asset('storage/' . $banner->image_path) }}" 
-                             alt="{{ $banner->title }}" 
-                             class="hero-image w-100 h-100 object-cover">
-                    @endif
+            @if($activeBanners->count() > 0)
+                @foreach($activeBanners as $banner)
+                    <div class="hero-slide w-100 h-100">
+                        @if($banner->link)
+                            <a href="{{ $banner->link }}" class="d-block w-100 h-100">
+                                <img src="{{ Storage::url($banner->image_path) }}" 
+                                    alt="{{ $banner->title ?? 'Banner' }}" 
+                                    class="hero-image w-100 h-100 object-cover">
+                            </a>
+                        @else
+                            <img src="{{ Storage::url($banner->image_path) }}" 
+                                alt="{{ $banner->title ?? 'Banner' }}" 
+                                class="hero-image w-100 h-100 object-cover">
+                        @endif
+                    </div>
+                @endforeach
+            @else
+                <!-- Optional: Graceful fallback with solid color + text when NO banners exist -->
+                <div class="hero-slide w-100 h-100 d-flex align-items-center justify-content-center bg-gradient-to-br from-blue-600 to-blue-900">
+                    <div class="text-center text-white px-6">
+                        <h1 class="text-5xl md:text-7xl font-bold mb-4"></h1>
+                        <p class="text-xl md:text-2xl opacity-90"></p>
+                    </div>
                 </div>
-                   @empty
-                <div class="hero-slide w-100 h-100">
-                    <img src="{{ asset('images/pexels.jpg') }}" 
-                         alt="The Liquor Cabinet" 
-                         class="hero-image w-100 h-100 object-cover">
-                </div>
-            @endforelse
-        </div>
-
-        <!-- Fallback background (only shows if JS fails) -->
-        <div class="fallback-bg w-100 h-100 position-absolute top-0 start-0"
-             style="background: url('{{ asset('images/pexels.jpg') }}') center/cover no-repeat; filter: brightness(0.6);">
+            @endif
         </div>
     </div>
 
-    <!-- Content Overlay -->
+    <!-- Content Overlay 
     <div class="hero-content position-relative z-10 text-center">
         <h1 class="text-4xl font-bold text-white">The Liquor Cabinet</h1>
         <p class="text-lg text-white mb-6">Discover our premium selection of fine liquors and accessories.</p>
@@ -60,22 +59,24 @@
             <a href="{{ route('products.index') }}" class="cta-button">Shop Now</a>
             <a href="{{ route('categories.index') }}" class="cta-button secondary">Browse Categories</a>
         </div>
-    </div>
+    </div>  -->
 
     <!-- Slick Dots Pagination -->
     <div class="hero-pagination position-absolute bottom-0 start-50 translate-middle-x mb-4 z-10"></div>
 </section>
 
 <!-- Category Section -->
-
 <section class="max-w-7xl mx-auto py-16 px-4">
-   <h2 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight mb-12 relative inline-block">
+    <h2 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight mb-12 relative inline-block">
         Shop by Category
         <span class="block w-36 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
     </h2>
 
-    <div id="categories-grid">
-        @foreach ($categories as $category)
+    <div id="categories-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6" data-page="1">
+        @php
+            $initialCategories = $categories->take(8);
+        @endphp
+        @foreach($initialCategories as $category)
             <a href="{{ route('categories.show', $category->id) }}" class="block">
                 <div class="category-card">
                     <img src="{{ $category->media()->first() 
@@ -85,37 +86,48 @@
 
                     <div class="overlay">
                         <h3>{{ $category->name }}</h3>
-                        <div class="product-count">
-                            
-                        </div>
+                        
                         <span class="view-btn">View Collection</span>
                     </div>
                 </div>
             </a>
         @endforeach
     </div>
+
+    <div class="text-center mt-8">
+        @if($categories->count() > 8)
+            <button id="view-more-categories" 
+                    class="view-more-btn px-6 py-3 bg-ice-blue hover:bg-blue-500 text-white font-semibold rounded-full transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                View More
+            </button>
+        @endif
+    </div>
 </section>
 
-<!-- PRODUCT SECTIONS – REDUCED SPACING + FIXED ARROW + VISIBLE GLOW -->
+<!-- PRODUCT SECTIONS  -->
 <section class="max-w-7xl mx-auto py-8 px-4"> <!-- Reduced from py-16 to py-8 -->
 
     
 
-    <!-- MOST POPULAR -->
-    <div class="mb-20">
-        <div class="flex justify-between items-center mb-12 relative">
-            <h3 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight relative z-10">
-                Most Popular
-                <span class="block w-20 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
-            </h3>
-            <a href="{{ route('products.index') }}?sort=popular"
-               class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group">
-                View All
-                <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
+   <!-- MOST POPULAR -->
+<div class="product-section">
+    <div class="flex justify-between items-start mb-8">
+        <h3 class="text-4xl md:text-5xl font-bold text-ice-blue section-title">
+            Most Popular
+        </h3>
+        <a href="{{ route('products.index') }}?sort=popular"
+           class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group mt-2">
+            View All
+            <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+    </div>
+
+    
+
+    
+
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-7" id="popular-section" data-type="popular" data-page="1">
             @php
@@ -125,7 +137,7 @@
                     ->groupBy('products.id')
                     ->orderByRaw('COUNT(order_items.id) DESC, products.created_at DESC')
                     ->with(['media', 'category'])
-                    ->take(8)
+                    ->take(4)
                     ->get();
             @endphp
             @foreach($initialPopular as $product)
@@ -145,20 +157,21 @@
     </div>
 
     <!-- TRENDING NOW -->
-    <div class="mb-20">
-        <div class="flex justify-between items-center mb-12 relative">
-            <h3 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight relative z-10">
-                Trending Now
-                <span class="block w-20 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
-            </h3>
-            <a href="{{ route('products.index') }}?sort=trending"
-               class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group">
-                View All
-                <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
+    <div class="product-section">
+    <div class="flex justify-between items-start mb-8">
+        <h3 class="text-4xl md:text-5xl font-bold text-ice-blue section-title">
+            Trending Now
+        </h3>
+        <a href="{{ route('products.index') }}?sort=popular"
+           class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group mt-2">
+            View All
+            <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+    </div>
+
+   
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-7" id="trending-section" data-type="trending" data-page="1">
             @php
@@ -166,7 +179,7 @@
                     ->where('created_at', '>=', now()->subDays(30))
                     ->with(['media', 'category'])
                     ->latest()
-                    ->take(8)
+                    ->take(4)
                     ->get();
             @endphp
             @foreach($initialTrending as $product)
@@ -177,35 +190,38 @@
     </div>
 
     <!-- NEW ARRIVALS -->
-    <div class="mb-20">
-        <div class="flex justify-between items-center mb-12 relative">
-            <h3 class="text-3xl md:text-4xl font-extrabold text-ice-blue tracking-tight relative z-10">
-                New Arrivals
-                <span class="block w-20 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full mt-3"></span>
-            </h3>
-            <a href="{{ route('products.index') }}?sort=newest"
-               class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group">
-                View All
-                <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
+   
+         <div class="product-section">
+    <div class="flex justify-between items-start mb-8">
+        <h3 class="text-4xl md:text-5xl font-bold text-ice-blue section-title">
+            New Deals
+        </h3>
+        <a href="{{ route('products.index') }}?sort=popular"
+           class="text-blue-600 hover:text-blue-800 font-semibold text-lg flex items-center gap-2 group mt-2">
+            View All
+            <svg class="w-5 h-5 transition-transform group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </a>
+    </div>
+
+   
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-7" id="new-section" data-type="new" data-page="1">
             @php
                 $initialNew = \App\Models\Product::where('is_active', true)
                     ->with(['media', 'category'])
                     ->latest()
-                    ->take(8)
+                    ->take(4)
                     ->get();
             @endphp
             @foreach($initialNew as $product)
                 @include('partials.product-card', compact('product'))
             @endforeach
         </div>
+        </div>
         <!-- spinner same as above -->
-    </div>
+    
 </section>
 
 
@@ -250,6 +266,29 @@ h3.text-ice-blue::after {
     .grid.gap-7 {
         gap: 1.5rem;
     }
+}
+
+/* Section wrapper spacing */
+.product-section {
+    @apply mb-24; /* Increased from mb-20 */
+}
+
+/* Title underline consistency */
+.section-title {
+    @apply relative inline-block mb-6;
+}
+.section-title::after {
+    @apply content-[''] absolute bottom-0 left-0 w-24 h-1.5 bg-gradient-to-r from-ice-blue to-transparent rounded-full;
+}
+
+/* View More button */
+.view-more-btn {
+    @apply px-6 py-3 bg-ice-blue hover:bg-blue-500 text-white font-semibold rounded-full transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400;
+}
+
+/* Ensure product grid has breathing room */
+.grid.product-grid {
+    @apply gap-7 my-6;
 }
 
 </style>
