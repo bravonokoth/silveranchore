@@ -284,7 +284,7 @@
 <style>
 /* ==================== TOP ANNOUNCEMENT BAR ==================== */
 .announcement-bar {
-  background: linear-gradient(135deg, #f15860 0%, #e7232d 100%);
+  background: linear-gradient(135deg, #762dec 0%, #66b4f3 100%);
   color: #fff;
   padding: 8px 20px;
   height: 50px;
@@ -361,7 +361,7 @@
 }
 
 .navbar-wine {
-    background: linear-gradient(135deg, #c1d6ee 0%, #f3e964 100%);
+    background: linear-gradient(135deg, #c1d6ee 0%, #64e2f3 100%);
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
     position: relative;
     z-index: 50;

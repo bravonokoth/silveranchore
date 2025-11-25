@@ -81,7 +81,7 @@
 </div>
 
 <style>
-/* SAFE PRODUCT CARD FOR GRID — NO CONFLICT WITH SLICK */
+/* SAFE PRODUCT CARD FOR GRID — UPDATED 2025 VERSION */
 .product-card-grid {
     background: #fff;
     border-radius: 16px;
@@ -203,52 +203,86 @@
     border: 2px solid #3b82f6;
 }
 
-/* MOBILE: 1 full-width card */
-@media (max-width: 639px) {
+/* ============================================= */
+/* NEW: 2 CARDS ON MOBILE + PRICE TO FAR RIGHT   */
+/* ============================================= */
+
+/* 2 cards on mobile (replaces old 1-card rule) */
+@media (max-width: 767px) {
     .product-card-grid {
-        max-width: 380px;
-        margin: 0 auto;
-        height: 420px;
+        height: 410px;
+        margin: 0;
+        max-width: none;
+    }
+    .product-card-grid .position-relative,
+    .product-card-grid .card-img-top {
+        height: 220px;
     }
 }
 
-/* GRID LAYOUT - 4 ON DESKTOP, 1 ON MOBILE */
-#popular-section,
-#trending-section,
-#new-section {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    padding: 0 16px;
+/* Push price & stock to far right on tablet+ */
+@media (min-width: 640px) {
+    .product-card-grid .card-body {
+        grid-template-columns: 1fr auto !important;
+        gap: 12px;
+        align-items: start;
+    }
+    .product-card-grid .product-right {
+        text-align: right;
+    }
+    .product-card-grid .price-info,
+    .product-card-grid .stock-info {
+        justify-content: flex-end;
+    }
+    .product-card-grid .current-price {
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
 }
 
-@media (min-width: 640px) {
+/* GRID LAYOUT — ALL SECTIONS (Homepage + Products Index) */
+#popular-section,
+#trending-section,
+#new-section,
+#products-grid-container {
+    display: grid;
+    gap: 20px;
+    padding: 0 12px;
+}
+
+/* Mobile: 2 columns */
+@media (max-width: 767px) {
     #popular-section,
     #trending-section,
-    #new-section {
+    #new-section,
+    #products-grid-container {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        padding: 0 12px;
+    }
+}
+
+/* Tablet: 3 columns */
+@media (min-width: 768px) and (max-width: 1023px) {
+    #popular-section,
+    #trending-section,
+    #new-section,
+    #products-grid-container {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
+/* Desktop: 4 columns */
 @media (min-width: 1024px) {
     #popular-section,
     #trending-section,
-    #new-section {
+    #new-section,
+    #products-grid-container {
         grid-template-columns: repeat(4, 1fr);
-        padding: 0;
         max-width: 1400px;
         margin: 0 auto;
+        padding: 0;
+        gap: 24px;
     }
 }
-
-@media (max-width: 639px) {
-    #popular-section,
-    #trending-section,
-    #new-section {
-        grid-template-columns: 1fr;
-        padding: 0 20px;
-    }
-}
-
-
 </style>
