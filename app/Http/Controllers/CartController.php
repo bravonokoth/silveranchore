@@ -13,30 +13,51 @@ class CartController extends Controller
     /**
      * Display the cart page
      */
-    public function index()
-    {
-        try {
-            $cartData = $this->getCartData();
+public function index()
+{
+    try {
+        $user = Auth::user();
+        $sessionId = session()->getId();
 
-            return view('cart.index', [
-                'cartItems' => $cartData['items'],
-                'subtotal'  => $cartData['subtotal'],
-                'total'     => $cartData['subtotal'], // Extend later with tax/shipping
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Cart index error', [
-                'error'      => $e->getMessage(),
-                'user_id'    => Auth::id(),
-                'session_id' => session()->getId(),
-            ]);
+        // Get cart items for logged-in user OR session
+        $cartItems = CartItem::where(function ($query) use ($user, $sessionId) {
+            if ($user) {
+                $query->where('user_id', $user->id);
+            } else {
+                $query->where('session_id', $sessionId);
+            }
+        })
+        ->with(['product.media']) // Eager load product and media
+        ->get();
 
-            return view('cart.index', [
-                'cartItems' => collect(),
-                'subtotal'  => 0,
-                'total'     => 0,
-            ])->with('error', 'Failed to load your cart.');
-        }
+        // Filter out items without products and calculate totals
+        $cartItems = $cartItems->filter(function ($item) {
+            return $item->product !== null;
+        });
+
+        // Calculate totals
+        $subtotal = $cartItems->sum(function ($item) {
+            return $item->quantity * $item->product->price;
+        });
+        $total = $subtotal; // Add tax/shipping logic here if needed
+
+        return view('cart.index', compact('cartItems', 'subtotal', 'total'));
+
+    } catch (\Exception $e) {
+        Log::error('Cart index error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'user_id' => $user?->id ?? null,
+            'session_id' => $sessionId ?? null,
+        ]);
+        
+        return view('cart.index', [
+            'cartItems' => collect(), 
+            'subtotal' => 0, 
+            'total' => 0
+        ])->with('error', 'Failed to load cart');
     }
+}
 
     /**
      * Add item to cart
