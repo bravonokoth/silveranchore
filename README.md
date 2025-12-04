@@ -341,7 +341,7 @@ This project is open-sourced software licensed under the [MIT License](LICENSE).
 
 ## 👤 Maintainer
 
-**Bravo Nokoth**
+**Bravon Okoth**
 - GitHub: [@bravonokoth](https://github.com/bravonokoth)
 
 ## 🙏 Support
